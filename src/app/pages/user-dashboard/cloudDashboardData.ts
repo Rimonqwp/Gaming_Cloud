@@ -34,7 +34,7 @@ export const gameRegions = [
   { name: "华北", city: "北京", status: "正常", tone: "green", x: 78.8, y: 28.1, label: "right", description: "幻兽帕鲁公会服运行正常，当前在线 32 人。" },
   { name: "华东", city: "上海", status: "正常", tone: "green", x: 81.2, y: 45, label: "right", description: "Minecraft 生存服与 Rust 社区服运行正常，当前在线共 48 人。" },
   { name: "华南", city: "广州", status: "正常", tone: "green", x: 77, y: 49, label: "left", description: "游戏托管节点正常；泰拉瑞亚冒险服已停止，存档和备份已保留。" },
-  { name: "亚太", city: "新加坡", status: "待维护", tone: "orange", x: 77.9, y: 69, label: "right", description: "饥荒联机好友服当前在线 6 人。10 月 9 日 02:00–02:15（SGT）计划维护，期间可能短暂断线，请提前保存世界存档。" },
+  { name: "亚太", city: "新加坡", status: "待维护", tone: "orange", x: 77.9, y: 69, label: "right", description: "饥荒联机好友服当前在线 6 人。10 月 9 日 02:00–02:15（HKT，香港时间）计划维护，期间可能短暂断线，请提前保存世界存档。" },
 ];
 
 const inbound = [8, 10, 9, 8, 7, 6, 5, 5, 6, 8, 12, 14, 16, 18, 20, 19, 21, 24, 26, 28, 30, 32, 29, 27, 26];

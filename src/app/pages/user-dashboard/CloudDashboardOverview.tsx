@@ -10,13 +10,28 @@ import { CloudDashboardInstances } from "./CloudDashboardInstances";
 import "../../../styles/cloud-dashboard.css";
 
 const metricIcons = [Gamepad2, Users, HardDrive, Archive];
+const hongKongTimeFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: "Asia/Hong_Kong",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+});
+
+const formatHongKongTime = (date: Date) => {
+  const parts = Object.fromEntries(hongKongTimeFormatter.formatToParts(date).map(({ type, value }) => [type, value]));
+  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}`;
+};
 
 export function CloudDashboardOverview({ onSelectTab, mode = "overview" }: { onSelectTab: (tab: UserDashboardTabId) => void; mode?: "overview" | "instances" }) {
   const [maintenanceOpen, setMaintenanceOpen] = useState(false);
   const [detail, setDetail] = useState<{ title: string; description: string } | null>(null);
+  const now = new Date();
   return <div className="dash-overview">
     {mode === "overview" ? <>
-      <button className="cloud-maintenance" onClick={() => setMaintenanceOpen(true)}><AlertTriangle size={25} /><strong>新加坡游戏节点计划维护</strong><span>·　10月9日 02:00（SGT）维护 15 分钟，游戏连接可能短暂中断，请提前保存世界存档。</span><time>2026-10-05 10:00 · 新加坡（SGT）</time></button>
+      <button className="cloud-maintenance" onClick={() => setMaintenanceOpen(true)}><AlertTriangle size={25} /><strong>新加坡游戏节点计划维护</strong><span>·　10月9日 02:00（HKT）维护 15 分钟，游戏连接可能短暂中断，请提前保存世界存档。</span><time dateTime={now.toISOString()}>{formatHongKongTime(now)} · 香港时间（HKT）</time></button>
       <section className="dash-metrics" aria-label="游戏托管概况">
         {resourceMetrics.map((metric, index) => {
           const Icon = metricIcons[index];
@@ -40,7 +55,7 @@ export function CloudDashboardOverview({ onSelectTab, mode = "overview" }: { onS
       </div>
     </> : <div className="cloud-page-heading"><div><h1>游戏服务器</h1><p>管理你的游戏服务器、玩家连接与世界存档 · 演示数据</p></div><Link className="cloud-primary" to="/deploy">创建游戏服务器</Link></div>}
     <CloudDashboardInstances />
-    <Dialog open={maintenanceOpen} onOpenChange={setMaintenanceOpen}><DialogContent className="cloud-modal"><DialogTitle>新加坡游戏节点计划维护</DialogTitle><DialogDescription>2026 年 10 月 9 日 02:00–02:15（SGT）</DialogDescription><p>我们将维护新加坡游戏节点的网络设备。饥荒联机好友服的玩家连接可能短暂中断，预计维护持续 15 分钟。</p><p>请提前通知玩家并保存世界存档，建议在维护前创建存档备份。维护结束后玩家可重新连接。如需协助，请通过工单联系技术支持。</p><button className="cloud-primary" onClick={() => { setMaintenanceOpen(false); onSelectTab("tickets"); }}>联系技术支持 <ChevronRight size={16} /></button></DialogContent></Dialog>
+    <Dialog open={maintenanceOpen} onOpenChange={setMaintenanceOpen}><DialogContent className="cloud-modal"><DialogTitle>新加坡游戏节点计划维护</DialogTitle><DialogDescription>2026 年 10 月 9 日 02:00–02:15（HKT，香港时间）</DialogDescription><p>我们将维护新加坡游戏节点的网络设备。饥荒联机好友服的玩家连接可能短暂中断，预计维护持续 15 分钟。</p><p>请提前通知玩家并保存世界存档，建议在维护前创建存档备份。维护结束后玩家可重新连接。如需协助，请通过工单联系技术支持。</p><button className="cloud-primary" onClick={() => { setMaintenanceOpen(false); onSelectTab("tickets"); }}>联系技术支持 <ChevronRight size={16} /></button></DialogContent></Dialog>
     <Dialog open={!!detail} onOpenChange={open => { if (!open) setDetail(null); }}><DialogContent className="cloud-modal"><DialogTitle>{detail?.title}</DialogTitle><DialogDescription>{detail?.description}</DialogDescription><button className="cloud-primary" onClick={() => setDetail(null)}>我知道了</button></DialogContent></Dialog>
   </div>;
 }
