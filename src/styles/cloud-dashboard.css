@@ -67,13 +67,6 @@
 .dash-map-node { position: absolute; display: flex; padding: 0; border: 0; background: transparent; color: #25304b; transform: translate(-50%, -50%); z-index: 1; }
 .dash-node-dot { display: block; width: 13px; height: 13px; border-radius: 50%; background: var(--dash-color); box-shadow: 0 0 0 5px color-mix(in srgb, var(--dash-color) 13%, transparent); }
 .dash-map-node:hover .dash-node-dot { box-shadow: 0 0 0 7px color-mix(in srgb, var(--dash-color) 22%, transparent); }
-.dash-node-label { position: absolute; top: -20px; left: 24px; min-width: 75px; font-size: 11px; text-align: left; line-height: 1.35; white-space: nowrap; }
-.dash-map-node.left .dash-node-label { left: auto; right: 27px; top: -2px; min-width: 40px; }
-.dash-map-node.green:nth-of-type(2) .dash-node-label { top: -29px; left: 17px; }
-.dash-map-node.red .dash-node-label { top: -23px; }
-.dash-map-node.green:nth-of-type(4) .dash-node-label { top: -4px; }
-.dash-map-node.orange .dash-node-label { top: 3px; }
-.dash-node-label em { color: var(--dash-color); font-style: normal; }
 .dash-instances { padding-top: 9px; padding-bottom: 8px; }
 .dash-table-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; min-height: 31px; }
 .dash-table-toolbar h2 { margin-right: 8px; }
@@ -112,8 +105,6 @@
 .dash-demo-note { font-size: 11px; margin-left: 10px; padding: 2px 6px; border: 1px solid #dce5f2; border-radius: 4px; white-space: nowrap; }
 .dash-metric p { position: relative; }
 .dash-metric .dash-sparkline { width: 46px; opacity: .7; }
-.dash-map-node.green:nth-of-type(3) .dash-node-label { top: -27px; }
-.dash-map-node.green:nth-of-type(5) .dash-node-label { top: 3px; }
 @media (max-width: 1300px) {
   .dash-metric { padding: 14px 12px; gap: 10px; }
   .dash-metric-icon { width: 35px; height: 35px; }
@@ -164,9 +155,6 @@
   .dash-health-legend { font-size: 10px; gap: 8px; }
   .dash-health-legend span { gap: 4px; }
   .dash-world-map { margin-top: 25px; }
-  .dash-node-label { font-size: 10px; min-width: 54px; left: 14px; }
-  .dash-map-node.red .dash-node-label { top: -30px; }
-  .dash-map-node.orange .dash-node-label { top: 12px; }
   .dash-table-toolbar { gap: 8px; }
   .dash-table-toolbar h2 { width: 100%; }
   .dash-table-toolbar > select { width: calc(50% - 4px); height: 33px; }
@@ -203,8 +191,9 @@
 @keyframes dash-node-ripple { 0% { transform: scale(.7); opacity: .65; } 100% { transform: scale(2.4); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .dash-node-dot::before, .dash-node-dot::after { animation: none; opacity: 0; } }
 
-/* Align city labels with their markers instead of the old multi-line offsets. */
-.dash-world-map .dash-map-node .dash-node-label { top: 50%; left: 23px; right: auto; transform: translateY(-50%); min-width: 0; padding: 3px 5px; border-radius: 4px; background: #ffffffd9; color: #425470; line-height: 1.2; font-size: 11px; }
-.dash-world-map .dash-map-node.left .dash-node-label { left: auto; right: 23px; text-align: right; }
-.dash-world-map .dash-map-node:nth-of-type(3) .dash-node-label { top: -13px; left: 18px; }
-.dash-world-map .dash-map-node:nth-of-type(5) .dash-node-label { top: 17px; right: 23px; }
+
+
+/* City labels are anchored to their own marker, independent of list order. */
+.dash-world-map .dash-node-label { position: absolute; top: 50%; left: 22px; right: auto; transform: translateY(-50%); min-width: 0; padding: 3px 5px; border: 1px solid #e6edf7; border-radius: 4px; background: #ffffffeb; color: #425470; font-size: 11px; line-height: 1.2; text-align: left; white-space: nowrap; }
+.dash-world-map .dash-map-node.left .dash-node-label { left: auto; right: 22px; text-align: right; }
+@media (max-width: 700px) { .dash-world-map .dash-node-label { font-size: 10px; padding: 2px 4px; } }
