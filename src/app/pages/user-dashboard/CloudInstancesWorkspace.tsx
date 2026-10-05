@@ -5,7 +5,7 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { consoleInstances, type ConsoleInstance } from "./cloudDashboardData";
-import { flexiblePool, poolResources } from "./cloudAccountSummaryData";
+import { poolInstances, poolResources } from "./cloudAccountSummaryData";
 import "../../../styles/cloud-instances-workspace.css";
 
 const dateFormat = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" });
@@ -66,10 +66,14 @@ function ServerStatus({ running }: { running: boolean }) {
 }
 
 function FlexiblePoolStatus() {
+  const poolExpiry = poolInstances.reduce<string | null>((earliest, server) => {
+    if (!earliest || Date.parse(server.expiresAt) < Date.parse(earliest)) return server.expiresAt;
+    return earliest;
+  }, null);
   return <section className="iw-pool-status" aria-label="随心配资源状态">
     <div className="iw-pool-identity">
       <span className="iw-pool-icon"><Layers3 size={16} aria-hidden="true" /></span>
-      <div><h2>随心配</h2><span>{flexiblePool.instanceIds.length} 台共享</span></div>
+      <div><h2>随心配</h2><span>到期时间 {poolExpiry ? formatDate(poolExpiry) : "—"}</span></div>
     </div>
     <div className="iw-pool-resources">
       {poolResources.map(resource => {
