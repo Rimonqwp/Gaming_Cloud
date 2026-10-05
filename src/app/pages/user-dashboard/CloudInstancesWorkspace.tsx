@@ -73,7 +73,7 @@ function FlexiblePoolStatus() {
   return <section className="iw-pool-status" aria-label="随心配资源状态">
     <div className="iw-pool-identity">
       <span className="iw-pool-icon"><Layers3 size={16} aria-hidden="true" /></span>
-      <div><h2>随心配</h2><span>到期时间 {poolExpiry ? formatDate(poolExpiry) : "—"}</span></div>
+      <div><h2>随心配</h2><span>{poolExpiry ? formatDate(poolExpiry) : "—"}</span></div>
     </div>
     <div className="iw-pool-resources">
       {poolResources.map(resource => {
