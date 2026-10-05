@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { Activity, Archive, ChevronDown, ChevronLeft, ChevronRight, Copy, Gamepad2, HardDrive, Play, Plus, RefreshCw, Search, Server, Square, Tag, Users, X } from "lucide-react";
+import { Activity, Archive, ChevronDown, ChevronLeft, ChevronRight, Copy, Gamepad2, HardDrive, Layers3, Play, Plus, RefreshCw, Search, Server, Square, Tag, Users, X } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { consoleInstances, type ConsoleInstance } from "./cloudDashboardData";
+import { flexiblePool, poolResources } from "./cloudAccountSummaryData";
 import "../../../styles/cloud-instances-workspace.css";
 
 const dateFormat = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" });
@@ -13,6 +14,26 @@ const formatDate = (value: string) => dateFormat.format(new Date(value));
 
 function ServerStatus({ running }: { running: boolean }) {
   return <span className={`iw-status ${running ? "running" : "stopped"}`}><i />{running ? "运行中" : "已停止"}</span>;
+}
+
+function FlexiblePoolStatus() {
+  return <section className="iw-pool-status" aria-label="随心配资源状态">
+    <div className="iw-pool-identity">
+      <span className="iw-pool-icon"><Layers3 size={16} aria-hidden="true" /></span>
+      <div><h2>随心配</h2><span>{flexiblePool.instanceIds.length} 台共享</span></div>
+    </div>
+    <div className="iw-pool-resources">
+      {poolResources.map(resource => {
+        const remaining = resource.total - resource.used;
+        const format = (amount: number) => amount.toLocaleString("zh-CN");
+        return <div className="iw-pool-resource" key={resource.key}>
+          <span>{resource.title}</span>
+          <progress className={resource.key === "monthlyTrafficGB" ? "traffic" : undefined} max={resource.total} value={resource.used} aria-label={`随心配${resource.title}${resource.usedLabel}`} aria-valuetext={`${resource.usedLabel} ${format(resource.used)} ${resource.unit}，总额 ${format(resource.total)} ${resource.unit}，${resource.remainingLabel} ${format(remaining)} ${resource.unit}`} />
+          <strong>{format(resource.used)}<small> / {format(resource.total)} {resource.unit}</small></strong>
+        </div>;
+      })}
+    </div>
+  </section>;
 }
 
 function ResourceChart({ server, period }: { server: ConsoleInstance; period: string }) {
@@ -51,7 +72,7 @@ export function CloudInstancesWorkspace() {
   const detail = servers.find(row => row.id === detailId);
   const running = servers.filter(row => row.running).length;
   const metrics = [
-    { title: "服务器总数", value: servers.length, unit: "台", icon: Server, tone: "blue", caption: "已部署服务器", series: [2, 3, 3, 4, 4, 5] },
+    { title: "服务器总数", value: servers.length, unit: "台", icon: Server, tone: "blue", series: [2, 3, 3, 4, 4, 5] },
     { title: "运行中", value: running, unit: "台", icon: Play, tone: "green", caption: "当前运行状态", series: [2, 2, 3, 2, 4, running] },
     { title: "已停止", value: servers.length - running, unit: "台", icon: Square, tone: "blue", caption: "存档配置保留", series: [2, 1, 1, 2, 1, servers.length - running] },
     { title: "在线玩家", value: servers.reduce((total, row) => total + row.players, 0), unit: "人", icon: Users, tone: "teal", caption: "当前在线合计", series: [35, 52, 48, 69, 75, 86] },
@@ -77,7 +98,8 @@ export function CloudInstancesWorkspace() {
     {!fullDetail && <div className="iw-main">
       <div className="iw-breadcrumb">控制台 <ChevronRight size={12} /> 实例 <ChevronRight size={12} /><span>游戏服务器</span></div>
       <header className="iw-heading"><h1>服务器列表</h1></header>
-      <section className="iw-metrics" aria-label="服务器统计">{metrics.map(metric => <article className={`iw-metric ${metric.tone}`} key={metric.title}><div className="iw-metric-top"><span className="iw-metric-icon"><metric.icon size={21} /></span><div><h2>{metric.title}</h2><strong>{metric.value}<small>{metric.unit}</small></strong></div></div><div className="iw-metric-bottom"><div className="iw-spark" role="img" aria-label="演示趋势"><ResponsiveContainer width="100%" height="100%"><AreaChart data={metric.series.map(value => ({ value }))}><Area dataKey="value" type="linear" stroke="var(--iw-tone)" fill="var(--iw-tone)" fillOpacity={0.06} strokeWidth={1.5} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div><span>{metric.caption}</span></div></article>)}</section>
+      <section className="iw-metrics" aria-label="服务器统计">{metrics.map(metric => <article className={`iw-metric ${metric.tone}`} key={metric.title}><div className="iw-metric-top"><span className="iw-metric-icon"><metric.icon size={21} /></span><div><h2>{metric.title}</h2><strong>{metric.value}<small>{metric.unit}</small></strong></div></div><div className="iw-metric-bottom"><div className="iw-spark" role="img" aria-label="演示趋势"><ResponsiveContainer width="100%" height="100%"><AreaChart data={metric.series.map(value => ({ value }))}><Area dataKey="value" type="linear" stroke="var(--iw-tone)" fill="var(--iw-tone)" fillOpacity={0.06} strokeWidth={1.5} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div>{metric.caption && <span>{metric.caption}</span>}</div></article>)}</section>
+      <FlexiblePoolStatus />
       <section className="iw-list" aria-label="游戏服务器列表">
         <div className="iw-actions"><Link to="/deploy" className="iw-button primary"><Plus size={17} />创建游戏服务器</Link><DropdownMenu><DropdownMenuTrigger asChild><button className="iw-button" disabled={!selected.length}>批量操作 {selected.length > 0 && <span className="iw-selection-count">{selected.length}</span>}<ChevronDown size={14} /></button></DropdownMenuTrigger><DropdownMenuContent className="iw-menu"><DropdownMenuItem onSelect={() => setRunning(selected, true)}><Play size={14} />启动服务器</DropdownMenuItem><DropdownMenuItem onSelect={() => setRunning(selected, false)}><Square size={14} />停止服务器</DropdownMenuItem></DropdownMenuContent></DropdownMenu><button className="iw-button" disabled={!selected.length} onClick={() => { setTagValue(""); setTagDialog(true); }}><Tag size={15} />绑定标签</button><button className="iw-button" onClick={() => setNotice(`已刷新，共 ${servers.length} 台服务器 · 演示数据`)}><RefreshCw size={15} />刷新</button>{selected.length > 0 && <button className="iw-text-button iw-selection-clear" onClick={() => setSelected([])}>取消选择</button>}</div>
         <div className="iw-filters"><label className="iw-search"><Search size={16} /><input aria-label="搜索游戏服务器" placeholder="搜索服务器名称、IP 地址或标签" value={query} onChange={event => { setQuery(event.target.value); setPage(1); }} /></label><select aria-label="服务器状态" value={status} onChange={event => { setStatus(event.target.value); setPage(1); }}><option value="all">全部状态</option><option value="running">运行中</option><option value="stopped">已停止</option></select><select aria-label="托管节点" value={region} onChange={event => { setRegion(event.target.value); setPage(1); }}><option value="all">全部节点</option>{[...new Set(servers.map(row => row.region))].map(value => <option key={value}>{value}</option>)}</select><select aria-label="游戏类型" value={game} onChange={event => { setGame(event.target.value); setPage(1); }}><option value="all">全部游戏</option>{[...new Set(servers.map(row => row.game))].map(value => <option key={value}>{value}</option>)}</select><select aria-label="列表排序" value={sort} onChange={event => setSort(event.target.value)}><option value="default">默认排序</option><option value="expiry">到期时间</option><option value="name">服务器名称</option></select></div>

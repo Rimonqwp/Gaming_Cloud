@@ -20,7 +20,25 @@
 .iw-metric strong small { font-size: 11px; font-weight: 500; margin-left: 5px; }
 .iw-metric-bottom { display: flex; gap: 8px; align-items: flex-end; justify-content: space-between; margin-top: 15px; }
 .iw-spark { width: 82px; height: 35px; flex: none; }
+.iw-metric-bottom > .iw-spark:only-child { width: 100%; min-width: 0; }
 .iw-metric-bottom > span { font-size: 10px; line-height: 1.6; color: #8a96ad; text-align: right; max-width: 90px; }
+.iw-pool-status { display: flex; align-items: center; gap: 22px; margin-bottom: 18px; padding: 10px 16px; border: 1px solid #e0eaf7; border-radius: 9px; background: #fff; overflow-x: auto; scrollbar-width: thin; }
+.iw-pool-identity { display: flex; align-items: center; gap: 10px; flex: none; }
+.iw-pool-icon { display: grid; place-items: center; height: 24px; width: 24px; border-radius: 6px; background: #edf5ff; color: #1683ff; }
+.iw-pool-identity > div { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.cloud-shell .iw-pool-identity h2 { margin: 0; color: #283756; font-size: 13px; font-weight: 600; }
+.iw-pool-identity > div > span { color: #8a96ad; font-size: 10px; }
+.iw-pool-resources { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; flex: 1; min-width: 740px; padding-left: 22px; border-left: 1px solid #edf1f8; }
+.iw-pool-resource { display: flex; align-items: center; gap: 8px; min-width: 0; white-space: nowrap; font-size: 11px; color: #667691; }
+.iw-pool-resource > span { flex: none; }
+.iw-pool-resource strong { flex: none; font-size: 12px; font-weight: 600; color: #354467; font-variant-numeric: tabular-nums; }
+.iw-pool-resource small { font-size: 10px; font-weight: 400; color: #8a96ad; }
+.iw-pool-resource progress { appearance: none; flex: 1; width: 42px; min-width: 24px; height: 4px; overflow: hidden; border: 0; border-radius: 4px; background: #e9eef8; }
+.iw-pool-resource progress::-webkit-progress-bar { background: #e9eef8; }
+.iw-pool-resource progress::-webkit-progress-value { background: #1683ff; border-radius: 4px; }
+.iw-pool-resource progress::-moz-progress-bar { background: #1683ff; border-radius: 4px; }
+.iw-pool-resource progress.traffic::-webkit-progress-value { background: #14b8a6; }
+.iw-pool-resource progress.traffic::-moz-progress-bar { background: #14b8a6; }
 .iw-list { background: #fff; border: 1px solid #e0eaf7; border-radius: 9px; overflow: hidden; }
 .iw-actions { display: flex; align-items: center; gap: 8px; padding: 14px 14px 10px; flex-wrap: wrap; }
 .iw-button { height: 36px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid #dce5f2; background: #fff; color: #354467; border-radius: 6px; font-size: 12px; font-weight: 500; white-space: nowrap; text-decoration: none; }
@@ -149,6 +167,8 @@
   .iw-search { flex-basis: 100%; }
 }
 @media (max-width: 1150px) {
+  .iw-pool-status { gap: 16px; }
+  .iw-pool-resources { gap: 12px; padding-left: 16px; }
   .instances-workspace.has-detail { grid-template-columns: minmax(0, 1fr); }
   .iw-detail { margin-top: 0; }
   .iw-detail-content { display: grid; grid-template-columns: 1fr 1fr; }
@@ -159,6 +179,7 @@
   .iw-tab-content { min-height: 220px; }
 }
 @media (max-width: 700px) {
+  .iw-pool-status { padding: 10px 12px; }
   .instances-workspace { padding-top: 18px; }
   .iw-heading p { font-size: 12px; line-height: 1.9; }
   .cloud-shell .iw-heading h1 { font-size: 24px; }
