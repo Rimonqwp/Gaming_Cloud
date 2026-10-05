@@ -8,7 +8,7 @@
 .dash-page-heading h1 { font-size: 28px; font-weight: 700; line-height: 1.4; letter-spacing: -.6px; margin: 0; color: #080e25; }
 .dash-page-heading p { margin: 0; color: var(--dash-muted); font-size: 14px; }
 .dash-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
-.dash-metric { position: relative; display: flex; align-items: center; gap: 15px; height: 120px; padding: 15px 16px; text-align: left; background: #fff; border: 1px solid var(--dash-line); border-radius: 7px; overflow: hidden; color: #11182d; }
+.dash-metric { position: relative; display: flex; align-items: center; gap: 15px; height: 104px; padding: 15px 16px; text-align: left; background: #fff; border: 1px solid var(--dash-line); border-radius: 7px; overflow: hidden; color: #11182d; }
 .dash-metric:hover { border-color: #c6dcfb; }
 .dash-metric-icon { display: grid; place-items: center; height: 42px; width: 42px; flex: none; border-radius: 11px; background: var(--dash-tint); color: var(--dash-color); }
 .dash-metric-icon svg { width: 27px; height: 27px; }
@@ -144,7 +144,7 @@
   .dash-page-heading h1 { font-size: 25px; }
   .dash-page-heading p { font-size: 12px; }
   .dash-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .dash-metric { height: 116px; gap: 10px; padding: 12px 10px; }
+  .dash-metric { height: 100px; gap: 10px; padding: 12px 10px; }
   .dash-metric .dash-metric-decoration { display: none; }
   .dash-metric strong { font-size: 23px; }
   .dash-metric h2 { font-size: 12px !important; }
