@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { RefreshCw, Search } from "lucide-react";
+import { RefreshCw, Search, Server, Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
 } from "../../components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
+import "../../../styles/cloud-instances.css";
 import { consoleInstances } from "./cloudDashboardData";
 
 export function CloudDashboardInstances() {
@@ -28,27 +30,16 @@ export function CloudDashboardInstances() {
 
   return (
     <section className="dash-panel dash-instances" aria-label="游戏服务器列表">
+      <div className="dash-instances-heading">
+        <div className="dash-instances-title"><span className="dash-instances-symbol"><Server size={20} /></span><div><h2>游戏服务器 <span className="dash-server-count">{consoleInstances.length} 台</span></h2><p>管理服务器，查看运行状态与资源使用情况</p></div></div>
+        <div className="dash-table-actions">
+          <button className="dash-refresh" aria-label="刷新游戏服务器" onClick={() => setNotice(`当前显示 ${rows.length} 台游戏服务器（演示数据）`)}><RefreshCw size={15} /></button>
+          <Link className="dash-create" to="/deploy"><Plus size={15} />创建服务器</Link>
+        </div>
+      </div>
       <div className="dash-table-toolbar">
-        <h2>游戏服务器</h2>
-        <select
-          aria-label="游戏服务器节点"
-          value={region}
-          onChange={(event) => setRegion(event.target.value)}
-        >
-          <option value="all">全部节点</option>
-          {Array.from(new Set(consoleInstances.map((row) => row.region))).map(
-            (item) => <option key={item}>{item}</option>,
-          )}
-        </select>
-        <select
-          aria-label="游戏服务器状态"
-          value={status}
-          onChange={(event) => setStatus(event.target.value)}
-        >
-          <option value="all">全部状态</option>
-          <option value="running">运行中</option>
-          <option value="stopped">已停止</option>
-        </select>
+        <Select value={region} onValueChange={setRegion}><SelectTrigger className="dash-instance-filter" aria-label="游戏服务器节点"><SelectValue /></SelectTrigger><SelectContent className="dash-period-menu"><SelectItem value="all" className="dash-period-option">全部节点</SelectItem>{Array.from(new Set(consoleInstances.map(row => row.region))).map(item => <SelectItem key={item} value={item} className="dash-period-option">{item}</SelectItem>)}</SelectContent></Select>
+        <Select value={status} onValueChange={setStatus}><SelectTrigger className="dash-instance-filter" aria-label="游戏服务器状态"><SelectValue /></SelectTrigger><SelectContent className="dash-period-menu"><SelectItem value="all" className="dash-period-option">全部状态</SelectItem><SelectItem value="running" className="dash-period-option">运行中</SelectItem><SelectItem value="stopped" className="dash-period-option">已停止</SelectItem></SelectContent></Select>
         <label className="dash-instance-search">
           <Search size={15} />
           <input
@@ -58,18 +49,7 @@ export function CloudDashboardInstances() {
             onChange={(event) => setQuery(event.target.value)}
           />
         </label>
-        <div className="dash-table-actions">
-          <button
-            className="dash-refresh"
-            aria-label="刷新游戏服务器"
-            onClick={() => setNotice(`当前显示 ${rows.length} 台游戏服务器（演示数据）`)}
-          >
-            <RefreshCw size={15} />
-          </button>
-          <Link className="dash-create" to="/deploy">
-            创建服务器
-          </Link>
-        </div>
+        <span className="dash-filter-count">共 {rows.length} 台服务器</span>
       </div>
 
       {notice && <div className="dash-table-notice" role="status">{notice}</div>}
@@ -102,7 +82,7 @@ export function CloudDashboardInstances() {
                     className="dash-instance-name"
                     onClick={() => setDetailId(row.id)}
                   >
-                    {row.name}
+                    <span className="dash-server-avatar"><Server size={16} /></span><span className="dash-server-label"><strong>{row.name}</strong><small>{row.game}</small></span>
                   </button>
                 </td>
                 <td>
