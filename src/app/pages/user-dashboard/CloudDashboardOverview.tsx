@@ -17,7 +17,6 @@ export function CloudDashboardOverview({ onSelectTab, mode = "overview" }: { onS
   return <div className="dash-overview">
     {mode === "overview" ? <>
       <button className="cloud-maintenance" onClick={() => setMaintenanceOpen(true)}><AlertTriangle size={25} /><strong>新加坡游戏节点计划维护</strong><span>·　10月9日 02:00（SGT）维护 15 分钟，游戏连接可能短暂中断，请提前保存世界存档。</span><time>2026-10-05 10:00 · 新加坡（SGT）</time></button>
-      <div className="dash-page-heading"><h1>游戏云控制台总览</h1><p>查看游戏服务器、在线玩家与托管状态。<span className="dash-demo-note">演示数据</span></p></div>
       <section className="dash-metrics" aria-label="游戏托管概况">
         {resourceMetrics.map((metric, index) => {
           const Icon = metricIcons[index];
