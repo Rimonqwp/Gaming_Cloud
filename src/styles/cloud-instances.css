@@ -1,40 +1,50 @@
-.dash-instances { padding: 0; border-radius: 10px; box-shadow: 0 3px 16px #234c8010; }
-.dash-instances-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; }
-.dash-instances-title { display: flex; align-items: center; gap: 12px; }
-.dash-instances-symbol { display: grid; place-items: center; width: 42px; height: 42px; background: #edf5ff; border: 1px solid #dceaff; border-radius: 12px; color: #1683ff; flex: none; }
-.dash-instances-title h2 { display: flex; align-items: center; gap: 10px; }
-.dash-server-count { padding: 2px 8px; background: #edf5ff; border-radius: 5px; color: #3879cc; font-size: 11px; font-weight: 500; }
-.dash-instances-title p { margin: 4px 0 0; font-size: 11px; color: #7a88a1; }
-.dash-instances .dash-create { height: 35px; gap: 6px; border-radius: 6px; padding: 0 14px; box-shadow: 0 3px 8px #0877ff20; }
-.dash-instances .dash-refresh { width: 35px; height: 35px; border-radius: 6px; }
-.dash-instances .dash-refresh:hover { color: #1683ff; background: #edf5ff; border-color: #b5d4ff; }
-.dash-instances .dash-table-toolbar { padding: 12px 20px; margin: 0; background: #f8faff; border-top: 1px solid #edf2f9; border-bottom: 1px solid #edf2f9; gap: 10px; }
-.dash-instances .dash-instance-filter { width: 145px; height: 34px; min-height: 34px; background: #fff; border: 1px solid #dce5f2; border-radius: 6px; padding: 0 10px; font-size: 12px; color: #5d6984; box-shadow: none; }
-.dash-instances .dash-instance-filter:hover { border-color: #9ac3ff; }
-.dash-instances .dash-instance-search { height: 34px; border-radius: 6px; background: #fff; width: 290px; }
-.dash-instances .dash-instance-search:focus-within { border-color: #1683ff; box-shadow: 0 0 0 2px #1683ff14; }
-.dash-instances .dash-instance-search input { font-size: 12px; }
-.dash-filter-count { margin-left: auto; color: #7a88a1; font-size: 11px; white-space: nowrap; }
-.dash-instances .dash-table-scroll { padding: 0 12px 10px; }
-.dash-instances th { height: 38px; background: #fff; color: #7b88a0; font-size: 11px; border-bottom: 1px solid #e8eef7; padding: 0 12px; }
-.dash-instances td { height: 60px; padding: 8px 12px; font-size: 12px; }
-.dash-instances .dash-instance-name { display: inline-flex; align-items: center; gap: 10px; text-align: left; max-width: 100%; }
-.dash-server-avatar { width: 32px; height: 32px; display: grid; place-items: center; background: #f0f6ff; border-radius: 8px; color: #5c9ae8; flex: none; }
-.dash-server-label { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.dash-server-label strong { font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
-.dash-server-label small { font-size: 10px; color: #8a96ab; overflow: hidden; text-overflow: ellipsis; }
-.dash-instances .dash-instance-status { padding: 4px 8px; border-radius: 5px; font-size: 11px; }
-.dash-instances .dash-instance-status.running { background: #eaf9f2; color: #079b66; }
-.dash-instances .dash-instance-status.stopped { background: #fff6df; color: #b67c09; }
-.dash-instances .dash-instance-status i { width: 6px; height: 6px; }
-.dash-instances .dash-table-usage span { font-size: 11px; font-variant-numeric: tabular-nums; }
-.dash-instances .dash-table-usage progress { height: 6px; width: 90px; }
-.dash-instances .dash-table-notice { margin: 10px 20px; }
+.cloud-shell .dash-instances { padding: 0; border-radius: 10px; box-shadow: 0 3px 16px #234c8010; }
+.cloud-shell .dash-instances-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; }
+.cloud-shell .dash-instances-title { display: flex; align-items: center; gap: 12px; }
+.cloud-shell .dash-instances-symbol { display: grid; place-items: center; width: 42px; height: 42px; background: #edf5ff; border: 1px solid #dceaff; border-radius: 12px; color: #1683ff; flex: none; }
+.cloud-shell .dash-instances-title h2 { display: flex; align-items: center; gap: 10px; }
+.cloud-shell .dash-server-count { padding: 2px 8px; background: #edf5ff; border-radius: 5px; color: #3879cc; font-size: 11px; font-weight: 500; }
+.cloud-shell .dash-instances-title p { margin: 4px 0 0; font-size: 11px; color: #7a88a1; }
+.cloud-shell .dash-instances .dash-create { height: 35px; gap: 6px; border-radius: 6px; padding: 0 14px; box-shadow: 0 3px 8px #0877ff20; }
+.cloud-shell .dash-instances .dash-refresh { width: 35px; height: 35px; border-radius: 6px; }
+.cloud-shell .dash-instances .dash-refresh:hover { color: #1683ff; background: #edf5ff; border-color: #b5d4ff; }
+.cloud-shell .dash-instances .dash-table-toolbar { padding: 12px 20px; margin: 0; background: #f8faff; border-top: 1px solid #edf2f9; border-bottom: 1px solid #edf2f9; gap: 10px; }
+.cloud-shell .dash-instances .dash-instance-filter { width: 145px; height: 34px; min-height: 34px; background: #fff; border: 1px solid #dce5f2; border-radius: 6px; padding: 0 10px; font-size: 12px; color: #5d6984; box-shadow: none; }
+.cloud-shell .dash-instances .dash-instance-filter:hover { border-color: #9ac3ff; }
+.cloud-shell .dash-instances .dash-instance-search { height: 34px; border-radius: 6px; background: #fff; width: 290px; }
+.cloud-shell .dash-instances .dash-instance-search:focus-within { border-color: #1683ff; box-shadow: 0 0 0 2px #1683ff14; }
+.cloud-shell .dash-instances .dash-instance-search input { font-size: 12px; }
+.cloud-shell .dash-filter-count { margin-left: auto; color: #7a88a1; font-size: 11px; white-space: nowrap; }
+.cloud-shell .dash-instances .dash-table-scroll { padding: 0 12px 10px; }
+.cloud-shell .dash-instances th { height: 38px; background: #fff; color: #7b88a0; font-size: 11px; border-bottom: 1px solid #e8eef7; padding: 0 12px; }
+.cloud-shell .dash-instances td { height: 60px; padding: 8px 12px; font-size: 12px; }
+.cloud-shell .dash-instances .dash-instance-name { display: inline-flex; align-items: center; gap: 10px; text-align: left; max-width: 100%; }
+.cloud-shell .dash-server-avatar { width: 32px; height: 32px; display: grid; place-items: center; background: #f0f6ff; border-radius: 8px; color: #5c9ae8; flex: none; }
+.cloud-shell .dash-server-label { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.cloud-shell .dash-server-label strong { font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.cloud-shell .dash-server-label small { font-size: 10px; color: #8a96ab; overflow: hidden; text-overflow: ellipsis; }
+.cloud-shell .dash-instances .dash-instance-status { padding: 4px 8px; border-radius: 5px; font-size: 11px; }
+.cloud-shell .dash-instances .dash-instance-status.running { background: #eaf9f2; color: #079b66; }
+.cloud-shell .dash-instances .dash-instance-status.stopped { background: #fff6df; color: #b67c09; }
+.cloud-shell .dash-instances .dash-instance-status i { width: 6px; height: 6px; }
+.cloud-shell .dash-instances .dash-table-usage span { font-size: 11px; font-variant-numeric: tabular-nums; }
+.cloud-shell .dash-instances .dash-table-usage progress { height: 6px; width: 90px; }
+.cloud-shell .dash-instances .dash-table-notice { margin: 10px 20px; }
 @media (max-width: 700px) {
-  .dash-instances-heading { padding: 14px; flex-wrap: wrap; gap: 12px; }
-  .dash-instances-heading .dash-table-actions { width: auto; }
-  .dash-instances .dash-table-toolbar { padding: 12px 14px; flex-wrap: wrap; }
-  .dash-instances .dash-instance-filter { flex: 1; min-width: 120px; }
-  .dash-instances .dash-instance-search { flex-basis: 100%; width: 100%; }
-  .dash-filter-count { margin-left: 0; }
+  .cloud-shell .dash-instances-heading { padding: 14px; flex-wrap: wrap; gap: 12px; }
+  .cloud-shell .dash-instances-heading .dash-table-actions { width: auto; }
+  .cloud-shell .dash-instances .dash-table-toolbar { padding: 12px 14px; flex-wrap: wrap; }
+  .cloud-shell .dash-instances .dash-instance-filter { flex: 1; min-width: 120px; }
+  .cloud-shell .dash-instances .dash-instance-search { flex-basis: 100%; width: 100%; }
+  .cloud-shell .dash-filter-count { margin-left: 0; }
 }
+
+.cloud-shell .dash-instances table { border-collapse: separate; border-spacing: 0 7px; }
+.cloud-shell .dash-instances th { background: #fff; border-bottom: 0; }
+.cloud-shell .dash-instances tbody tr { background: #f5f8fe; }
+.cloud-shell .dash-instances tbody tr:hover { background: #edf4ff; }
+.cloud-shell .dash-instances tbody td { height: 64px; border-top: 1px solid #eaf0f9; border-bottom: 1px solid #eaf0f9; }
+.cloud-shell .dash-instances tbody tr:last-child td { border-bottom: 1px solid #eaf0f9; }
+.cloud-shell .dash-instances tbody td:first-child { border-left: 1px solid #eaf0f9; border-radius: 8px 0 0 8px; }
+.cloud-shell .dash-instances tbody td:last-child { border-right: 1px solid #eaf0f9; border-radius: 0 8px 8px 0; }
+.cloud-shell .dash-instances .dash-server-avatar { background: #fff; border: 1px solid #dceaff; color: #1683ff; width: 36px; height: 36px; }
