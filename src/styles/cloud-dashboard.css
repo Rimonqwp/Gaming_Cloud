@@ -175,23 +175,16 @@
   .dash-instances td, .dash-instances th { height: 36px; }
 }
 @media (prefers-reduced-motion: reduce) { .dash-overview * { transition: none !important; } }
-@media (min-width: 1101px) and (min-height: 900px) {
-  .dash-overview-full {
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    min-height: calc(100vh - 90px);
-  }
+@media (min-width: 1101px) {
   .dash-overview-full > .dash-monitor-grid {
-    flex: 1 1 auto;
-    grid-template-rows: minmax(250px, 1fr) minmax(235px, 1fr);
+    grid-template-rows: 320px 300px;
   }
   .dash-overview-full .dash-monitor-grid > .dash-panel {
     display: flex;
     flex-direction: column;
   }
   .dash-overview-full .dash-donuts { flex: 1; align-items: center; }
-  .dash-overview-full .dash-donut { width: clamp(142px, 18vh, 190px); height: clamp(142px, 18vh, 190px); }
+  .dash-overview-full .dash-donut { width: 170px; height: 170px; }
   .dash-overview-full .dash-network-chart,
   .dash-overview-full .dash-cost-chart { flex: 1; min-height: 159px; }
   .dash-overview-full .dash-world-map { width: min(100%, 600px); margin: auto; }
