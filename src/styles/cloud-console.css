@@ -1207,3 +1207,9 @@ body:has(.cloud-shell),
     scrollbar-color: var(--console-scroll-thumb) var(--console-scroll-track);
   }
 }
+
+/* Scale the dashboard and its portaled menus together on short viewports. */
+@media (max-height: 1079px) {
+  html:has(.cloud-shell) { zoom: 0.8; }
+  .cloud-shell { min-height: 125vh; }
+}
