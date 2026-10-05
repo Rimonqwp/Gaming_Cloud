@@ -1167,3 +1167,43 @@
     transition: none !important;
   }
 }
+
+/* Match both the document scrollbar and console scrollable panels. */
+html:has(.cloud-shell),
+body:has(.cloud-shell),
+.cloud-shell,
+.cloud-shell *,
+.dash-period-menu {
+  --console-scroll-track: #edf4ff;
+  --console-scroll-thumb: #9bbff5;
+  --console-scroll-hover: #5797ef;
+  --console-scroll-active: #0866ff;
+}
+:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .cloud-shell *, .dash-period-menu)::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .cloud-shell *, .dash-period-menu)::-webkit-scrollbar-track {
+  background: var(--console-scroll-track);
+  border-radius: 10px;
+}
+:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .cloud-shell *, .dash-period-menu)::-webkit-scrollbar-thumb {
+  background: var(--console-scroll-thumb);
+  border: 2px solid var(--console-scroll-track);
+  border-radius: 10px;
+}
+:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .cloud-shell *, .dash-period-menu)::-webkit-scrollbar-thumb:hover {
+  background: var(--console-scroll-hover);
+}
+:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .cloud-shell *, .dash-period-menu)::-webkit-scrollbar-thumb:active {
+  background: var(--console-scroll-active);
+}
+:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .cloud-shell *, .dash-period-menu)::-webkit-scrollbar-corner {
+  background: var(--console-scroll-track);
+}
+@supports not selector(::-webkit-scrollbar) {
+  html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .cloud-shell *, .dash-period-menu {
+    scrollbar-width: thin;
+    scrollbar-color: var(--console-scroll-thumb) var(--console-scroll-track);
+  }
+}
