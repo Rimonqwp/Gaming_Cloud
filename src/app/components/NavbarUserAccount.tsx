@@ -425,7 +425,7 @@ function AccountProfileCard({
       : "border-cyan-950/50 bg-[#03070a]/98"
     : isMinecraft
       ? "border-emerald-900/25 bg-emerald-950/[0.12]"
-      : "border-cyan-900/20 bg-slate-950/[0.06]";
+      : "border-slate-200 bg-white";
 
   const avatarShell = isDark
     ? isMinecraft
