@@ -43,12 +43,14 @@ function renderActiveTabContent(
       return (
         <CloudDashboardOverview
           onSelectTab={options.setActiveTab}
+          balance={options.dashboardUser.balance}
         />
       );
     case "instances":
       return (
         <CloudDashboardOverview
           onSelectTab={options.setActiveTab}
+          balance={options.dashboardUser.balance}
           mode="instances"
         />
       );

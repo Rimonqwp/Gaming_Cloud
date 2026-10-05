@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { AlertTriangle, ChevronRight, Gamepad2, HardDrive, Archive, Users } from "lucide-react";
+import { AlertTriangle, ChevronRight, Gamepad2, Archive, Wallet, Activity } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import type { UserDashboardTabId } from "../../config/userDashboardNavTabs";
@@ -9,7 +9,7 @@ import { CostTrend, NetworkTraffic, ResourceUsage } from "./CloudDashboardCharts
 import { CloudDashboardInstances } from "./CloudDashboardInstances";
 import "../../../styles/cloud-dashboard.css";
 
-const metricIcons = [Gamepad2, Users, HardDrive, Archive];
+const metricIcons = [Gamepad2, Archive, Activity, Wallet];
 const hongKongTimeFormatter = new Intl.DateTimeFormat("en-US", {
   timeZone: "Asia/Hong_Kong",
   year: "numeric",
@@ -25,7 +25,7 @@ const formatHongKongTime = (date: Date) => {
   return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}`;
 };
 
-export function CloudDashboardOverview({ onSelectTab, mode = "overview" }: { onSelectTab: (tab: UserDashboardTabId) => void; mode?: "overview" | "instances" }) {
+export function CloudDashboardOverview({ onSelectTab, mode = "overview", balance }: { balance: number; onSelectTab: (tab: UserDashboardTabId) => void; mode?: "overview" | "instances" }) {
   const [maintenanceOpen, setMaintenanceOpen] = useState(false);
   const [detail, setDetail] = useState<{ title: string; description: string } | null>(null);
   const now = new Date();
@@ -35,12 +35,13 @@ export function CloudDashboardOverview({ onSelectTab, mode = "overview" }: { onS
       <section className="dash-metrics" aria-label="游戏托管概况">
         {resourceMetrics.map((metric, index) => {
           const Icon = metricIcons[index];
+          const value = metric.title === "账户余额" ? balance.toFixed(2) : metric.value;
           const isServerMetric = metric.title === "游戏服务器";
-          return <button key={metric.title} className={`dash-metric ${metric.tone}`} onClick={() => setDetail({ title: metric.title, description: `当前${metric.title}为 ${metric.value} ${metric.unit}。${metric.description}` })}>
+          return <button key={metric.title} className={`dash-metric ${metric.tone}`} onClick={() => setDetail({ title: metric.title, description: `当前${metric.title}为 ${value} ${metric.unit}。${metric.description}` })}>
             {!isServerMetric && <span className="dash-metric-icon"><Icon /></span>}
             <div className="dash-metric-content">
               <h2>{metric.title}</h2>
-              <strong>{metric.value}<small>{metric.unit}</small></strong>
+              <strong>{value}<small>{metric.unit}</small></strong>
               {!isServerMetric && <p>{metric.summary}</p>}
             </div>
             <Icon className="dash-metric-decoration" />
