@@ -10,11 +10,18 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import "../../../styles/cloud-instances.css";
 import { consoleInstances } from "./cloudDashboardData";
+import { useDashboardNav } from "../../context/DashboardNavContext";
+import { CloudInstancesWorkspace } from "./CloudInstancesWorkspace";
 
 const expiryFormatter = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Hong_Kong", year: "numeric", month: "2-digit", day: "2-digit" });
 const PAGE_SIZE = 5;
 
 export function CloudDashboardInstances() {
+  const { activeTab } = useDashboardNav();
+  return activeTab === "instances" ? <CloudInstancesWorkspace /> : <CompactInstances />;
+}
+
+function CompactInstances() {
   const [query, setQuery] = useState("");
   const [region, setRegion] = useState("all");
   const [status, setStatus] = useState("all");
