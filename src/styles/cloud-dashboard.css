@@ -196,3 +196,10 @@
   .dash-overview-full .dash-cost-chart { flex: 1; min-height: 159px; }
   .dash-overview-full .dash-world-map { width: min(100%, 600px); margin: auto; }
 }
+
+.dash-network-controls .dash-period-trigger { width: 126px; height: 28px; min-height: 28px; padding: 0 9px; border: 1px solid #dce5f2; border-radius: 5px; background: #fff; color: #5d6984; font-size: 11px; box-shadow: none; }
+.dash-network-controls .dash-period-trigger:hover, .dash-network-controls .dash-period-trigger[data-state="open"] { border-color: #8dbbff; background: #f5f9ff; color: #1683ff; }
+.dash-network-controls .dash-period-trigger:focus-visible { outline: 2px solid #a8ceff; outline-offset: 2px; }
+.dash-period-menu { border: 1px solid #dce5f2; border-radius: 7px; background: #fff; color: #5d6984; box-shadow: 0 8px 24px #163c6b18; }
+.dash-period-menu .dash-period-option { padding: 8px 30px 8px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+.dash-period-menu .dash-period-option[data-highlighted], .dash-period-menu .dash-period-option[data-state="checked"] { background: #edf5ff; color: #1683ff; }
