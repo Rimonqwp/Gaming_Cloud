@@ -14,6 +14,7 @@ html:has(.cloud-shell .ec-settings) { zoom: 1; }
 .ec-settings-content { min-width: 0; }
 .ec-settings-content [role="tabpanel"][hidden] { display: none; }
 .ec-settings-panel { padding: 23px 25px; background: transparent; border: 1px solid #e0e8f4; border-radius: 9px; margin-bottom: 18px; }
+#settings-panel-account > .ec-settings-panel:first-of-type { width: 100%; max-width: 960px; }
 .ec-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 25px; }
 .ec-panel-title { display: flex; align-items: flex-start; gap: 13px; min-width: 0; }
 .ec-panel-title > svg { margin-top: 2px; flex: none; }

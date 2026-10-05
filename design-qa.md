@@ -4,6 +4,8 @@
 
 final result: passed
 
+第三次浏览器标注后续调整：用户要求缩小「个人信息」卡片宽度。仅该卡片设置 `width: 100%; max-width: 960px`，保留左侧对齐及透明背景。1794 × 1327 视口实测从 1178px 缩小至 960px，左边界保持 414px；窄屏仍由父容器宽度约束。最终截图：`output/design/settings/profile-narrower.jpg`。本次 CSS 调整通过页面视觉与尺寸验证。
+
 第二次浏览器标注后续调整：同样的边框样式推广至所有个人设定分类。公共 `.ec-settings-panel` 背景改为透明，移除此前仅个人信息生效的覆盖。浏览器逐项切换七个分类，检查全部 12 个外层容器：背景均为 `rgba(0, 0, 0, 0)`，边框均保留 `1px solid rgb(224, 232, 244)`。身份验证及个人信息最终截图：`output/design/settings/all-panels-border-only.jpg`，1794 × 1327。本次 CSS 调整通过页面验证。
 
 浏览器标注后续调整：用户要求「个人信息」外层容器只保留边框、去掉背景填色。已对该容器单独设置透明背景。浏览器计算样式确认为 `rgba(0, 0, 0, 0)`，原有 `1px solid rgb(224, 232, 244)` 边框保留；身份验证卡片未改变。1794 × 1327 截图证据：`output/design/settings/profile-border-only.jpg`。本次为单条 CSS 视觉调整，已通过实时页面验证。
