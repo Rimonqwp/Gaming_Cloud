@@ -86,17 +86,17 @@ export const ticketsData: DashboardTicket[] = [
 export const navPlacementOptions: DashboardNavPlacementOption[] = [
   {
     value: "navbar_embed",
-    title: "嵌入主導覽列",
-    description: "分頁顯示在頂部主導覽列中央（預設），與 Logo、帳戶區同一橫列。",
+    title: "嵌入主导航",
+    description: "与 Logo、通知和账户菜单显示在同一行。",
   },
   {
     value: "below_navbar",
-    title: "主導覽列下方",
-    description: "分頁固定在主導覽列正下方，不佔用導覽列內部空間。",
+    title: "主导航下方",
+    description: "显示在主导航下方，滚动时保持可见。",
   },
   {
     value: "bottom_float",
-    title: "底部浮動",
-    description: "分頁固定在瀏覽器視窗底部中央，長頁面時便於快速切換。",
+    title: "底部浮动",
+    description: "固定在窗口底部，方便切换控制台页面。",
   },
 ];

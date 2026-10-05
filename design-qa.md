@@ -4,6 +4,13 @@
 
 final result: passed
 
+导航设置兼容修复：当前控制台使用 CloudConsoleHeader，原有位置与隐藏设置只作用于旧导航组件。现已将现有偏好状态接入当前页头，支持嵌入主导航、主导航下方和底部浮动；隐藏主导航时保留返回、控制台导航、通知和账户菜单组成的精简工具栏。隐藏嵌入式主导航时自动转为顶部精简工具栏，避免导航入口消失。
+
+- 桌面验证三种位置及隐藏组合：仅一个导航实例；顶部导航随滚动保持可见，底部导航距窗口底部 16px；底部模式预留内容空间。验证导航切换总览及返回设置、单选项方向键切换、刷新后保留底部位置与隐藏状态。
+- 手机 390 × 844 验证三种位置及底部精简工具栏：clientWidth 与 scrollWidth 均为 380px，导航项在栏内横向滚动，通知与账户入口可用，无页面横向溢出。
+- 视觉证据：`output/design/settings/navigation-bottom.jpg`、`navigation-bottom-compact.jpg`、`navigation-mobile.jpg`、`navigation-final.jpg`。浏览器 error 日志为空，最终 `npm run build` 通过。
+- 验证后恢复用户原选项：主导航下方、隐藏主导航开启、邮件通知开启、站内通知关闭；临时手机视口已恢复。
+
 通知开关标注修复：Tailwind 的独立 `translate` 与设置页的 `transform: translateX(18px)` 叠加，使选中状态的白色滑块越出轨道约 13px。设置页清除独立 translate，统一由 transform 移动。浏览器验证邮件开关开/关以及站内通知、隐藏主导航开关：靠近端的内边距均为 3px，滑块完整位于 42 × 24px 轨道内；邮件通知已恢复原来的开启状态。证据：`output/design/settings/switch-thumb-fixed.jpg`。
 
 ### 第五次调整：补充个人资料与账户记录

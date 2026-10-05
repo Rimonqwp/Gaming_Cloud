@@ -24,6 +24,11 @@ export function UserDashboardPreferencesSettingsSection({ userId, dashboardNavPl
     try { const saved = JSON.parse(localStorage.getItem(storageKey) || "null"); return { email: saved?.email === true, site: saved?.site === true }; } catch { return { email: false, site: false }; }
   });
   const [feedback, setFeedback] = useState("");
+  const effectivePlacement = mainNavbarHidden && dashboardNavPlacement === "navbar_embed" ? "below_navbar" : dashboardNavPlacement;
+  function toggleMainNavbar(hidden: boolean) {
+    if (hidden && dashboardNavPlacement === "navbar_embed") setDashboardNavPlacement("below_navbar");
+    setMainNavbarHidden(hidden);
+  }
   function toggleNotification(channel: "email" | "site", checked: boolean) {
     const next = { ...notifications, [channel]: checked };
     setNotifications(next);
@@ -44,8 +49,8 @@ export function UserDashboardPreferencesSettingsSection({ userId, dashboardNavPl
       <div className="ec-setting-row"><div><h3>界面主题</h3><p>清晰明亮的控制台界面。</p></div><span className="ec-badge"><Sun size={16} aria-hidden />浅色主题</span></div>
     </SettingsPanel>
     <SettingsPanel title="导航设置" description="设置控制台导航的位置与显示方式。" icon={PanelTop}>
-      <fieldset className="ec-nav-options"><legend>控制台分页位置</legend>{navPlacementOptions.map((option) => <label key={option.value}><input type="radio" name="dashboard-nav-placement" value={option.value} checked={dashboardNavPlacement === option.value} disabled={mainNavbarHidden && option.value === "navbar_embed"} onChange={() => setDashboardNavPlacement(option.value)} /><span><strong>{option.title}</strong><small>{option.description}</small></span></label>)}</fieldset>
-      <div className="ec-setting-row"><div><h3>隐藏主导航列</h3><p>在控制台模式下隐藏站点主导航列。</p></div><Switch checked={mainNavbarHidden} onCheckedChange={setMainNavbarHidden} aria-label="隐藏主导航列" /></div>
+      <fieldset className="ec-nav-options"><legend>控制台导航位置</legend>{navPlacementOptions.map((option) => <label key={option.value}><input type="radio" name="dashboard-nav-placement" value={option.value} checked={effectivePlacement === option.value} disabled={mainNavbarHidden && option.value === "navbar_embed"} onChange={() => setDashboardNavPlacement(option.value)} /><span><strong>{option.title}</strong><small>{option.description}</small></span></label>)}</fieldset>
+      <div className="ec-setting-row"><div><h3>隐藏主导航列</h3><p>隐藏主导航，保留控制台导航、通知与账户入口。</p></div><Switch checked={mainNavbarHidden} onCheckedChange={toggleMainNavbar} aria-label="隐藏主导航列" /></div>
     </SettingsPanel>
   </>;
 }

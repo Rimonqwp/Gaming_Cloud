@@ -8,6 +8,7 @@ import {
   Settings,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
+import "../../styles/cloud-navigation.css";
 import { USER_DASHBOARD_NAV_TABS } from "../config/userDashboardNavTabs";
 import { useDashboardNav } from "../context/DashboardNavContext";
 import { useUserAuth } from "../context/UserAuthContext";
@@ -21,11 +22,15 @@ import {
 } from "./ui/dropdown-menu";
 
 export function CloudConsoleHeader() {
-  const { activeTab, setActiveTab } = useDashboardNav();
+  const { activeTab, setActiveTab, dashboardNavPlacement, mainNavbarHidden } = useDashboardNav();
   const { user, logout, openLoginModal } = useUserAuth();
   const navigate = useNavigate();
+  const placement = mainNavbarHidden && dashboardNavPlacement === "navbar_embed"
+    ? "below_navbar"
+    : dashboardNavPlacement;
   return (
-    <header className="cloud-header">
+    <div className="cloud-console-chrome" data-nav-placement={placement} data-main-hidden={mainNavbarHidden}>
+    <header className="cloud-header" aria-label={mainNavbarHidden ? "控制台工具栏" : "主导航"}>
       <Link to="/" className="cloud-brand" aria-label="EggCloud 首页">
         <img src="/console/brand.png" alt="EggCloud" />
       </Link>
@@ -108,5 +113,6 @@ export function CloudConsoleHeader() {
       </div>
       <UserLoginDialog />
     </header>
+    </div>
   );
 }
