@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { RefreshCw, Search, Server, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, RefreshCw, Search, Server, Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,7 @@ import "../../../styles/cloud-instances.css";
 import { consoleInstances } from "./cloudDashboardData";
 
 const expiryFormatter = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Hong_Kong", year: "numeric", month: "2-digit", day: "2-digit" });
+const PAGE_SIZE = 5;
 
 export function CloudDashboardInstances() {
   const [query, setQuery] = useState("");
@@ -19,6 +20,7 @@ export function CloudDashboardInstances() {
   const [status, setStatus] = useState("all");
   const [detailId, setDetailId] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
+  const [page, setPage] = useState(1);
 
   const rows = consoleInstances.filter(
     (row) =>
@@ -28,6 +30,9 @@ export function CloudDashboardInstances() {
         .toLowerCase()
         .includes(query.trim().toLowerCase()),
   );
+  const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pageRows = rows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
   const detail = consoleInstances.find((row) => row.id === detailId);
 
   return (
@@ -40,18 +45,25 @@ export function CloudDashboardInstances() {
         </div>
       </div>
       <div className="dash-table-toolbar">
-        <Select value={region} onValueChange={setRegion}><SelectTrigger className="dash-instance-filter" aria-label="游戏服务器节点"><SelectValue /></SelectTrigger><SelectContent className="dash-period-menu"><SelectItem value="all" className="dash-period-option">全部节点</SelectItem>{Array.from(new Set(consoleInstances.map(row => row.region))).map(item => <SelectItem key={item} value={item} className="dash-period-option">{item}</SelectItem>)}</SelectContent></Select>
-        <Select value={status} onValueChange={setStatus}><SelectTrigger className="dash-instance-filter" aria-label="游戏服务器状态"><SelectValue /></SelectTrigger><SelectContent className="dash-period-menu"><SelectItem value="all" className="dash-period-option">全部状态</SelectItem><SelectItem value="running" className="dash-period-option">运行中</SelectItem><SelectItem value="stopped" className="dash-period-option">已停止</SelectItem></SelectContent></Select>
+        <Select value={region} onValueChange={value => { setRegion(value); setPage(1); }}><SelectTrigger className="dash-instance-filter" aria-label="游戏服务器节点"><SelectValue /></SelectTrigger><SelectContent className="dash-period-menu"><SelectItem value="all" className="dash-period-option">全部节点</SelectItem>{Array.from(new Set(consoleInstances.map(row => row.region))).map(item => <SelectItem key={item} value={item} className="dash-period-option">{item}</SelectItem>)}</SelectContent></Select>
+        <Select value={status} onValueChange={value => { setStatus(value); setPage(1); }}><SelectTrigger className="dash-instance-filter" aria-label="游戏服务器状态"><SelectValue /></SelectTrigger><SelectContent className="dash-period-menu"><SelectItem value="all" className="dash-period-option">全部状态</SelectItem><SelectItem value="running" className="dash-period-option">运行中</SelectItem><SelectItem value="stopped" className="dash-period-option">已停止</SelectItem></SelectContent></Select>
         <label className="dash-instance-search">
           <Search size={15} />
           <input
             aria-label="搜索游戏服务器"
             placeholder="搜索服务器或游戏名称"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => { setQuery(event.target.value); setPage(1); }}
           />
         </label>
-        <span className="dash-filter-count">共 {rows.length} 台服务器</span>
+        <div className="dash-instance-pagination">
+          <span className="dash-filter-count" aria-live="polite">共 {rows.length} 台服务器</span>
+          <nav aria-label="游戏服务器分页">
+            <button type="button" aria-label="上一页服务器" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}><ChevronLeft size={13} />上一页</button>
+            <span aria-live="polite">{currentPage} / {pageCount}</span>
+            <button type="button" aria-label="下一页服务器" disabled={currentPage >= pageCount} onClick={() => setPage(currentPage + 1)}>下一页<ChevronRight size={13} /></button>
+          </nav>
+        </div>
       </div>
 
       {notice && <div className="dash-table-notice" role="status">{notice}</div>}
@@ -71,7 +83,7 @@ export function CloudDashboardInstances() {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {pageRows.map((row) => (
               <tr key={row.id}>
                 <td>
                   <button
@@ -119,6 +131,7 @@ export function CloudDashboardInstances() {
                       setQuery("");
                       setRegion("all");
                       setStatus("all");
+                      setPage(1);
                     }}
                   >
                     清除筛选

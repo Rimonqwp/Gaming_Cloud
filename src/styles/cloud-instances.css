@@ -15,6 +15,12 @@
 .cloud-shell .dash-instances .dash-instance-search:focus-within { border-color: #1683ff; box-shadow: 0 0 0 2px #1683ff14; }
 .cloud-shell .dash-instances .dash-instance-search input { font-size: 12px; }
 .cloud-shell .dash-filter-count { margin-left: auto; color: #7a88a1; font-size: 11px; white-space: nowrap; }
+.cloud-shell .dash-instance-pagination { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-left: auto; }
+.cloud-shell .dash-instance-pagination nav { display: flex; align-items: center; gap: 8px; color: #7a88a1; font-size: 11px; white-space: nowrap; }
+.cloud-shell .dash-instance-pagination button { display: inline-flex; align-items: center; justify-content: center; gap: 3px; height: 28px; padding: 0 7px; border: 1px solid #dce5f2; border-radius: 5px; background: #fff; color: #5d6984; font-size: 11px; white-space: nowrap; }
+.cloud-shell .dash-instance-pagination button:hover:not(:disabled) { color: #1683ff; border-color: #9ac3ff; background: #edf5ff; }
+.cloud-shell .dash-instance-pagination button:disabled { color: #a8b3c4; background: #f8faff; cursor: not-allowed; }
+.cloud-shell .dash-instance-pagination button:focus-visible { outline: 2px solid #1683ff; outline-offset: 2px; }
 .cloud-shell .dash-instances .dash-table-scroll { padding: 0 12px 10px; }
 .cloud-shell .dash-instances th { height: 38px; background: #fff; color: #7b88a0; font-size: 11px; border-bottom: 1px solid #e8eef7; padding: 0 12px; }
 .cloud-shell .dash-instances td { height: 60px; padding: 8px 12px; font-size: 12px; }
@@ -37,6 +43,7 @@
   .cloud-shell .dash-instances .dash-instance-filter { flex: 1; min-width: 120px; }
   .cloud-shell .dash-instances .dash-instance-search { flex-basis: 100%; width: 100%; }
   .cloud-shell .dash-filter-count { margin-left: 0; }
+  .cloud-shell .dash-instance-pagination { width: 100%; justify-content: space-between; margin-left: 0; gap: 8px; }
 }
 
 .cloud-shell .dash-instances table { border-collapse: separate; border-spacing: 0 7px; }
