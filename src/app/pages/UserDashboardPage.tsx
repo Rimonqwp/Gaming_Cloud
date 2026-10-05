@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
 import { useSearchParams } from "react-router";
 import type { UserDashboardTabId } from "../config/userDashboardNavTabs";
 import { USER_DASHBOARD_NAV_TABS } from "../config/userDashboardNavTabs";
 import { useDashboardNav } from "../context/DashboardNavContext";
 import { useUserAuth } from "../context/UserAuthContext";
-import { instances, mockUser, teamMembers, ticketsData, usageData } from "./user-dashboard/userDashboardData";
+import {
+  mockUser,
+  teamMembers,
+  ticketsData,
+} from "./user-dashboard/userDashboardData";
 import { UserDashboardBillingTab } from "./user-dashboard/UserDashboardBillingTab";
-import { UserDashboardInstancesTab } from "./user-dashboard/UserDashboardInstancesTab";
-import { UserDashboardOverviewTab } from "./user-dashboard/UserDashboardOverviewTab";
 import { UserDashboardReferralTab } from "./user-dashboard/UserDashboardReferralTab";
 import { UserDashboardSettingsTab } from "./user-dashboard/UserDashboardSettingsTab";
 import { UserDashboardTeamTab } from "./user-dashboard/UserDashboardTeamTab";
 import { UserDashboardTicketsTab } from "./user-dashboard/UserDashboardTicketsTab";
 import type { SettingsMenuId } from "./user-dashboard/userDashboardTypes";
+import { CloudConsoleHeader } from "../components/CloudConsoleHeader";
+import { CloudDashboardOverview } from "./user-dashboard/CloudDashboardOverview";
+import "../../styles/cloud-console.css";
 
 type DashboardNavValue = ReturnType<typeof useDashboardNav>;
 
@@ -37,15 +41,17 @@ function renderActiveTabContent(
   switch (activeTab) {
     case "overview":
       return (
-        <UserDashboardOverviewTab
-          dashboardUser={options.dashboardUser}
-          instances={instances}
-          usageData={usageData}
+        <CloudDashboardOverview
           onSelectTab={options.setActiveTab}
         />
       );
     case "instances":
-      return <UserDashboardInstancesTab />;
+      return (
+        <CloudDashboardOverview
+          onSelectTab={options.setActiveTab}
+          mode="instances"
+        />
+      );
     case "billing":
       return <UserDashboardBillingTab />;
     case "team":
@@ -81,7 +87,6 @@ export function UserDashboardPage() {
   const {
     activeTab,
     setActiveTab,
-    dashboardNavbarMode,
     dashboardNavPlacement,
     setDashboardNavPlacement,
     mainNavbarHidden,
@@ -120,90 +125,31 @@ export function UserDashboardPage() {
     registeredAt: authUser?.registeredAt ?? mockUser.registeredAt,
   };
 
-  useEffect(() => {
-    if (mainNavbarHidden && dashboardNavPlacement === "navbar_embed") {
-      setDashboardNavPlacement("below_navbar");
-    }
-  }, [mainNavbarHidden, dashboardNavPlacement, setDashboardNavPlacement]);
-
-  const mergedToolbarAtTop =
-    mainNavbarHidden && dashboardNavbarMode === "console" && dashboardNavPlacement !== "bottom_float";
-
-  const pageShellClass =
-    dashboardNavbarMode === "console" && dashboardNavPlacement === "below_navbar"
-      ? mergedToolbarAtTop
-        ? "min-h-screen bg-[#020202] text-slate-200 pt-[7.25rem] pb-32 relative overflow-hidden font-sans"
-        : "min-h-screen bg-[#020202] text-slate-200 pt-[9rem] pb-32 relative overflow-hidden font-sans"
-      : dashboardNavbarMode === "console" && dashboardNavPlacement === "bottom_float"
-        ? mainNavbarHidden
-          ? "min-h-screen bg-[#020202] text-slate-200 pt-16 pb-40 relative overflow-hidden font-sans"
-          : "min-h-screen bg-[#020202] text-slate-200 pt-24 pb-40 relative overflow-hidden font-sans"
-        : mergedToolbarAtTop
-          ? "min-h-screen bg-[#020202] text-slate-200 pt-[7.25rem] pb-32 relative overflow-hidden font-sans"
-          : "min-h-screen bg-[#020202] text-slate-200 pt-24 pb-32 relative overflow-hidden font-sans";
-
   return (
-    <div className={pageShellClass}>
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-30">
-        <div className="absolute right-[-10%] top-[-20%] h-[60vw] w-[60vw] rounded-full bg-cyan-900/10 blur-[180px] mix-blend-screen" />
-        <div className="absolute left-[-10%] top-[40%] h-[40vw] w-[40vw] rounded-full bg-emerald-900/10 blur-[150px] mix-blend-screen" />
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-[0.03]" />
-      </div>
-
-      <div className="relative z-10 mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8">
-        {dashboardNavbarMode === "site" ? (
-          <div className="mb-10 flex justify-center">
-            <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-full border border-white/5 bg-[#0a0a0c]/80 p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.4)] backdrop-blur-2xl no-scrollbar">
-              {USER_DASHBOARD_NAV_TABS.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`group relative shrink-0 whitespace-nowrap rounded-full px-4 py-2.5 text-sm font-medium transition-all sm:px-6 ${
-                      isActive ? "text-white" : "text-zinc-400 hover:text-white"
-                    }`}
-                  >
-                    {isActive ? (
-                      <motion.div
-                        layoutId="activePillNav"
-                        className="absolute inset-0 rounded-full border border-white/10 bg-white/10"
-                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                      />
-                    ) : null}
-                    <span className="relative z-10 flex items-center gap-2">
-                      <Icon className={`h-4 w-4 ${isActive ? "text-cyan-400" : "group-hover:text-zinc-300"}`} />
-                      {tab.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          <div className="mb-6 sm:mb-8" aria-hidden />
-        )}
-
-        <div className="min-w-0">
-          <AnimatePresence mode="wait">
-            {renderActiveTabContent(activeTab, {
-              dashboardUser,
-              setActiveTab,
-              settingsMenu,
-              setSettingsMenu,
-              dashboardNavPlacement,
-              setDashboardNavPlacement,
-              mainNavbarHidden,
-              setMainNavbarHidden,
-              preferredCurrency,
-              setPreferredCurrency,
-              previewBaseCurrency,
-              setPreviewBaseCurrency,
-            })}
-          </AnimatePresence>
+    <div className="cloud-shell">
+      <div className="cloud-container">
+        <CloudConsoleHeader />
+        <div
+          className={
+            activeTab === "overview" || activeTab === "instances"
+              ? ""
+              : "cloud-legacy"
+          }
+        >
+          {renderActiveTabContent(activeTab, {
+            dashboardUser,
+            setActiveTab,
+            settingsMenu,
+            setSettingsMenu,
+            dashboardNavPlacement,
+            setDashboardNavPlacement,
+            mainNavbarHidden,
+            setMainNavbarHidden,
+            preferredCurrency,
+            setPreferredCurrency,
+            previewBaseCurrency,
+            setPreviewBaseCurrency,
+          })}
         </div>
       </div>
     </div>

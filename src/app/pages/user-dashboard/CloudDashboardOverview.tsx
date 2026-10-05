@@ -1,0 +1,47 @@
+import { useState } from "react";
+import { Link } from "react-router";
+import { AlertTriangle, ChevronRight, Gamepad2, HardDrive, Archive, Users } from "lucide-react";
+import { Area, AreaChart, ResponsiveContainer } from "recharts";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
+import type { UserDashboardTabId } from "../../config/userDashboardNavTabs";
+import { resourceMetrics, metricColors, gameRegions } from "./cloudDashboardData";
+import { CostTrend, NetworkTraffic, ResourceUsage } from "./CloudDashboardCharts";
+import { CloudDashboardInstances } from "./CloudDashboardInstances";
+import "../../../styles/cloud-dashboard.css";
+
+const metricIcons = [Gamepad2, Users, HardDrive, Archive];
+
+export function CloudDashboardOverview({ onSelectTab, mode = "overview" }: { onSelectTab: (tab: UserDashboardTabId) => void; mode?: "overview" | "instances" }) {
+  const [maintenanceOpen, setMaintenanceOpen] = useState(false);
+  const [detail, setDetail] = useState<{ title: string; description: string } | null>(null);
+  return <div className="dash-overview">
+    {mode === "overview" ? <>
+      <button className="cloud-maintenance" onClick={() => setMaintenanceOpen(true)}><AlertTriangle size={25} /><strong>新加坡游戏节点计划维护</strong><span>·　10月9日 02:00（SGT）维护 15 分钟，游戏连接可能短暂中断，请提前保存世界存档。</span><time>2026-10-05 10:00 · 新加坡（SGT）</time></button>
+      <div className="dash-page-heading"><h1>游戏云控制台总览</h1><p>查看游戏服务器、在线玩家与托管状态。<span className="dash-demo-note">演示数据</span></p></div>
+      <section className="dash-metrics" aria-label="游戏托管概况">
+        {resourceMetrics.map((metric, index) => {
+          const Icon = metricIcons[index];
+          const isServerMetric = metric.title === "游戏服务器";
+          return <button key={metric.title} className={`dash-metric ${metric.tone}`} onClick={() => setDetail({ title: metric.title, description: `当前${metric.title}为 ${metric.value} ${metric.unit}。${metric.description}` })}>
+            {!isServerMetric && <span className="dash-metric-icon"><Icon /></span>}
+            <div className="dash-metric-content">
+              <h2>{metric.title}</h2>
+              <strong>{metric.value}<small>{metric.unit}</small></strong>
+              {!isServerMetric && <p>{metric.summary}</p>}
+            </div>
+            <Icon className="dash-metric-decoration" />
+            {!isServerMetric && <div className="dash-sparkline" aria-hidden="true"><ResponsiveContainer width="100%" height="100%"><AreaChart data={metric.points.map(value => ({ value }))}><Area dataKey="value" type="linear" stroke={metricColors[metric.tone]} strokeWidth={1.8} fill={metricColors[metric.tone]} fillOpacity={0.08} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div>}
+          </button>;
+        })}
+      </section>
+      <div className="dash-monitor-grid">
+        <ResourceUsage onMore={() => onSelectTab("instances")} /><NetworkTraffic />
+        <CostTrend />
+        <section className="dash-panel dash-health"><div className="dash-panel-heading"><h2>全球游戏节点状态</h2><div className="dash-health-legend"><span><i className="green" />正常 {gameRegions.filter(region => region.tone === "green").length}</span><span><i className="orange" />待维护 {gameRegions.filter(region => region.tone === "orange").length}</span></div></div><div className="dash-world-map"><img src="/console/world-map.png" alt="全球游戏托管节点分布地图" />{gameRegions.map(region => <button key={region.name} aria-label={`${region.name}（${region.city}）：${region.status}`} className={`dash-map-node ${region.tone} ${region.label}`} style={{ left: `${region.x}%`, top: `${region.y}%` }} onClick={() => setDetail({ title: `${region.name}（${region.city}）`, description: region.description })}><span className="dash-node-dot" /><span className="dash-node-label">{region.name}<br />（{region.city}）<br /><em>{region.status}</em></span></button>)}</div></section>
+      </div>
+    </> : <div className="cloud-page-heading"><div><h1>游戏服务器</h1><p>管理你的游戏服务器、玩家连接与世界存档 · 演示数据</p></div><Link className="cloud-primary" to="/deploy">创建游戏服务器</Link></div>}
+    <CloudDashboardInstances />
+    <Dialog open={maintenanceOpen} onOpenChange={setMaintenanceOpen}><DialogContent className="cloud-modal"><DialogTitle>新加坡游戏节点计划维护</DialogTitle><DialogDescription>2026 年 10 月 9 日 02:00–02:15（SGT）</DialogDescription><p>我们将维护新加坡游戏节点的网络设备。饥荒联机好友服的玩家连接可能短暂中断，预计维护持续 15 分钟。</p><p>请提前通知玩家并保存世界存档，建议在维护前创建存档备份。维护结束后玩家可重新连接。如需协助，请通过工单联系技术支持。</p><button className="cloud-primary" onClick={() => { setMaintenanceOpen(false); onSelectTab("tickets"); }}>联系技术支持 <ChevronRight size={16} /></button></DialogContent></Dialog>
+    <Dialog open={!!detail} onOpenChange={open => { if (!open) setDetail(null); }}><DialogContent className="cloud-modal"><DialogTitle>{detail?.title}</DialogTitle><DialogDescription>{detail?.description}</DialogDescription><button className="cloud-primary" onClick={() => setDetail(null)}>我知道了</button></DialogContent></Dialog>
+  </div>;
+}

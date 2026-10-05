@@ -1,0 +1,40 @@
+EggCloud overview design concepts
+Generated 2026-10-05, Asia/Shanghai.
+Tool: built-in Image Gen.
+The UI implementation was not edited during this request.
+Display-order selection mapping:
+1 -> 01-instance-first.png
+2 -> 02-monitor-first.png
+3 -> 03-account-workbench.png
+Reference screenshot: reference-overview.jpg
+Target viewport requested in each prompt: 1440 x 1024.
+Images are design concepts; mock data uses the existing customer cloud-server overview.
+
+FULL SHARED PROMPT
+Use case: ui-mockup. Create one realistic, production-quality desktop UI design for EggCloud, a cloud service provider's CUSTOMER console overview for hosting cloud servers. This is the logged-in customer overview, in Simplified Chinese, not an operator business analytics dashboard. Design a focused primary screen with clear hierarchy, strong typography and purposeful spacing. Target dimensions: 1440 x 1024 pixels, one complete flat screenshot, no device or browser chrome, no perspective, no watermark, no collage, no concept caption on the canvas.
+Input image 1 is the ACTUAL current overview screenshot from http://127.0.0.1:3000/dashboard, local codebase C:/Users/Rimon12/Documents/ChatGPT/game_hosting. Use it as product, brand, and content grounding, not as a background image. Recompose a new polished overview layout according to the direction below.
+Preserve the existing design language: EggCloud blue cloud-outline logo and wordmark; royal blue #0866ff, ink #080f38, muted blue-gray #57719d, light borders #e0eaf7, canvas #f3f8ff, white content surfaces, turquoise only for healthy running status and memory chart. Font pairing Inter and Noto Sans SC, readable 14–16px body text, 28–32px page headings. Friendly but professional trustworthy cloud hosting console. Restrained thin line icons, controlled 10–16px component corner radii. Separate sections with spacing, alignment, typography and subtle dividers before borders; very little shadow. Do not make every content section a floating card, no nested cards, no card-per-metric grid. Prefer generous whitespace and a clean readable viewport; simplify if crowded.
+Preserve product navigation labels: "总览", "实例", "财务", "团队管理", "工单", "推介计划", "个人设定"; selected "总览". Profile "Rimon12", notification icon. One primary blue action "创建云服务器".
+Mock data anchored to current date 2026-10-05 in Asia/Shanghai. Account: 3 cloud servers, 2 running, 1 stopped; month traffic 1.2 TB; balance $0.00; 1 pending support ticket. Billing: current month $36.80; October 1–31 2026; next renewal 2026-10-20. Scheduled maintenance notice: "新加坡节点维护 · 10月9日 02:00（SGT）", subtle amber, never present it as a current outage.
+Exact instance sample data when displayed:
+web-prod-01 · 运行中 · 4 vCPU / 8 GB · 新加坡 · 203.0.113.10 · CPU 24% · 内存 40%
+api-prod-02 · 运行中 · 2 vCPU / 4 GB · 香港 · 203.0.113.11 · CPU 38% · 内存 56%
+dev-ubuntu · 已停止 · 2 vCPU / 4 GB · 东京 · 203.0.113.12 · CPU 0% · 内存 0%
+CPU is royal blue; memory is turquoise, with coherent percentage axes when charts are shown. Resource time range "近24小时", axis times 00:00 04:00 08:00 12:00 16:00 20:00. Running status must be unambiguous with green dot and text; stopped gray dot and text. Do not invent unavailable services, revenue, signups, terminal shells, AI assistants, or marketing illustrations.
+Each image must be an independent finished concept, do not reproduce the reference pixel-for-pixel. Do not add numeric concept labels.
+
+IMAGE 1 DIRECTION
+Direction name: "实例优先". Keep the existing slim horizontal capsule navigation as a recognisable brand anchor, around 70px high. Below it introduce an elegant page header "总览" and brief supporting line "你的云资源，一目了然", primary action aligned right. A compact single-line maintenance notice below. Four account metrics are one horizontal summary strip with typographic grouping and fine vertical separators, not four boxed cards.
+The dominant main area is a generous single server TABLE labelled "我的云服务器" taking about 60% of the content height: 3 clean roomy rows with names, status, configuration, region, IP, paired CPU and memory microbars, small blue "管理" row actions. Calm pale-blue header row, 68–76px row heights, 15px names, properly aligned columns, no overload. A quiet search control on the table header is secondary.
+Below the table, make one supporting zone: wide minimal resources chart on the left (about 70%) and understated billing ledger on the right (30%) with $36.80 prominent. Emphasize scannability and immediate access to the server a customer wants to manage. Polished blue-white enterprise SaaS, as a refined next version of the actual source.
+
+IMAGE 2 DIRECTION
+Direction name: "监控优先". Use a refined 196px-wide pale sidebar with EggCloud brand, the existing seven navigation labels and blue highlighted 总览; profile at bottom. The main canvas has a narrow top utility bar and roomy header "资源总览", subtitle "掌握每一台服务器的运行状态", primary "创建云服务器" at upper right. This concept prioritizes resource health: a thin unboxed summary row shows 2 running / 3 total, month traffic 1.2 TB, and $36.80 current month cost.
+Dominant centre: a very generous large resource chart labeled "资源使用趋势", crisp blue CPU and teal memory lines, subtle tinted areas, sparse grid, readable axes, time selector, no excessive controls. To its right, a restrained vertical "实例状态" grouped list with the 3 server names, green/gray states and CPU/memory percentages with tiny bars. Use spacing and dividers, not nested boxed cards.
+Under the hero monitoring area, make a secondary flat compact 3-row server table named "我的云服务器", with instance name, region, configuration, status, and a small "管理" action; IP can be in a smaller line next to name to simplify. A slim maintenance notice and concise billing/renewal text finish the page. Broad whitespace, elegant restrained blue-white engineering console, no dark mode, no alarms about fake incidents. Clearly different hierarchy and navigation structure from the table-first source, while matching the same brand tokens.
+
+IMAGE 3 DIRECTION
+Direction name: "账户工作台". Keep a clean full-width top navigation with EggCloud at left and original seven navigation labels as simple text and line icons, 总览 active with blue underline; remove the heavy nested pill framing but stay within the actual blue-white brand. Main header "下午好，Rimon12" with smaller "这是你的云服务总览" and one blue "创建云服务器" action. Below, four unboxed textual KPIs align on a shared baseline, blue 2 as running count, 1.2 TB month traffic, $0.00 balance, 1 pending ticket.
+Create a distinctive 2-column workspace: a broad left resource area (~760px) and a narrow right account/attention ledger (~300px), with a fine vertical divider instead of a stack of cards. Left has "我的云服务器" and three standalone horizontal SERVER OBJECT tiles arranged in a single horizontal row, one for each of the 3 servers. Every tile shows clear name, compact region label, prominent green/gray running state, readable configuration, small IP line, paired CPU/memory bars, and subtle 管理 link. These are genuine separate server objects, all equally aligned; no card nesting or random KPI bento. They should be comfortably roomy, not squeezed.
+Under the server objects, a wide elegant low-height blue/turquoise resource trend chart stretches across the left column with "资源使用趋势" heading and "近24小时" selector. Right ledger headed "账户与账单" shows $36.80 big but calm, month cycle 2026-10-01 至 2026-10-31, next renewal 2026-10-20, "查看账单" text action. Beneath a quiet divider, a "待办提醒" mini-list has the 1 pending ticket and the exact scheduled Singapore maintenance notice, modest amber only for maintenance. This is a reassuring customer account home with actionable resources and a readable billing ledger, elegant broad whitespace, sharp 15px Chinese text, no huge illustrations or marketing graphics.
+

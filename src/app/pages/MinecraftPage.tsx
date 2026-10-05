@@ -2,8 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { Zap, Box, Database, PlaySquare, Settings, Gamepad2 } from "lucide-react";
 import { Link } from "react-router";
-import minecraftVideo from "../data/Minecraft.mp4";
 import { usePerformanceMode } from "../hooks/usePerformanceMode";
+
+const minecraftVideo = import.meta.glob<string>("../data/*.mp4", {
+  eager: true,
+  query: "?url",
+  import: "default",
+})["../data/Minecraft.mp4"];
 
 export function MinecraftPage() {
   const { allowAutoplayVideo, allowHeavyMotion } = usePerformanceMode();
@@ -36,7 +41,7 @@ export function MinecraftPage() {
           <div
             className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(22,163,74,0.22),transparent_42%),radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.16),transparent_36%),linear-gradient(180deg,#0a120d_0%,#070b09_55%,#050806_100%)]"
           ></div>
-          <video
+          {minecraftVideo ? <video
             ref={videoRef}
             autoPlay={allowAutoplayVideo}
             muted
@@ -51,7 +56,7 @@ export function MinecraftPage() {
             }`}
           >
             <source src={minecraftVideo} type="video/mp4" />
-          </video>
+          </video> : null}
           <div className="absolute inset-0 bg-gradient-to-t from-[#070b09] via-[#070b09]/80 to-transparent"></div>
           <div
             className="absolute inset-0 bg-[linear-gradient(to_right,#10b98112_1px,transparent_1px),linear-gradient(to_bottom,#10b98112_1px,transparent_1px)] bg-[size:40px_40px]"
