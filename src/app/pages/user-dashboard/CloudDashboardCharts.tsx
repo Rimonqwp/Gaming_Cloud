@@ -2,7 +2,10 @@ import { useState } from "react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ChevronRight } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
-import { costCategories, costData, networkData, weeklyNetworkData, resourceUsage } from "./cloudDashboardData";
+import { consoleInstances, costCategories, costData, networkData, weeklyNetworkData, resourceUsage } from "./cloudDashboardData";
+
+import "../../../styles/cloud-network.css";
+import { buildServerTraffic } from "./cloudNetworkSeries";
 
 export function PanelLink({ onClick }: { onClick: () => void }) {
   return <button className="dash-link" onClick={onClick}>查看更多 <ChevronRight size={14} /></button>;
@@ -24,6 +27,7 @@ export function ResourceUsage({ onMore }: { onMore: () => void }) {
 }
 
 export function NetworkTraffic() {
+  const [serverId, setServerId] = useState("all");
   const [period, setPeriod] = useState("24");
   const periods = [{ value: "24", label: "最近 24 小时" }, { value: "7", label: "最近 7 天" }, { value: "30", label: "最近一个月" }];
   const days = period === "7" ? 7 : 30;
@@ -37,11 +41,19 @@ export function NetworkTraffic() {
     const sample = weeklyNetworkData[day % weeklyNetworkData.length];
     return { hour: day, inbound: sample.inbound + Math.floor(day / 7), outbound: sample.outbound + Math.floor(day / 7) * 2 };
   });
-  const chartData = period === "24" ? networkData : period === "7" ? weeklyNetworkData.map((point, day) => ({ ...point, hour: day })) : monthlyData;
+  const baseData = period === "24" ? networkData : period === "7" ? weeklyNetworkData.map((point, day) => ({ ...point, hour: day })) : monthlyData;
+  const chartData = buildServerTraffic(baseData, consoleInstances)[serverId];
   const ticks = period === "24" ? [0, 4, 8, 12, 16, 20, 24] : period === "7" ? [0, 1, 2, 3, 4, 5, 6] : [0, 5, 10, 15, 20, 25, 29];
   const formatHour = (hour: number) => period === "24" ? `${String(Math.round(hour)).padStart(2, "0")}:00` : dateLabel(Math.round(hour));
   return <section className="dash-panel dash-network">
     <div className="dash-panel-heading"><h2>游戏网络流量</h2><div className="dash-network-controls">
+      <Select value={serverId} onValueChange={setServerId}>
+        <SelectTrigger className="dash-period-trigger dash-server-trigger" aria-label="流量服务器选择"><SelectValue /></SelectTrigger>
+        <SelectContent className="dash-period-menu" align="end" sideOffset={5}>
+          <SelectItem value="all" className="dash-period-option">全部服务器</SelectItem>
+          {consoleInstances.map(server => <SelectItem key={server.id} value={server.id} className="dash-period-option">{server.name}</SelectItem>)}
+        </SelectContent>
+      </Select>
       <Select value={period} onValueChange={setPeriod}>
         <SelectTrigger className="dash-period-trigger" aria-label="游戏网络流量时间范围"><SelectValue /></SelectTrigger>
         <SelectContent className="dash-period-menu" align="end" sideOffset={5}>
@@ -50,7 +62,7 @@ export function NetworkTraffic() {
       </Select>
     </div></div>
     <p className="dash-axis-caption">流量（Mbps）</p>
-    <div className="dash-network-chart"><ResponsiveContainer width="100%" height="100%"><AreaChart data={chartData} margin={{ top: 6, right: 5, left: -14, bottom: 0 }}><CartesianGrid stroke="#edf2f9" /><XAxis dataKey="hour" type="number" domain={[0, period === "24" ? 24 : days - 1]} ticks={ticks} tickFormatter={formatHour} axisLine={false} tickLine={false} tick={{ fill: "#748099", fontSize: 11 }} minTickGap={12} /><YAxis axisLine={false} tickLine={false} domain={[0, 80]} ticks={[0, 20, 40, 60, 80]} tick={{ fill: "#748099", fontSize: 11 }} width={43} /><Tooltip labelFormatter={label => `${periods.find(option => option.value === period)?.label} ${formatHour(Number(label))}`} formatter={(v: number, name: string) => [`${v} Mbps`, name === "inbound" ? "入方向" : "出方向"]} contentStyle={{ border: "1px solid #e1e9f4", borderRadius: 6, fontSize: 12 }} /><Area dataKey="inbound" type="linear" stroke="#1683ff" strokeWidth={2} fill="#1683ff" fillOpacity={0.04} dot={{ r: 2, fill: "#1683ff", strokeWidth: 0 }} isAnimationActive={false} /><Area dataKey="outbound" type="linear" stroke="#13c68b" strokeWidth={2} fill="#13c68b" fillOpacity={0.06} dot={{ r: 2, fill: "#13c68b", strokeWidth: 0 }} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div>
+    <div className="dash-network-chart"><ResponsiveContainer width="100%" height="100%"><AreaChart data={chartData} margin={{ top: 6, right: 5, left: -14, bottom: 0 }}><CartesianGrid stroke="#edf2f9" /><XAxis dataKey="hour" type="number" domain={[0, period === "24" ? 24 : days - 1]} ticks={ticks} tickFormatter={formatHour} axisLine={false} tickLine={false} tick={{ fill: "#748099", fontSize: 11 }} minTickGap={12} /><YAxis axisLine={false} tickLine={false} domain={[0, 80]} ticks={[0, 20, 40, 60, 80]} tick={{ fill: "#748099", fontSize: 11 }} width={43} /><Tooltip labelFormatter={label => `${periods.find(option => option.value === period)?.label} ${formatHour(Number(label))}`} formatter={(v: number, name: string) => [`${Number(v).toFixed(2)} Mbps`, name === "inbound" ? "入方向" : "出方向"]} contentStyle={{ border: "1px solid #e1e9f4", borderRadius: 6, fontSize: 12 }} /><Area dataKey="inbound" type="linear" stroke="#1683ff" strokeWidth={2} fill="#1683ff" fillOpacity={0.04} dot={{ r: 2, fill: "#1683ff", strokeWidth: 0 }} isAnimationActive={false} /><Area dataKey="outbound" type="linear" stroke="#13c68b" strokeWidth={2} fill="#13c68b" fillOpacity={0.06} dot={{ r: 2, fill: "#13c68b", strokeWidth: 0 }} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div>
     <div className="dash-chart-legend"><span><i style={{ background: "#1683ff" }} />入方向</span><span><i style={{ background: "#13c68b" }} />出方向</span></div>
   </section>;
 }

@@ -1,0 +1,5 @@
+.dash-network .dash-panel-heading { flex-wrap: wrap; }
+.dash-network .dash-network-controls { margin-left: auto; gap: 8px; max-width: 100%; }
+.dash-network-controls .dash-server-trigger { width: 164px; min-width: 0; }
+.dash-server-trigger [data-slot="select-value"] { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+@media (max-width: 700px) { .dash-network .dash-network-controls { flex-wrap: wrap; } .dash-network-controls .dash-server-trigger { width: 150px; } }
