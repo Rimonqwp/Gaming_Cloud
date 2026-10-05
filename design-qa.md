@@ -2,9 +2,9 @@
 
 ## 2026-10-05：游戏服务器实例页参考图调整
 
-final result: blocked
+final result: passed
 
-视觉和交互验收已通过；最终整项目构建及当前预览被并行修改的工单页阻塞：`UserDashboardTicketsTab.tsx` 引用了尚不存在的 `src/styles/cloud-tickets.css`。本次不覆盖或修改这部分用户工作。实例页组件及其依赖已单独通过 esbuild 编译。以下截图记录该外部阻塞出现前的已验证实例页。
+视觉、交互、最终整项目构建及预览验收均通过。期间工单页同步修改曾因 `src/styles/cloud-tickets.css` 尚不存在暂时阻塞构建；文件补齐后再次构建通过，刷新预览确认错误遮罩已消失。本次未修改这部分用户工作。
 
 - 当前范围：实例页。保留现有 EggCloud 横向导航、认证账户信息及蓝色主题；总览继续使用原有简版服务器表。以下旧报告保留作为此前总览工作的记录。
 - 视觉来源：`C:/Users/Rimon12/Desktop/53c19b58-8942-4697-a1da-12a334d0d338.png`，1586 × 992 像素。
@@ -13,7 +13,7 @@ final result: blocked
 - 局部对照：`output/design/instances-comparison-table.jpg`、`output/design/instances-comparison-details.jpg`，实现截图先放大 1.25 倍归一化已有 CSS zoom，再裁切工具栏、表格及详情面板。归一化只用于 QA 图片，无页面代码缩放改动。
 - 手机证据：`output/design/instances-mobile-final.jpg`，CSS 视口 390 × 844，完整截图 382 × 1846（8 像素滚动条）。DOM 的 clientWidth 与 scrollWidth 均为 382，表格横向滚动局限于其容器，详情面板移至列表下方。
 - 平板证据：`output/design/instances-tablet-final.jpg`，CSS 视口 1024 × 900，clientWidth 与 scrollWidth 均为 1016。详情位于列表下方，基本信息和图表分成两列。
-- 最终预览：`output/design/instances-preview-final.jpg`。本地浏览器预览保持可用。
+- 最终预览：`output/design/instances-preview-final.jpg`，1794 × 1327，CSS 视口同尺寸，当前视口不触发已有短视口缩放。DOM clientWidth 与 scrollWidth 均为 1794，错误遮罩不存在。本地浏览器预览保持可用。
 
 ### 五项必检表面
 
@@ -33,13 +33,13 @@ final result: blocked
 
 IP 搜索、空结果清除筛选、运行状态筛选、详情切换、详情关闭后重开、标签保存和标签搜索、每页数量与翻页、批量启动、重启确认及玩家归零、备份数量递增、地址复制反馈、详情页签键盘切换、24 小时及七天监控范围。创建按钮沿用 `/deploy` 路由。
 
-首次生产构建 `npm run build` 通过；独立预览页检查浏览器日志，当时没有运行错误，保留项目既有 React Router HydrateFallback 警告。最终整项目构建因为另一处正在编辑的工单页缺失 CSS 失败，当前预览显示相同导入错误。实例页单独 esbuild 编译通过，不修改其他正在进行的页面工作。
+首次生产构建和最终复验 `npm run build` 均通过；实例页独立 esbuild 编译也通过。工单页样式补齐后刷新浏览器并重开实例，确认渲染正常且没有错误遮罩。浏览器日志中保留此前缺失工单页样式的热更新历史错误及项目既有 React Router HydrateFallback 警告，最终复验未出现实例页运行错误。不修改其他正在进行的页面工作。
 
 ### 接受的差异与后续润色
 
 现有横向导航替代参考左侧导航，配色保持蓝色；五台游戏服务器替代参考九行云主机，表格保留游戏与玩家信息，详情中的 VPC、安全组、系统盘替换为连接端口、玩家、世界存档及备份。以上属于用户要求和产品上下文，非像素级复制范围。P3：当前趋势为前端演示，真实历史监控与服务器操作需后续服务端对接。
 
-实施清单：页面实现完成；视觉迭代通过；桌面、平板、手机检查完成；核心前端交互通过；实例页独立编译通过；最终整项目构建及当前预览待工单页缺失 CSS 补齐后复验。
+实施清单：页面实现完成；视觉迭代通过；桌面、平板、手机检查完成；核心前端交互通过；实例页独立编译通过；最终整项目构建及恢复后的浏览器预览复验通过。
 
 ---
 
