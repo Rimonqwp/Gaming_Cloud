@@ -1,30 +1,48 @@
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   Bell,
   ChartNoAxesCombined,
-  ChevronDown,
-  LogOut,
   MessageSquare,
-  Settings,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
+import { useTheme } from "next-themes";
 import "../../styles/cloud-navigation.css";
 import { USER_DASHBOARD_NAV_TABS } from "../config/userDashboardNavTabs";
 import { useDashboardNav } from "../context/DashboardNavContext";
-import { useUserAuth } from "../context/UserAuthContext";
-import { UserLoginDialog } from "./NavbarUserAccount";
+import {
+  isNavbarAccountLocale,
+  NavbarUserDesktop,
+  UserLoginDialog,
+} from "./NavbarUserAccount";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
 export function CloudConsoleHeader() {
   const { activeTab, setActiveTab, dashboardNavPlacement, mainNavbarHidden } = useDashboardNav();
-  const { user, logout, openLoginModal } = useUserAuth();
-  const navigate = useNavigate();
+  const { resolvedTheme, theme: themePreference, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const [locale, setLocale] = useState<"zh-CN" | "zh-TW" | "en">("zh-CN");
+
+  useEffect(() => {
+    setMounted(true);
+    const raw = window.localStorage.getItem("eggcloud.locale");
+    if (isNavbarAccountLocale(raw ?? "")) {
+      setLocale(raw);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang =
+      locale === "en" ? "en" : locale === "zh-TW" ? "zh-Hant" : "zh-Hans";
+    window.localStorage.setItem("eggcloud.locale", locale);
+  }, [locale]);
+
+  const isDark = mounted && resolvedTheme === "dark";
   const placement = mainNavbarHidden && dashboardNavPlacement === "navbar_embed"
     ? "below_navbar"
     : dashboardNavPlacement;
@@ -79,37 +97,18 @@ export function CloudConsoleHeader() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="cloud-user" aria-label="账户菜单">
-              <img src="/console/avatar.png" alt="" />
-              <span>{user?.displayName || user?.username || "Rimon12"}</span>
-              <ChevronDown size={15} />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="cloud-popover">
-            <DropdownMenuItem onSelect={() => setActiveTab("settings")}>
-              <Settings size={16} />
-              个人设定
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            {user ? (
-              <DropdownMenuItem
-                onSelect={async () => {
-                  await logout();
-                  navigate("/");
-                }}
-              >
-                <LogOut size={16} />
-                退出登录
-              </DropdownMenuItem>
-            ) : (
-              <DropdownMenuItem onSelect={openLoginModal}>
-                登录账户
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="cloud-account-profile">
+          <NavbarUserDesktop
+            mutedTextClass="text-slate-500"
+            userButtonClass="cloud-user-profile"
+            locale={locale}
+            onLocaleChange={setLocale}
+            themePreference={themePreference}
+            onThemeChange={setTheme}
+            themeMounted={mounted}
+            isDark={isDark}
+          />
+        </div>
       </div>
       <UserLoginDialog />
     </header>
