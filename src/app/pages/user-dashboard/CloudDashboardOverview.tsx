@@ -50,8 +50,8 @@ export function CloudDashboardOverview({ onSelectTab, mode = "overview", balance
         })}
       </section>
       <div className="dash-monitor-grid">
-        <ResourceUsage onMore={() => onSelectTab("instances")} /><NetworkTraffic />
-        <CostTrend />
+        <ResourceUsage onMore={() => onSelectTab("instances")} />
+        <CostTrend /><NetworkTraffic />
         <section className="dash-panel dash-health"><div className="dash-panel-heading"><h2>全球游戏节点状态</h2><div className="dash-health-legend"><span><i className="green" />正常 {gameRegions.filter(region => region.tone === "green").length}</span><span><i className="orange" />待维护 {gameRegions.filter(region => region.tone === "orange").length}</span></div></div><div className="dash-world-map"><img src="/console/world-map.png" alt="全球游戏托管节点分布地图" />{gameRegions.map(region => <button key={region.name} aria-label={`${region.name}（${region.city}）：${region.status}`} className={`dash-map-node ${region.tone} ${region.label}`} style={{ left: `${region.x}%`, top: `${region.y}%` }} onClick={() => setDetail({ title: `${region.name}（${region.city}）`, description: region.description })}><span className="dash-node-dot" /><span className="dash-node-label">{region.name}<br />（{region.city}）<br /><em>{region.status}</em></span></button>)}</div></section>
       </div>
     </> : <div className="cloud-page-heading"><div><h1>游戏服务器</h1><p>管理你的游戏服务器、玩家连接与世界存档 · 演示数据</p></div><Link className="cloud-primary" to="/deploy">创建游戏服务器</Link></div>}
