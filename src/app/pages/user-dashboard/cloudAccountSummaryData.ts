@@ -9,7 +9,10 @@ export const flexiblePool = {
   instanceIds: ["srv-mc-01", "srv-dst-01"],
 };
 
-export const poolInstances = consoleInstances.filter(server => flexiblePool.instanceIds.includes(server.id));
+const poolColors = ["#1683ff", "#13c6ad", "#8b7cf8", "#f5a623", "#ed729a"];
+export const poolInstances = consoleInstances
+  .filter(server => flexiblePool.instanceIds.includes(server.id))
+  .map(server => ({ ...server, color: poolColors[flexiblePool.instanceIds.indexOf(server.id) % poolColors.length] }));
 export const poolAllocated = poolInstances.reduce(
   (total, server) => ({ cores: total.cores + server.cores, ram: total.ram + server.ram }),
   { cores: 0, ram: 0 },

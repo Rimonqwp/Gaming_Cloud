@@ -27,7 +27,13 @@ export function CloudAccountSummary() {
     <section className="dash-panel dash-flexible-pool" aria-label="随心配资源概览">
       <div className="dash-panel-heading">
         <div className="dash-pool-title"><Layers3 size={18} /><h2>随心配资源</h2><span>自由分配</span></div>
-        <button className="dash-link" onClick={() => setDetail("allocation")}>分配明细 <ChevronRight size={14} /></button>
+        <div className="dash-pool-heading-actions">
+          <div className="dash-pool-legend" aria-label="服务器分配颜色图例">
+            {poolInstances.map(server => <span key={server.id}><i style={{ backgroundColor: server.color }} aria-hidden="true" />{server.name}</span>)}
+            <span><i className="dash-pool-available-dot" aria-hidden="true" />可分配</span>
+          </div>
+          <button className="dash-link" onClick={() => setDetail("allocation")}>分配明细 <ChevronRight size={14} /></button>
+        </div>
       </div>
       <div className="dash-pool-overview">
         <div className="dash-pool-capacity"><span>资源总额</span><strong>{flexiblePool.cores}<small>核</small><em>/</em>{flexiblePool.ram}<small>GB</small></strong><p>{flexiblePool.name} · 已分配至 {poolInstances.length} 台服务器</p></div>
@@ -35,12 +41,14 @@ export function CloudAccountSummary() {
           { key: "cores", title: "CPU", unit: "核" },
           { key: "ram", title: "内存", unit: "GB" },
         ] as const).map(resource => <div className={`dash-pool-resource ${resource.key}`} key={resource.key}>
-          <div><span>{resource.title} 分配</span><strong>{poolAllocated[resource.key]} <small>/ {flexiblePool[resource.key]} {resource.unit}</small></strong></div>
-          <progress value={poolAllocated[resource.key]} max={flexiblePool[resource.key]} aria-label={`${resource.title}已分配 ${poolAllocated[resource.key]} ${resource.unit}，总额 ${flexiblePool[resource.key]} ${resource.unit}`} />
+          <div className="dash-pool-resource-heading"><span>{resource.title} 分配</span><strong>{poolAllocated[resource.key]} <small>/ {flexiblePool[resource.key]} {resource.unit}</small></strong></div>
+          <div className="dash-pool-bar" role="progressbar" aria-label={`${resource.title}分配`} aria-valuemin={0} aria-valuemax={flexiblePool[resource.key]} aria-valuenow={poolAllocated[resource.key]} aria-valuetext={`${poolInstances.map(server => `${server.name} ${server[resource.key]} ${resource.unit}`).join("，")}；可分配 ${available[resource.key]} ${resource.unit}`}>
+            {poolInstances.map(server => <span className="dash-pool-segment" key={server.id} aria-hidden="true" title={`${server.name}：${server[resource.key]} ${resource.unit}`} style={{ width: `${server[resource.key] / flexiblePool[resource.key] * 100}%`, backgroundColor: server.color }} />)}
+            <span className="dash-pool-unallocated" aria-hidden="true" title={`可分配：${available[resource.key]} ${resource.unit}`} />
+          </div>
           <p>已分配 {poolAllocated[resource.key]} {resource.unit}<span>可分配 <b>{available[resource.key]} {resource.unit}</b></span></p>
         </div>)}
       </div>
-      <div className="dash-pool-servers"><span>分配给</span>{poolInstances.slice(0, 3).map(server => <span className="dash-pool-server" key={server.id}>{server.name}<b>{server.cores} 核 / {server.ram} GB</b></span>)}{poolInstances.length > 3 && <span>另 {poolInstances.length - 3} 台</span>}</div>
     </section>
 
     <Dialog open={detail !== null} onOpenChange={open => { if (!open) setDetail(null); }}>
