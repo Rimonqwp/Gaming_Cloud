@@ -4,6 +4,8 @@
 
 final result: passed
 
+第四次调整：按用户要求，所有个人设定分类及下方卡片统一收窄，并将菜单与内容整体居中。设置区域最大宽度为 1172px（184px 菜单 + 28px 间距 + 960px 内容）；移除仅个人信息生效的宽度规则和旧的 1390px 桌面覆盖。浏览器逐项检查七个分类的全部 12 张卡片，桌面宽度均为 960px。1794 × 1327 视口下整体左右留白均为 311px；390 × 844 手机视口下可用宽度为 380px（滚动条占 10px），左右留白均为 14px，两张账户卡片宽度均为 352px，clientWidth 与 scrollWidth 均为 380，无横向溢出。证据：`output/design/settings/centered-uniform-desktop.jpg`、`centered-uniform-mobile.jpg`。临时视口已恢复。
+
 第三次浏览器标注后续调整：用户要求缩小「个人信息」卡片宽度。仅该卡片设置 `width: 100%; max-width: 960px`，保留左侧对齐及透明背景。1794 × 1327 视口实测从 1178px 缩小至 960px，左边界保持 414px；窄屏仍由父容器宽度约束。最终截图：`output/design/settings/profile-narrower.jpg`。本次 CSS 调整通过页面视觉与尺寸验证。
 
 第二次浏览器标注后续调整：同样的边框样式推广至所有个人设定分类。公共 `.ec-settings-panel` 背景改为透明，移除此前仅个人信息生效的覆盖。浏览器逐项切换七个分类，检查全部 12 个外层容器：背景均为 `rgba(0, 0, 0, 0)`，边框均保留 `1px solid rgb(224, 232, 244)`。身份验证及个人信息最终截图：`output/design/settings/all-panels-border-only.jpg`，1794 × 1327。本次 CSS 调整通过页面验证。

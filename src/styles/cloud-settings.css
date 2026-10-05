@@ -1,5 +1,5 @@
 html:has(.cloud-shell .ec-settings) { zoom: 1; }
-.ec-settings { padding: 34px 0 60px; color: #111b36; }
+.ec-settings { width: 100%; max-width: 1172px; margin: 0 auto; padding: 34px 0 60px; color: #111b36; }
 .ec-settings-heading { margin-bottom: 28px; }
 .ec-settings-heading h1 { margin: 0 0 7px; font-size: 28px; font-weight: 700; letter-spacing: -.6px; }
 .ec-settings-heading p { margin: 0; color: #617391; font-size: 14px; }
@@ -14,7 +14,6 @@ html:has(.cloud-shell .ec-settings) { zoom: 1; }
 .ec-settings-content { min-width: 0; }
 .ec-settings-content [role="tabpanel"][hidden] { display: none; }
 .ec-settings-panel { padding: 23px 25px; background: transparent; border: 1px solid #e0e8f4; border-radius: 9px; margin-bottom: 18px; }
-#settings-panel-account > .ec-settings-panel:first-of-type { width: 100%; max-width: 960px; }
 .ec-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 25px; }
 .ec-panel-title { display: flex; align-items: flex-start; gap: 13px; min-width: 0; }
 .ec-panel-title > svg { margin-top: 2px; flex: none; }
@@ -89,7 +88,6 @@ html:has(.cloud-shell .ec-settings) { zoom: 1; }
 .ec-settings-dialog form > input[readonly] { background: #f4f6fa; color: #7384a0; }
 .ec-settings-dialog form > p { margin: 14px 0 0; line-height: 1.7; font-size: 12px; }
 .ec-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
-@media (min-width: 1500px) { .ec-settings { max-width: 1390px; margin: auto; } }
 @media (max-width: 900px) {
   .ec-settings-layout { grid-template-columns: 165px minmax(0, 1fr); gap: 20px; }
   .ec-settings-panel { padding: 22px; }
