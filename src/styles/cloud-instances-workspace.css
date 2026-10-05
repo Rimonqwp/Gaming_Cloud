@@ -19,7 +19,8 @@
 .iw-metric strong { font-size: 23px; font-weight: 750; color: #080f38; line-height: 1.25; font-variant-numeric: tabular-nums; }
 .iw-metric strong small { font-size: 11px; font-weight: 500; margin-left: 5px; }
 .iw-metric-bottom { margin-top: 15px; }
-.iw-spark { width: 100%; height: 35px; min-width: 0; }
+.iw-spark { position: relative; width: 100%; height: 35px; min-width: 0; }
+.iw-trend-range { position: absolute; top: -12px; right: 5px; font-size: 9px; line-height: 12px; color: #8a96ad; pointer-events: none; }
 .iw-pool-status { display: flex; align-items: center; gap: 22px; margin-bottom: 18px; padding: 10px 16px; border: 1px solid #e0eaf7; border-radius: 9px; background: #fff; overflow-x: auto; scrollbar-width: thin; }
 .iw-pool-identity { display: flex; align-items: center; gap: 10px; flex: none; }
 .iw-pool-icon { display: grid; place-items: center; height: 24px; width: 24px; border-radius: 6px; background: #edf5ff; color: #1683ff; }

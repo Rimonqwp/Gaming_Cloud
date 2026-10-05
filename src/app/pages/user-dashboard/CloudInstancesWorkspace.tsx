@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { Activity, Archive, ChevronDown, ChevronLeft, ChevronRight, Copy, Gamepad2, HardDrive, Layers3, Play, Plus, RefreshCw, Search, Server, Square, Tag, Users, X } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -11,6 +11,55 @@ import "../../../styles/cloud-instances-workspace.css";
 const dateFormat = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" });
 const detailTabs = [{ id: "info", label: "基本信息" }, { id: "monitor", label: "监控图表" }, { id: "backups", label: "存档备份" }, { id: "tags", label: "标签" }];
 const formatDate = (value: string) => dateFormat.format(new Date(value));
+const trendTimeFormat = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+const trendHourMs = 3600000;
+const maxTrendHours = 7 * 24;
+
+function MetricTrend({ metric }: { metric: { title: string; unit: string; value: number; series: number[] } }) {
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [endTime] = useState(() => Math.floor(Date.now() / trendHourMs) * trendHourMs);
+  const [rangeHours, setRangeHours] = useState(24);
+
+  useEffect(() => {
+    const chart = chartRef.current;
+    if (!chart) return;
+    let wheelDelta = 0;
+    const adjustRange = (event: WheelEvent) => {
+      if (event.ctrlKey || event.deltaY === 0) return;
+      event.preventDefault();
+      event.stopPropagation();
+      wheelDelta += event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 100 : 1);
+      const steps = Math.trunc(wheelDelta / 100);
+      if (!steps) return;
+      wheelDelta -= steps * 100;
+      setRangeHours(previous => Math.max(24, Math.min(maxTrendHours, previous + steps * 24)));
+    };
+    chart.addEventListener("wheel", adjustRange, { passive: false });
+    return () => chart.removeEventListener("wheel", adjustRange);
+  }, []);
+
+  // 演示历史按小时采样；切换范围时复用同一时间点，最新值固定在右侧。
+  const history = Array.from({ length: maxTrendHours + 1 }, (_, index) => {
+    const hoursAgo = maxTrendHours - index;
+    const position = ((24 - hoursAgo % 24) % 24) / 24 * (metric.series.length - 1);
+    const left = Math.floor(position);
+    const right = Math.min(left + 1, metric.series.length - 1);
+    const value = Math.round(metric.series[left] + (metric.series[right] - metric.series[left]) * (position - left));
+    return { time: endTime - hoursAgo * trendHourMs, value: hoursAgo === 0 ? metric.value : value };
+  });
+  const data = history.slice(-(rangeHours + 1));
+  const rangeLabel = rangeHours === 24 ? "近 24 小时" : `近 ${rangeHours / 24} 天`;
+  return <div ref={chartRef} className="iw-spark" role="img" aria-label={`${metric.title}${rangeLabel}演示趋势，滚轮调整范围，最多7天，时间为北京时间`}>
+    <span className="iw-trend-range" aria-hidden="true">{rangeLabel}</span>
+    <ResponsiveContainer width="100%" height="100%">
+      <AreaChart data={data}>
+        <XAxis dataKey="time" hide />
+        <Tooltip allowEscapeViewBox={{ y: true }} isAnimationActive={false} labelFormatter={label => `时间：${trendTimeFormat.format(new Date(Number(label)))}`} formatter={(value: number) => [`${value} ${metric.unit}`, metric.title]} cursor={{ stroke: "var(--iw-tone)", strokeOpacity: 0.3, strokeDasharray: "3 3" }} wrapperStyle={{ zIndex: 10 }} contentStyle={{ fontSize: 11, padding: "8px 10px", borderRadius: 8, borderColor: "#e0eaf7", boxShadow: "0 4px 16px #28375614" }} labelStyle={{ color: "#697793", marginBottom: 4 }} />
+        <Area dataKey="value" type="linear" stroke="var(--iw-tone)" fill="var(--iw-tone)" fillOpacity={0.06} strokeWidth={1.5} activeDot={{ r: 3, stroke: "#fff", strokeWidth: 1.5 }} isAnimationActive={false} />
+      </AreaChart>
+    </ResponsiveContainer>
+  </div>;
+}
 
 function ServerStatus({ running }: { running: boolean }) {
   return <span className={`iw-status ${running ? "running" : "stopped"}`}><i />{running ? "运行中" : "已停止"}</span>;
@@ -98,7 +147,7 @@ export function CloudInstancesWorkspace() {
     {!fullDetail && <div className="iw-main">
       <div className="iw-breadcrumb">控制台 <ChevronRight size={12} /> 实例 <ChevronRight size={12} /><span>游戏服务器</span></div>
       <header className="iw-heading"><h1>服务器列表</h1></header>
-      <section className="iw-metrics" aria-label="服务器统计">{metrics.map(metric => <article className={`iw-metric ${metric.tone}`} key={metric.title}><div className="iw-metric-top"><span className="iw-metric-icon"><metric.icon size={21} /></span><div><h2>{metric.title}</h2><strong>{metric.value}<small>{metric.unit}</small></strong></div></div><div className="iw-metric-bottom"><div className="iw-spark" role="img" aria-label="演示趋势"><ResponsiveContainer width="100%" height="100%"><AreaChart data={metric.series.map(value => ({ value }))}><Area dataKey="value" type="linear" stroke="var(--iw-tone)" fill="var(--iw-tone)" fillOpacity={0.06} strokeWidth={1.5} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div></div></article>)}</section>
+      <section className="iw-metrics" aria-label="服务器统计">{metrics.map(metric => <article className={`iw-metric ${metric.tone}`} key={metric.title}><div className="iw-metric-top"><span className="iw-metric-icon"><metric.icon size={21} /></span><div><h2>{metric.title}</h2><strong>{metric.value}<small>{metric.unit}</small></strong></div></div><div className="iw-metric-bottom"><MetricTrend metric={metric} /></div></article>)}</section>
       <FlexiblePoolStatus />
       <section className="iw-list" aria-label="游戏服务器列表">
         <div className="iw-actions"><Link to="/deploy" className="iw-button primary"><Plus size={17} />创建游戏服务器</Link><DropdownMenu><DropdownMenuTrigger asChild><button className="iw-button" disabled={!selected.length}>批量操作 {selected.length > 0 && <span className="iw-selection-count">{selected.length}</span>}<ChevronDown size={14} /></button></DropdownMenuTrigger><DropdownMenuContent className="iw-menu"><DropdownMenuItem onSelect={() => setRunning(selected, true)}><Play size={14} />启动服务器</DropdownMenuItem><DropdownMenuItem onSelect={() => setRunning(selected, false)}><Square size={14} />停止服务器</DropdownMenuItem></DropdownMenuContent></DropdownMenu><button className="iw-button" disabled={!selected.length} onClick={() => { setTagValue(""); setTagDialog(true); }}><Tag size={15} />绑定标签</button><button className="iw-button" onClick={() => setNotice(`已刷新，共 ${servers.length} 台服务器 · 演示数据`)}><RefreshCw size={15} />刷新</button>{selected.length > 0 && <button className="iw-text-button iw-selection-clear" onClick={() => setSelected([])}>取消选择</button>}</div>
