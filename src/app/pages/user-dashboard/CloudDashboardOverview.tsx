@@ -29,7 +29,7 @@ export function CloudDashboardOverview({ onSelectTab, mode = "overview" }: { onS
   const [maintenanceOpen, setMaintenanceOpen] = useState(false);
   const [detail, setDetail] = useState<{ title: string; description: string } | null>(null);
   const now = new Date();
-  return <div className="dash-overview">
+  return <div className={`dash-overview${mode === "overview" ? " dash-overview-full" : ""}`}>
     {mode === "overview" ? <>
       <button className="cloud-maintenance" onClick={() => setMaintenanceOpen(true)}><AlertTriangle size={25} /><strong>新加坡游戏节点计划维护</strong><span>·　10月9日 02:00（HKT）维护 15 分钟，游戏连接可能短暂中断，请提前保存世界存档。</span><time dateTime={now.toISOString()}>{formatHongKongTime(now)} · 香港时间（HKT）</time></button>
       <section className="dash-metrics" aria-label="游戏托管概况">
