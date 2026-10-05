@@ -202,3 +202,9 @@
 .dash-node-dot::after { animation-delay: -1.3s; }
 @keyframes dash-node-ripple { 0% { transform: scale(.7); opacity: .65; } 100% { transform: scale(2.4); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .dash-node-dot::before, .dash-node-dot::after { animation: none; opacity: 0; } }
+
+/* Align city labels with their markers instead of the old multi-line offsets. */
+.dash-world-map .dash-map-node .dash-node-label { top: 50%; left: 23px; right: auto; transform: translateY(-50%); min-width: 0; padding: 3px 5px; border-radius: 4px; background: #ffffffd9; color: #425470; line-height: 1.2; font-size: 11px; }
+.dash-world-map .dash-map-node.left .dash-node-label { left: auto; right: 23px; text-align: right; }
+.dash-world-map .dash-map-node:nth-of-type(3) .dash-node-label { top: -13px; left: 18px; }
+.dash-world-map .dash-map-node:nth-of-type(5) .dash-node-label { top: 17px; right: 23px; }
