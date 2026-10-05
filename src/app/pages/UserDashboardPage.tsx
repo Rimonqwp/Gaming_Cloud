@@ -133,7 +133,7 @@ export function UserDashboardPage() {
         <CloudConsoleHeader />
         <div
           className={
-            activeTab === "overview" || activeTab === "instances"
+            activeTab === "overview" || activeTab === "instances" || activeTab === "settings"
               ? ""
               : "cloud-legacy"
           }

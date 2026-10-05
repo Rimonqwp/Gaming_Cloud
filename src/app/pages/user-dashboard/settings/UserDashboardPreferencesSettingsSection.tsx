@@ -1,10 +1,13 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
+import { useState } from "react";
+import { Bell, Mail, MessageSquare, PanelTop, SlidersHorizontal, Sun } from "lucide-react";
 import { Switch } from "../../../components/ui/switch";
 import type { DashboardNavPlacement } from "../../../context/DashboardNavContext";
 import { SUPPORTED_CURRENCY_OPTIONS, type SupportedCurrency } from "../../../lib/currency";
 import { navPlacementOptions } from "../userDashboardData";
+import { SettingsPanel } from "./SettingsPanel";
 
-type UserDashboardPreferencesSettingsSectionProps = {
+type Props = {
+  userId: string;
   dashboardNavPlacement: DashboardNavPlacement;
   setDashboardNavPlacement: (placement: DashboardNavPlacement) => void;
   mainNavbarHidden: boolean;
@@ -15,136 +18,34 @@ type UserDashboardPreferencesSettingsSectionProps = {
   setPreviewBaseCurrency: (currency: SupportedCurrency) => void;
 };
 
-export function UserDashboardPreferencesSettingsSection({
-  dashboardNavPlacement,
-  setDashboardNavPlacement,
-  mainNavbarHidden,
-  setMainNavbarHidden,
-  preferredCurrency,
-  setPreferredCurrency,
-  previewBaseCurrency,
-  setPreviewBaseCurrency,
-}: UserDashboardPreferencesSettingsSectionProps) {
-  return (
-    <section>
-      <h3 className="mb-6 text-lg font-medium text-white">偏好设置</h3>
-
-      <div className="space-y-6">
-        <div className="rounded-3xl border border-white/5 bg-[#050505]/60 p-6 shadow-xl backdrop-blur-xl">
-          <h4 className="mb-1 text-sm font-medium text-zinc-300">貨幣顯示偏好</h4>
-          <p className="mb-5 text-xs text-zinc-500">
-            設定玩家自己的顯示貨幣，以及管理後台餘額調整彈窗的預設對照貨幣。兩項設定都會同步到帳號。
-          </p>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                玩家顯示貨幣
-              </label>
-              <Select value={preferredCurrency} onValueChange={(value) => setPreferredCurrency(value as SupportedCurrency)}>
-                <SelectTrigger className="border-white/10 bg-white/[0.03] text-white">
-                  <SelectValue placeholder="選擇貨幣" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SUPPORTED_CURRENCY_OPTIONS.map((option) => (
-                    <SelectItem key={option.code} value={option.code}>
-                      {option.code} {option.symbol} {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                系統預設對照貨幣
-              </label>
-              <Select
-                value={previewBaseCurrency}
-                onValueChange={(value) => setPreviewBaseCurrency(value as SupportedCurrency)}
-              >
-                <SelectTrigger className="border-white/10 bg-white/[0.03] text-white">
-                  <SelectValue placeholder="選擇貨幣" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SUPPORTED_CURRENCY_OPTIONS.map((option) => (
-                    <SelectItem key={option.code} value={option.code}>
-                      {option.code} {option.symbol} {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-white/5 bg-[#050505]/60 p-6 shadow-xl backdrop-blur-xl">
-          <h4 className="mb-1 text-sm font-medium text-zinc-300">控制台分頁位置</h4>
-          <p className="mb-5 text-xs text-zinc-500">
-            調整用戶控制台分頁列的顯示位置。登入後偏好會同步到帳號，未登入時則保存在本機瀏覽器。
-          </p>
-          {mainNavbarHidden ? (
-            <p className="mb-3 text-xs text-amber-500/90">
-              當主導覽列隱藏時，無法選擇「嵌入主導覽列」。
-            </p>
-          ) : null}
-          <div className="space-y-3">
-            {navPlacementOptions.map((option) => {
-              const embedDisabled = mainNavbarHidden && option.value === "navbar_embed";
-
-              return (
-                <label
-                  key={option.value}
-                  className={`flex gap-4 rounded-2xl border p-4 transition-colors ${
-                    embedDisabled
-                      ? "pointer-events-none cursor-not-allowed border-white/5 bg-white/[0.02] opacity-45"
-                      : dashboardNavPlacement === option.value
-                        ? "cursor-pointer border-cyan-500/40 bg-cyan-500/[0.06]"
-                        : "cursor-pointer border-white/10 bg-white/[0.02] hover:border-white/20"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="dashboard-nav-placement"
-                    value={option.value}
-                    checked={dashboardNavPlacement === option.value}
-                    disabled={embedDisabled}
-                    onChange={() => setDashboardNavPlacement(option.value)}
-                    className="mt-1 h-4 w-4 shrink-0 accent-cyan-500 disabled:cursor-not-allowed"
-                  />
-                  <div className="min-w-0">
-                    <div className={`text-sm font-medium ${embedDisabled ? "text-zinc-500" : "text-white"}`}>
-                      {option.title}
-                    </div>
-                    <p className="mt-1 text-xs leading-relaxed text-zinc-500">{option.description}</p>
-                  </div>
-                </label>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-white/5 bg-[#050505]/60 p-6 shadow-xl backdrop-blur-xl">
-          <h4 className="mb-1 text-sm font-medium text-zinc-300">主導覽列設定</h4>
-          <p className="mb-5 text-xs text-zinc-500">
-            控制主導覽列是否在控制台模式下隱藏。關閉後仍可透過控制台工具列操作主要入口。
-          </p>
-          <label className="flex cursor-pointer items-start justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition-colors hover:border-white/20">
-            <div className="min-w-0 pr-2">
-              <div className="text-sm font-medium text-white">隱藏主導覽列</div>
-              <p className="mt-1 text-xs leading-relaxed text-zinc-500">
-                開啟後會在控制台模式生效；離開 dashboard 後仍會顯示完整主導覽列。
-              </p>
-            </div>
-            <Switch
-              checked={mainNavbarHidden}
-              onCheckedChange={setMainNavbarHidden}
-              className="mt-0.5 data-[state=checked]:bg-cyan-600"
-              aria-label="隱藏主導覽列"
-            />
-          </label>
-        </div>
+export function UserDashboardPreferencesSettingsSection({ userId, dashboardNavPlacement, setDashboardNavPlacement, mainNavbarHidden, setMainNavbarHidden, preferredCurrency, setPreferredCurrency, previewBaseCurrency, setPreviewBaseCurrency }: Props) {
+  const storageKey = `eggcloud.notification-preview.${userId}`;
+  const [notifications, setNotifications] = useState(() => {
+    try { const saved = JSON.parse(localStorage.getItem(storageKey) || "null"); return { email: saved?.email === true, site: saved?.site === true }; } catch { return { email: false, site: false }; }
+  });
+  const [feedback, setFeedback] = useState("");
+  function toggleNotification(channel: "email" | "site", checked: boolean) {
+    const next = { ...notifications, [channel]: checked };
+    setNotifications(next);
+    try { localStorage.setItem(storageKey, JSON.stringify(next)); setFeedback("已保存此设备上的通知偏好预览。"); } catch { setFeedback("通知偏好仅在当前页面有效。"); }
+  }
+  return <>
+    <SettingsPanel title="通知设置" description="选择适合您的通知方式。" icon={Bell}>
+      <div className="ec-setting-row"><div className="ec-setting-with-icon"><Mail size={20} aria-hidden /><div><h3>邮件通知</h3><p>接收服务器状态、账单和安全提醒。</p></div></div><Switch checked={notifications.email} onCheckedChange={(checked) => toggleNotification("email", checked)} aria-label="邮件通知" /></div>
+      <div className="ec-setting-row"><div className="ec-setting-with-icon"><MessageSquare size={20} aria-hidden /><div><h3>站内通知</h3><p>在控制台内查看重要的系统消息。</p></div></div><Switch checked={notifications.site} onCheckedChange={(checked) => toggleNotification("site", checked)} aria-label="站内通知" /></div>
+      <p className="ec-muted ec-notification-note">通知偏好可在此预览，通知发送服务暂未开放。</p>
+      {feedback && <p className="ec-feedback" role="status">{feedback}</p>}
+    </SettingsPanel>
+    <SettingsPanel title="偏好设置" description="自定义您的控制台使用体验。" icon={SlidersHorizontal}>
+      <div className="ec-preference-grid">
+        <label htmlFor="settings-currency">显示货币<select id="settings-currency" value={preferredCurrency} onChange={(event) => setPreferredCurrency(event.target.value as SupportedCurrency)}>{SUPPORTED_CURRENCY_OPTIONS.map((option) => <option key={option.code} value={option.code}>{option.code} {option.symbol} {option.label}</option>)}</select></label>
+        <label htmlFor="settings-base-currency">默认对照货币<select id="settings-base-currency" value={previewBaseCurrency} onChange={(event) => setPreviewBaseCurrency(event.target.value as SupportedCurrency)}>{SUPPORTED_CURRENCY_OPTIONS.map((option) => <option key={option.code} value={option.code}>{option.code} {option.symbol} {option.label}</option>)}</select></label>
       </div>
-    </section>
-  );
+      <div className="ec-setting-row"><div><h3>界面主题</h3><p>清晰明亮的控制台界面。</p></div><span className="ec-badge"><Sun size={16} aria-hidden />浅色主题</span></div>
+    </SettingsPanel>
+    <SettingsPanel title="导航设置" description="设置控制台导航的位置与显示方式。" icon={PanelTop}>
+      <fieldset className="ec-nav-options"><legend>控制台分页位置</legend>{navPlacementOptions.map((option) => <label key={option.value}><input type="radio" name="dashboard-nav-placement" value={option.value} checked={dashboardNavPlacement === option.value} disabled={mainNavbarHidden && option.value === "navbar_embed"} onChange={() => setDashboardNavPlacement(option.value)} /><span><strong>{option.title}</strong><small>{option.description}</small></span></label>)}</fieldset>
+      <div className="ec-setting-row"><div><h3>隐藏主导航列</h3><p>在控制台模式下隐藏站点主导航列。</p></div><Switch checked={mainNavbarHidden} onCheckedChange={setMainNavbarHidden} aria-label="隐藏主导航列" /></div>
+    </SettingsPanel>
+  </>;
 }

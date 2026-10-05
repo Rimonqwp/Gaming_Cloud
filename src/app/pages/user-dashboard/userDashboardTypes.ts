@@ -1,6 +1,6 @@
 import type { DashboardNavPlacement } from "../../context/DashboardNavContext";
 
-export type SettingsMenuId = "account" | "linked" | "payment" | "security" | "preferences";
+export type SettingsMenuId = "account" | "linked" | "payment" | "security" | "preferences" | "api" | "privacy";
 
 export type DashboardUser = {
   id: string;
