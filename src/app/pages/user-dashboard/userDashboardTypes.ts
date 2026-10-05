@@ -11,6 +11,11 @@ export type DashboardUser = {
   rank: string;
   status: string;
   registeredAt: string;
+  phone?: string;
+  region?: string;
+  timeZone?: string;
+  lastLoginAt?: string;
+  loginMethod?: string;
 };
 
 export type DashboardInstance = {
