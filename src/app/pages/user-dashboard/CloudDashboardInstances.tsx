@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import "../../../styles/cloud-instances.css";
 import { consoleInstances } from "./cloudDashboardData";
 
+const expiryFormatter = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Hong_Kong", year: "numeric", month: "2-digit", day: "2-digit" });
+
 export function CloudDashboardInstances() {
   const [query, setQuery] = useState("");
   const [region, setRegion] = useState("all");
@@ -56,14 +58,7 @@ export function CloudDashboardInstances() {
 
       <div className="dash-table-scroll">
         <table>
-          <colgroup>
-            <col style={{ width: "21%" }} />
-            <col style={{ width: "13%" }} />
-            <col style={{ width: "18%" }} />
-            <col style={{ width: "16%" }} />
-            <col style={{ width: "16%" }} />
-            <col style={{ width: "16%" }} />
-          </colgroup>
+          <colgroup>{[24, 10, 16, 13, 13, 11, 13].map((width, index) => <col key={index} style={{ width: width + "%" }} />)}</colgroup>
           <thead>
             <tr>
               <th>服务器名称</th>
@@ -72,6 +67,7 @@ export function CloudDashboardInstances() {
               <th>CPU</th>
               <th>内存</th>
               <th>在线玩家</th>
+              <th>到期时间</th>
             </tr>
           </thead>
           <tbody>
@@ -110,11 +106,12 @@ export function CloudDashboardInstances() {
                   </td>
                 ))}
                 <td>{row.players} / {row.slots} 人</td>
+                <td><time dateTime={row.expiresAt} className={Date.parse(row.expiresAt) - Date.now() <= 7 * 86400000 ? "dash-expiry soon" : "dash-expiry"}>{expiryFormatter.format(new Date(row.expiresAt))}</time></td>
               </tr>
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={6} className="dash-empty">
+                <td colSpan={7} className="dash-empty">
                   没有匹配的游戏服务器。
                   <button
                     className="dash-link"
@@ -152,6 +149,7 @@ export function CloudDashboardInstances() {
               <div><dt>在线玩家</dt><dd>{detail.players} / {detail.slots} 人</dd></div>
               <div><dt>游戏存档</dt><dd>{detail.saveGB} GB</dd></div>
               <div><dt>存档备份</dt><dd>{detail.backups} 份</dd></div>
+              <div><dt>到期时间</dt><dd>{expiryFormatter.format(new Date(detail.expiresAt))}（香港时间）</dd></div>
               <div><dt>运行时长</dt><dd>{detail.uptime}</dd></div>
             </dl>
           )}

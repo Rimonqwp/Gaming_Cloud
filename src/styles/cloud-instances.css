@@ -48,3 +48,6 @@
 .cloud-shell .dash-instances tbody td:first-child { border-left: 1px solid #eaf0f9; border-radius: 8px 0 0 8px; }
 .cloud-shell .dash-instances tbody td:last-child { border-right: 1px solid #eaf0f9; border-radius: 0 8px 8px 0; }
 .cloud-shell .dash-instances .dash-server-avatar { background: #fff; border: 1px solid #dceaff; color: #1683ff; width: 36px; height: 36px; }
+
+.cloud-shell .dash-instances .dash-expiry { color: #63738e; font-size: 11px; font-variant-numeric: tabular-nums; }
+.cloud-shell .dash-instances .dash-expiry.soon { color: #b67c09; background: #fff5dc; padding: 4px 6px; border-radius: 5px; }
