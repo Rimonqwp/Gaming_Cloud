@@ -90,7 +90,25 @@ html:has(.gsd-page) { scrollbar-gutter: stable; }
 .gsd-player img { width: 36px; height: 36px; flex: none; border-radius: 50%; object-fit: cover; }
 .gsd-player > div { min-width: 0; }
 .gsd-player button { display: block; color: #087bff; font-size: 12px; font-weight: 600; border: 0; background: none; padding: 0; }
-.gsd-player small { display: block; color: #8b9cba; font-size: 10px; line-height: 17px; }
+.gsd-player small { display: block; color: #8b9cba; font-size: 10px; line-height: 17px; overflow: hidden; text-overflow: ellipsis; }
+.gsd-player.minecraft img { border-radius: 4px; image-rendering: pixelated; }
+.gsd-cell-secondary { display: block; color: #8b9cba; font-size: 10px; line-height: 17px; }
+.gsd-player-list-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 16px 0 10px; }
+.gsd-player-list-heading > span { font-size: 11px; color: #8191ad; }
+.gsd-player-table.minecraft { min-width: 1100px; }
+.gsd-player-table.minecraft col:nth-child(1) { width: 3%; }
+.gsd-player-table.minecraft col:nth-child(2) { width: 29%; }
+.gsd-player-table.minecraft col:nth-child(3) { width: 7%; }
+.gsd-player-table.minecraft col:nth-child(4) { width: 13%; }
+.gsd-player-table.minecraft col:nth-child(5) { width: 7%; }
+.gsd-player-table.minecraft col:nth-child(6) { width: 10%; }
+.gsd-player-table.minecraft col:nth-child(7) { width: 12%; }
+.gsd-player-table.minecraft col:nth-child(8) { width: 8%; }
+.gsd-player-table.minecraft col:nth-child(9) { width: 11%; }
+.gsd-player-table.minecraft .gsd-role { padding: 0 7px; }
+.gsd-player-table.minecraft .gsd-row-actions button { margin-right: 10px; }
+.gsd-player-table.minecraft .gsd-row-actions button:last-child { margin-right: 0; }
+.gsd-copy-uuid { display: inline-flex; vertical-align: middle; margin-left: 7px; padding: 0; background: none; border: 0; color: #087bff; }
 .gsd-player-status { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; }
 .gsd-player-status i { width: 6px; height: 6px; }
 .gsd-player-status.online { color: #00b987; }
@@ -190,7 +208,7 @@ html:has(.gsd-page) { scrollbar-gutter: stable; }
   .gsd-hero { flex-wrap: wrap; gap: 15px; }
   .gsd-actions { padding: 0; }
   .gsd-layout { grid-template-columns: minmax(0, 1fr); gap: 14px; }
-  .gsd-sidebar { display: grid; grid-template-columns: 1.1fr 1fr; gap: 12px; }
+  .gsd-sidebar { display: flex; gap: 12px; }
   .gsd-console { grid-row: span 2; }
   .gsd-metric-heading { gap: 19px; }
   .gsd-metric p { font-size: 11px; }
