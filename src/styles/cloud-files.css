@@ -19,7 +19,9 @@
 .ifm-tree-row.active .ifm-tree-label svg { color: #087bff; fill: #b4d8ff; }
 .ifm-tree-row:hover { background: #f0f6ff; }
 .ifm-browser { padding: 12px 16px 14px; position: relative; display: flex; flex-direction: column; min-height: 0; }
-.ifm-path { display: flex; align-items: center; gap: 9px; height: 23px; margin: 0 6px 13px; font-size: 14px; }
+.ifm-path-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; min-height: 23px; margin: 0 6px 13px; }
+.ifm-path { display: flex; align-items: center; flex: 1 1 160px; min-width: 0; gap: 9px; height: 23px; font-size: 14px; overflow-x: auto; white-space: nowrap; }
+.ifm-path > * { flex: none; }
 .ifm-path > span { display: flex; align-items: center; gap: 9px; }
 .ifm-path button { color: #536c98; border: 0; padding: 0; background: none; display: flex; align-items: center; }
 .ifm-path button:hover { color: var(--ifm-blue); }
@@ -91,6 +93,8 @@
 .ifm-detail-actions .gsd-button:last-child { color: #53698e; }
 .ifm-selection { display: flex; align-items: center; gap: 18px; color: #087bff; padding: 9px 12px; border-radius: 4px; background: #eff6ff; }
 .ifm-selection button { background: none; border: 0; color: inherit; display: flex; align-items: center; gap: 5px; font-size: 12px; }
+.ifm-path-row > .ifm-selection { flex: none; margin-left: auto; padding: 0; background: none; font-size: 12px; white-space: nowrap; }
+.ifm-path-row > .ifm-selection button { min-height: 23px; padding: 0; }
 .ifm-empty, .ifm-detail-empty { display: flex; align-items: center; flex-direction: column; justify-content: center; gap: 12px; min-height: 220px; color: #8196b8; }
 .ifm-empty strong { font-size: 13px; font-weight: 500; }
 .ifm-empty button { color: #087bff; background: none; border: 0; }
@@ -138,7 +142,7 @@
     .gsd-tabs
   ) { flex: none; }
   .ifm-layout { flex: 1; min-height: 0; }
-  .ifm-tree > header, .ifm-path, .ifm-toolbar, .ifm-selection { flex: none; }
+  .ifm-tree > header, .ifm-path-row, .ifm-toolbar, .ifm-selection { flex: none; }
 }
 @media (max-width: 1450px) {
   .ifm-layout { grid-template-columns: 220px minmax(0, 1fr) 0px; }
