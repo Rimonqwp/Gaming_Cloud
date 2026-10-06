@@ -3,6 +3,13 @@ body:has(.cloud-shell) {
   --console-display-scale: 1;
 }
 
+/* 页面滚动条和预留区域位于 html/body，必须与浅色控制面板同步。 */
+html:has(.cloud-shell),
+body:has(.cloud-shell) {
+  color-scheme: light !important;
+  background: #f3f8ff;
+}
+
 /* 1080p 桌面视口固定 90%；超过 1920px 的 2K / 4K 视口保持 100%。 */
 @media (min-width: 1101px) and (max-width: 1920px) {
   body:has(.cloud-shell) {

@@ -1182,6 +1182,10 @@ body:has(.cloud-shell),
   width: 10px;
   height: 10px;
 }
+:is(html:has(.cloud-shell), body:has(.cloud-shell))::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
 :is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .dash-period-menu)::-webkit-scrollbar-track {
   background: var(--console-scroll-track);
   border-radius: 10px;
