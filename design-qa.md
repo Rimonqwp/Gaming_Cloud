@@ -167,3 +167,10 @@ final result: passed
 按照参考图完成四张统计卡片、六项任务列表、详情栏和最近执行记录，支持搜索筛选、新建编辑、批量启停、模拟执行和日志查看。完整视觉迭代、交互验证、适配与演示范围见 [定时任务页验收记录](output/design/tasks/design-qa.md)。最终实现为 `output/design/tasks/desktop-final.png`，全屏组合对照为 `output/design/tasks/comparison-final.jpg`；表格与侧栏另有可读的局部对照。
 
 final result: passed
+
+
+## Minecraft 插件广场新增验收（2026-10-06）
+
+按参考图新增插件广场入口、Minecraft 横幅、四列插件卡片、搜索与分类/服务端/版本/排序筛选、插件概览、快捷操作及排行榜。安装、批量更新、启停、卸载、文件添加和付费安装均使用按实例保存的本地演示状态。完整视觉对照、响应式修正与交互验证见 [插件广场验收记录](output/design/plugins/design-qa.md)，最终组合对照为 `output/design/plugins/comparison-full.jpg`。
+
+final result: passed
