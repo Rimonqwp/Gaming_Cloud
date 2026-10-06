@@ -60,7 +60,6 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
   const [trash, setTrash] = useState<Entry[]>([]);
   const [manualCopyPath, setManualCopyPath] = useState<string | null>(null);
   const [leavePromptOpen, setLeavePromptOpen] = useState(false);
-  const [pendingSavePath, setPendingSavePath] = useState<string | null>(null);
   const uploadRef = useRef<HTMLInputElement>(null);
   const detailsTriggerRef = useRef<HTMLButtonElement | null>(null);
   const dragDepth = useRef(0);
@@ -84,7 +83,6 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
     setExpanded(previous => [...new Set([...previous, ...ancestors])]);
   };
   const openDialog = (kind: FileDialog["kind"], target?: Entry, paths?: string[]) => {
-    setPendingSavePath(null);
     setDialog({ kind, target, paths }); setName(kind === "rename" && target ? baseName(target.path) : "");
     setText(target?.content ? decoder.decode(target.content).trimEnd() : ""); setError("");
   };
@@ -107,15 +105,30 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
   };
   const saveEditor = () => {
     if (!editorPath || !editorDraft || !editorDirty) return;
-    if (editorDraft.isNew) {
-      openDialog("file");
-      setPendingSavePath(editorPath);
-      setName("未命名.txt");
-      setText(editorDraft.value);
-      return;
-    }
     const content = encoder.encode(editorDraft.value);
     if (content.length > 1024 ** 2) { onNotice("在线编辑文件不能超过 1 MB"); return; }
+    if (editorDraft.isNew) {
+      const directoryPath = parentPath(editorPath);
+      const base = "未命名";
+      let index = 0;
+      let savedPath = `${directoryPath}/${base}.txt`;
+      while (entries.some(entry => entry.path === savedPath) || editorTabs.some(path => path === savedPath)) {
+        index += 1;
+        savedPath = `${directoryPath}/${base} (${index}).txt`;
+      }
+      const now = timestamp();
+      const entry: Entry = { path: savedPath, folder: false, content, bytes: content.length, modified: now, created: now, permission: "-rw-r--r--" };
+      setEntries(previous => [...previous, entry]);
+      setEditorTabs(previous => previous.map(path => path === editorPath ? savedPath : path));
+      setEditorPath(previous => previous === editorPath ? savedPath : previous);
+      setDrafts(previous => {
+        const next = { ...previous, [savedPath]: { value: editorDraft.value, saved: editorDraft.value } };
+        delete next[editorPath];
+        return next;
+      });
+      onNotice(`文件已保存到当前目录：${baseName(savedPath)}`);
+      return;
+    }
     setEntries(previous => previous.map(entry => entry.path === editorPath ? { ...entry, content, bytes: content.length, modified: timestamp() } : entry));
     setDrafts(previous => ({ ...previous, [editorPath]: { value: editorDraft.value, saved: editorDraft.value } }));
     onNotice("文件已保存（本地演示）");
@@ -238,20 +251,8 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
         const folder = dialog.kind === "folder"; const content = folder ? undefined : encoder.encode(text);
         const entry: Entry = { path, folder, content, bytes: content?.length || 0, modified: timestamp(), created: timestamp(), permission: folder ? "drwxr-xr-x" : "-rw-r--r--" };
         setEntries(previous => [...previous, entry]); setActivePath(path);
-        if (!folder && pendingSavePath) {
-          const sourcePath = pendingSavePath;
-          setEditorTabs(previous => previous.map(item => item === sourcePath ? path : item));
-          setEditorPath(previous => previous === sourcePath ? path : previous);
-          setDrafts(previous => {
-            const next = { ...previous, [path]: { value: text, saved: text } };
-            delete next[sourcePath];
-            return next;
-          });
-          setPendingSavePath(null);
-          onNotice("文件已保存（本地演示）");
-        }
       }
-      if (!pendingSavePath) onNotice("操作已完成（本地演示）");
+      onNotice("操作已完成（本地演示）");
     }
     setDialog(null);
   };
