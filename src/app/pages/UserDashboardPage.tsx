@@ -102,7 +102,13 @@ export function UserDashboardPage() {
 
   useEffect(() => {
     const tabParam = searchParams.get("tab");
+    const serverParam = searchParams.get("server");
     if (!tabParam) {
+      // A server detail URL is a durable deep link. Restore the instances
+      // workspace before the detail component reads the server parameter.
+      if (serverParam) {
+        setActiveTab("instances");
+      }
       return;
     }
     const match = USER_DASHBOARD_NAV_TABS.find((t) => t.id === tabParam);

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { Activity, Archive, ChevronDown, ChevronLeft, ChevronRight, Copy, Gamepad2, HardDrive, Layers3, Play, Plus, RefreshCw, Search, Server, Square, Tag, Users, X } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
@@ -100,6 +100,7 @@ function ResourceChart({ server, period }: { server: ConsoleInstance; period: st
 }
 
 export function CloudInstancesWorkspace() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [servers, setServers] = useState(consoleInstances);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
@@ -119,6 +120,30 @@ export function CloudInstancesWorkspace() {
   const [tagValue, setTagValue] = useState("");
   const [restartId, setRestartId] = useState<string | null>(null);
 
+  const serverParam = searchParams.get("server");
+
+  useEffect(() => {
+    if (!serverParam) {
+      setDetailId(null);
+      setFullDetail(false);
+      return;
+    }
+
+    if (!consoleInstances.some((server) => server.id === serverParam)) {
+      setSearchParams(previous => {
+        const next = new URLSearchParams(previous);
+        next.delete("server");
+        next.delete("detailTab");
+        return next;
+      }, { replace: true });
+      return;
+    }
+
+    setDetailId(serverParam);
+    setDetailTab(searchParams.get("detailTab") || "info");
+    setFullDetail(true);
+  }, [searchParams, serverParam, setSearchParams]);
+
   const rows = servers.filter(row => (status === "all" || row.running === (status === "running")) && (region === "all" || row.region === region) && (game === "all" || row.game === game) && `${row.name} ${row.game} ${row.ip} ${tags[row.id] ?? ""}`.toLowerCase().includes(query.trim().toLowerCase())).sort((a, b) => sort === "expiry" ? Date.parse(a.expiresAt) - Date.parse(b.expiresAt) : sort === "name" ? a.name.localeCompare(b.name, "zh-CN") : 0);
   const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
   const currentPage = Math.min(page, pageCount);
@@ -134,8 +159,24 @@ export function CloudInstancesWorkspace() {
   ];
 
   const openDetail = (id: string) => { setDetailId(id); setDetailTab("info"); };
-  const openFullDetail = (id: string) => { openDetail(id); setNotice(""); setFullDetail(true); };
-  const closeDetail = () => { setFullDetail(false); setDetailId(null); };
+  const openFullDetail = (id: string) => {
+    setNotice("");
+    setSearchParams(previous => {
+      const next = new URLSearchParams(previous);
+      next.set("tab", "instances");
+      next.set("server", id);
+      next.delete("detailTab");
+      return next;
+    });
+  };
+  const closeDetail = () => {
+    setSearchParams(previous => {
+      const next = new URLSearchParams(previous);
+      next.delete("server");
+      next.delete("detailTab");
+      return next;
+    }, { replace: true });
+  };
   const setRunning = (ids: string[], value: boolean, noticeText?: string) => {
     setServers(previous => previous.map(row => ids.includes(row.id) ? { ...row, running: value, players: value ? row.players : 0, cpu: value ? row.cpu || 15 : 0, memory: value ? row.memory || 25 : 0, uptime: value ? "刚刚启动" : "—" } : row));
     setNotice(noticeText ?? `已${value ? "启动" : "停止"} ${ids.length} 台服务器（演示操作）`);
@@ -148,7 +189,7 @@ export function CloudInstancesWorkspace() {
   const toggleSelected = (id: string) => setSelected(previous => previous.includes(id) ? previous.filter(item => item !== id) : [...previous, id]);
 
   return <div className={`instances-workspace${detail ? fullDetail ? " full-detail" : " has-detail" : ""}`}>
-    {fullDetail && detail && <GameServerDetailWorkspace key={detail.id} server={detail} onBack={() => setFullDetail(false)} onCopy={() => void copyAddress(detail)} onRestart={() => detail.running ? setRestartId(detail.id) : setRunning([detail.id], true)} onBackup={() => backup(detail)} notice={notice} onNotice={setNotice} monitor={<ResourceChart server={detail} period={period} />} period={period} onPeriodChange={setPeriod} onStart={() => setRunning([detail.id], true)} onStop={() => setRunning([detail.id], false)} onForceStop={() => setRunning([detail.id], false, `已硬关机 ${detail.name}（演示操作）`)} />}
+    {fullDetail && detail && <GameServerDetailWorkspace key={detail.id} server={detail} onBack={closeDetail} onCopy={() => void copyAddress(detail)} onRestart={() => detail.running ? setRestartId(detail.id) : setRunning([detail.id], true)} onBackup={() => backup(detail)} notice={notice} onNotice={setNotice} monitor={<ResourceChart server={detail} period={period} />} period={period} onPeriodChange={setPeriod} onStart={() => setRunning([detail.id], true)} onStop={() => setRunning([detail.id], false)} onForceStop={() => setRunning([detail.id], false, `已硬关机 ${detail.name}（演示操作）`)} />}
     {!fullDetail && <div className="iw-main">
       <div className="iw-breadcrumb">控制台 <ChevronRight size={12} /> 实例 <ChevronRight size={12} /><span>游戏服务器</span></div>
       <header className="iw-heading"><h1>服务器列表</h1></header>
