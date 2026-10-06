@@ -103,12 +103,12 @@ export function UserDashboardPage() {
   useEffect(() => {
     const tabParam = searchParams.get("tab");
     const serverParam = searchParams.get("server");
+    if (serverParam && activeTab !== "instances") {
+      // A server detail URL is a durable deep link. Keep it authoritative
+      // even if account preferences finish loading after the first render.
+      setActiveTab("instances");
+    }
     if (!tabParam) {
-      // A server detail URL is a durable deep link. Restore the instances
-      // workspace before the detail component reads the server parameter.
-      if (serverParam) {
-        setActiveTab("instances");
-      }
       return;
     }
     const match = USER_DASHBOARD_NAV_TABS.find((t) => t.id === tabParam);
@@ -119,7 +119,7 @@ export function UserDashboardPage() {
     const next = new URLSearchParams(searchParams);
     next.delete("tab");
     setSearchParams(next, { replace: true });
-  }, [searchParams, setActiveTab, setSearchParams]);
+  }, [activeTab, searchParams, setActiveTab, setSearchParams]);
 
   const dashboardUser = {
     ...mockUser,
