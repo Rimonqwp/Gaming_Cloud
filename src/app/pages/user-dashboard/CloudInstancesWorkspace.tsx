@@ -189,7 +189,7 @@ export function CloudInstancesWorkspace() {
   const toggleSelected = (id: string) => setSelected(previous => previous.includes(id) ? previous.filter(item => item !== id) : [...previous, id]);
 
   return <div className={`instances-workspace${detail ? fullDetail ? " full-detail" : " has-detail" : ""}`}>
-    {fullDetail && detail && <GameServerDetailWorkspace key={detail.id} server={detail} onBack={closeDetail} onCopy={() => void copyAddress(detail)} onRestart={() => detail.running ? setRestartId(detail.id) : setRunning([detail.id], true)} onBackup={() => backup(detail)} notice={notice} onNotice={setNotice} monitor={<ResourceChart server={detail} period={period} />} period={period} onPeriodChange={setPeriod} onStart={() => setRunning([detail.id], true)} onStop={() => setRunning([detail.id], false)} onForceStop={() => setRunning([detail.id], false, `已硬关机 ${detail.name}（演示操作）`)} />}
+    {fullDetail && detail && <GameServerDetailWorkspace key={detail.id} server={detail} onBack={closeDetail} onCopy={() => void copyAddress(detail)} onRestart={() => detail.running ? setRestartId(detail.id) : setRunning([detail.id], true)} onBackup={() => backup(detail)} notice={notice} onNotice={setNotice} onStart={() => setRunning([detail.id], true)} onStop={() => setRunning([detail.id], false)} onForceStop={() => setRunning([detail.id], false, `已硬关机 ${detail.name}（演示操作）`)} />}
     {!fullDetail && <div className="iw-main">
       <div className="iw-breadcrumb">控制台 <ChevronRight size={12} /> 实例 <ChevronRight size={12} /><span>游戏服务器</span></div>
       <header className="iw-heading"><h1>服务器列表</h1></header>

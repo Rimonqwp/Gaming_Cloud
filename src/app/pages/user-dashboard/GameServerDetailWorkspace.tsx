@@ -1,5 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { Archive, Ban, Check, ChevronLeft, ChevronRight, ClipboardList, Clock3, Copy, Crown, Eye, FileText, FolderClosed, Gamepad2, House, Megaphone, Power, RefreshCw, Save, Search, Send, Settings, Shield, SquareTerminal, Swords, Timer, Trash2, Users, Wrench, X, Zap } from "lucide-react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Archive, Ban, Check, ChevronLeft, ChevronRight, ClipboardList, Clock3, Copy, Crown, Eye, FileText, FolderClosed, Gamepad2, House, Megaphone, Power, RefreshCw, Save, Search, Send, Settings, SquareTerminal, Swords, Timer, Trash2, Users, Wrench, X, Zap } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
@@ -17,11 +17,10 @@ import { GameServerPlugins } from "./GameServerPlugins";
 type PlayerStatus = "在线" | "离线" | "已封禁";
 type PlayerRole = "管理员" | "成员" | "白名单" | "黑名单";
 type Player = { name: string; id: string; status: PlayerStatus; lastLogin: string; hours: number; role: PlayerRole; avatar: string };
-type DetailTab = "overview" | "performance" | "players" | "files" | "plugins" | "backups" | "logs" | "tasks" | "machine";
+type DetailTab = "overview" | "players" | "files" | "plugins" | "backups" | "logs" | "tasks" | "machine";
 type Mode = "whitelist" | "pvp" | "autosave" | "maintenance";
 const tabs = [
   { id: "overview", label: "概览", icon: House },
-  { id: "performance", label: "性能监控", icon: Megaphone },
   { id: "players", label: "玩家管理", icon: Users },
   { id: "files", label: "文件管理", icon: ClipboardList },
   { id: "plugins", label: "插件广场", icon: Box },
@@ -82,9 +81,9 @@ function Metric({ title, value, description, tone, icon: Icon, points }: { title
   </article>;
 }
 
-export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, onBackup, notice, onNotice, monitor, period, onPeriodChange, onStart, onStop, onForceStop }: {
+export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, onBackup, notice, onNotice, onStart, onStop, onForceStop }: {
   server: ConsoleInstance; onBack: () => void; onCopy: () => void; onRestart: () => void; onBackup: () => void;
-  notice: string; onNotice: (message: string) => void; monitor: ReactNode; period: string; onPeriodChange: (value: string) => void; onStart: () => void; onStop: () => void; onForceStop: () => void;
+  notice: string; onNotice: (message: string) => void; onStart: () => void; onStop: () => void; onForceStop: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<DetailTab>("overview");
   const [backupRequest, setBackupRequest] = useState(0);
@@ -193,9 +192,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
           <footer className="gsd-pagination"><span>{selected.length ? `已选择 ${selected.length} 名玩家 · ` : ""}共 {filtered.length} 名玩家，当前在线 {onlineCount} 人</span><nav aria-label="玩家分页"><button aria-label="上一页玩家" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}><ChevronLeft size={15} /></button><button className="current" aria-current="page">{currentPage}</button><button aria-label="下一页玩家" disabled={currentPage === pageCount} onClick={() => setPage(currentPage + 1)}><ChevronRight size={15} /></button><select aria-label="每页玩家数量" value={pageSize} onChange={event => { setPageSize(Number(event.target.value)); setPage(1); }}><option value={10}>10 条/页</option><option value={5}>5 条/页</option></select></nav></footer>
         </section>
         <aside className="gsd-sidebar">{consolePanel}<section className="gsd-card gsd-quick"><h2><Settings size={20} />快捷管理</h2><div className="gsd-quick-grid">{modeDefinitions.map(mode => <div className={`gsd-quick-item ${mode.tone}`} key={mode.key}><span className="gsd-icon-tile"><mode.icon size={21} /></span><div><h3>{mode.title}</h3><p>{mode.description}</p>{"detail" in mode && <small>{mode.detail}</small>}</div><Switch className="gsd-switch" aria-label={mode.title} checked={modes[mode.key]} onCheckedChange={checked => toggleMode(mode.key, checked)} /></div>)}</div></section><section className="gsd-card gsd-events"><header><h2><Clock3 size={19} />最近事件</h2><button onClick={() => setEventsOpen(true)}>查看全部</button></header>{events.slice(0, 5).map((event, index) => <div className={`gsd-event${event.danger ? " danger" : ""}`} key={index}><i /><span>{event.text}</span><time>{event.time}</time></div>)}</section></aside>
-      </div> : activeTab === "logs" ? null : <section className="gsd-card gsd-secondary">
-        {activeTab === "performance" && <><header><h2><Shield size={20} />资源监控</h2><select aria-label="监控时间范围" value={period} onChange={event => onPeriodChange(event.target.value)}><option value="24">近 24 小时</option><option value="7">近 7 天</option></select></header><p className="gsd-monitor-legend">CPU 使用率 {server.cpu}% · 内存使用率 {server.memory}%</p>{monitor}</>}
-      </section>}
+      </div> : null}
     </div>
     {notice && <div className="gsd-toast" role="status"><Check size={17} /><span>{notice}</span><button aria-label="关闭提示" onClick={() => onNotice("")}><X size={16} /></button></div>}
     <Dialog open={terminalOpen} onOpenChange={setTerminalOpen}><DialogContent className="cloud-modal gsd-dialog ial-terminal-dialog" onOpenAutoFocus={event => { event.preventDefault(); inputRef.current?.focus(); }}><DialogTitle>服务器终端</DialogTitle><DialogDescription>{server.name} · 实时输出与指令操作（演示）</DialogDescription>{consolePanel}</DialogContent></Dialog>
