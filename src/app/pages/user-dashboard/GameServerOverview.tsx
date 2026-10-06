@@ -1,6 +1,6 @@
-import { useState, type ReactNode } from "react";
+import { useState, type ReactNode, type WheelEvent } from "react";
 import { Archive, ArrowDown, ArrowUp, BadgeCheck, Check, ChevronRight, ClipboardCheck, Clock3, Copy, Cpu, Crown, Database, FileText, Folder, Gamepad2, Globe2, HardDrive, KeyRound, MapPin, Megaphone, ChartColumnBig, Pin, PlayCircle, RefreshCw, Save, Settings, ShieldCheck, Square, Target, Timer, UsersRound, Users, Waypoints } from "lucide-react";
-import { Area, AreaChart, ResponsiveContainer } from "recharts";
+import { Area, AreaChart, ResponsiveContainer, Tooltip } from "recharts";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
 import type { ConsoleInstance } from "./cloudDashboardData";
@@ -16,8 +16,23 @@ const announcements = [
 ];
 const dateFormat = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" });
 
-function Spark({ points, tone }: { points: number[]; tone: keyof typeof tones }) {
-  return <div className="gso-spark" aria-hidden="true"><ResponsiveContainer width="100%" height="100%"><AreaChart data={points.map(value => ({ value }))} margin={{ top: 3, right: 0, bottom: 0, left: 0 }}><Area type="monotone" dataKey="value" stroke={tones[tone]} strokeWidth={1.5} fill={tones[tone]} fillOpacity={0.055} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div>;
+const sparkBaseTime = new Date("2024-10-26T14:30:00+08:00");
+const sparkDateFormat = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+
+function Spark({ points, tone, label, unit }: { points: number[]; tone: keyof typeof tones; label: string; unit: string }) {
+  const [hours, setHours] = useState(24);
+  const data = points.map((value, index) => ({ value, time: new Date(sparkBaseTime.getTime() - (points.length - 1 - index) * hours * 3600000 / (points.length - 1)) }));
+  const onWheel = (event: WheelEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setHours(previous => Math.min(168, Math.max(24, previous + (event.deltaY < 0 ? 24 : -24))));
+  };
+  return <div className="gso-spark" title="滚动调整显示范围（24 小时至 7 天）" aria-label={`${label}近${hours}小时趋势，可滚动调整时间范围`} onWheel={onWheel}>
+    <span className="gso-spark-range">近 {hours} 小时</span>
+    <ResponsiveContainer width="100%" height="100%"><AreaChart data={data} margin={{ top: 3, right: 0, bottom: 0, left: 0 }}>
+      <Tooltip cursor={{ stroke: "#c8dcf7", strokeWidth: 1 }} labelFormatter={(_, payload) => payload?.[0]?.payload?.time ? sparkDateFormat.format(payload[0].payload.time) : ""} formatter={(value: number) => [`${value}${unit}`, label]} contentStyle={{ fontSize: 10, borderRadius: 6, borderColor: "#dbe8fa", padding: "5px 7px" }} itemStyle={{ color: tones[tone] }} labelStyle={{ color: "#6c81aa", marginBottom: 2 }} />
+      <Area type="monotone" dataKey="value" stroke={tones[tone]} strokeWidth={1.5} fill={tones[tone]} fillOpacity={0.055} isAnimationActive={false} activeDot={{ r: 3 }} />
+    </AreaChart></ResponsiveContainer>
+  </div>;
 }
 
 export function GameServerOverview({ server, onStart, onStop, onRestart, onBackup, onOpen, onNotice, terminal }: {
@@ -85,7 +100,7 @@ export function GameServerOverview({ server, onStart, onStop, onRestart, onBacku
       <div className="gso-banner-content"><div className="gso-banner-title"><h2>{server.name}</h2><span className={`gsd-running${server.running ? "" : " stopped"}`}><i />{server.running ? "运行中" : "已停止"}</span></div><p>和小伙伴一起，探索无限可能的方块世界！</p><dl className="gso-summary">{info.map(item => <div key={item.label}><dt><item.icon size={14} />{item.label}</dt><dd>{item.value}</dd></div>)}</dl></div>
       <button className="gso-online-preview" onClick={() => onOpen("players")}><span>当前在线玩家</span><div>{[1,2,3,4].map(index => <img key={index} src={`/console/minecraft/avatar-${index}.png`} alt="" />)}<b>+{Math.max(0, server.players - 4)}</b></div></button>
     </section>
-    <section className="gso-metrics" aria-label="服务器运行指标">{metrics.map(metric => <article key={metric.label} className={`gso-metric ${metric.tone}`}><span className="gso-icon"><metric.icon size={25} /></span><div><h3>{metric.label}</h3><strong>{metric.value}<small>{metric.unit}</small></strong></div><span className={`gso-change${"danger" in metric ? " danger" : ""}`}>{metric.direction === "down" ? <ArrowDown size={14} /> : <ArrowUp size={14} />}{metric.change}</span><Spark points={server.running ? [...metric.points] : metric.points.map(() => 0)} tone={metric.tone} /></article>)}</section>
+    <section className="gso-metrics" aria-label="服务器运行指标">{metrics.map(metric => <article key={metric.label} className={`gso-metric ${metric.tone}`}><span className="gso-icon"><metric.icon size={25} /></span><div><h3>{metric.label}</h3><strong>{metric.value}<small>{metric.unit}</small></strong></div><span className={`gso-change${"danger" in metric ? " danger" : ""}`}>{metric.direction === "down" ? <ArrowDown size={14} /> : <ArrowUp size={14} />}{metric.change}</span><Spark points={server.running ? [...metric.points] : metric.points.map(() => 0)} tone={metric.tone} label={metric.label} unit={metric.label === "在线玩家" ? " 人" : metric.unit} /></article>)}</section>
     <div className="gso-middle-grid">
       <div className="gso-terminal">{terminal}</div>
       <section className="gso-panel gso-billing"><header><h2><Crown size={20} />到期与计费提醒</h2></header><div className="gso-plan"><HardDrive size={15} /><div><small>当前套餐</small><strong>{plan} {server.cores}核 {server.ram}GB</strong></div><button onClick={() => { setPlanDraft(plan); setModal("upgrade"); }}>升级套餐</button></div><dl className="gso-instance-info"><div><dt>实例 ID</dt><dd>{server.id}</dd></div><div><dt>连接地址</dt><dd>{server.ip}:{server.port}</dd></div><div><dt>托管节点</dt><dd>{hostingNode}</dd></div><div><dt>托管区域</dt><dd>{hostingArea}</dd></div><div><dt>创建日期</dt><dd>{createdAt}</dd></div><div><dt>运行状态</dt><dd className={server.running ? "running" : "stopped"}>{server.running ? "运行中" : "已停止"}</dd></div><div><dt>在线玩家</dt><dd>{server.players} / {server.slots} 人</dd></div></dl><dl><div><dt><ClipboardCheck size={15} />到期时间</dt><dd className="expiry">{dateFormat.format(new Date(expiresAt))}<span>（剩余 {remainingDays} 天）</span></dd></div><div><dt><ShieldCheck size={15} />自动续费</dt><dd><button className="gso-autorenew" aria-pressed={autoRenew} onClick={() => { setAutoRenew(value => !value); onNotice(`自动续费已${autoRenew ? "关闭" : "开启"}（演示设置）`); }}><Check size={14} />{autoRenew ? "已开启" : "已关闭"}</button></dd></div><div><dt><MapPin size={15} />月付价格</dt><dd>¥ 120.00 / 月</dd></div></dl><button className="gsd-button gso-renew" onClick={() => setModal("renew")}>立即续费</button></section>
