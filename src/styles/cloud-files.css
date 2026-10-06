@@ -1,9 +1,10 @@
-.ifm-layout { --ifm-blue: #0068ff; --ifm-muted: #657aa4; display: grid; grid-template-columns: 270fr 960fr 330fr; grid-template-rows: minmax(0, 1fr); gap: 10px 8px; color: var(--ifm-muted); font-size: 13px; }
+.ifm-layout { --ifm-blue: #0068ff; --ifm-muted: #657aa4; display: grid; grid-template-columns: minmax(0, 270fr) minmax(0, 1290fr) minmax(0, 0fr); grid-template-rows: minmax(0, 1fr); gap: 10px 0; color: var(--ifm-muted); font-size: 13px; transition: grid-template-columns 280ms cubic-bezier(.22, 1, .36, 1); }
+.ifm-layout.has-details { grid-template-columns: minmax(0, 270fr) minmax(0, 960fr) minmax(0, 330fr); }
 .ifm-layout button, .ifm-dialog button { cursor: pointer; }
 .ifm-layout button:focus-visible, .ifm-dialog button:focus-visible { outline: 2px solid #0068ff; outline-offset: 3px; }
 .ifm-layout h2 > svg { color: #405785; flex: none; }
 .cloud-shell .gsd-page .ifm-layout h2 { font-size: 16px; gap: 12px; font-weight: 650; }
-.ifm-tree { padding: 12px 10px 14px; display: flex; flex-direction: column; min-height: 0; }
+.ifm-tree { padding: 12px 10px 14px; margin-right: 8px; display: flex; flex-direction: column; min-height: 0; }
 .ifm-tree > header { padding: 0 8px; margin-bottom: 9px; height: 28px; }
 .ifm-tree header > div { display: flex; align-items: center; gap: 5px; }
 .ifm-tree header button { padding: 3px; display: flex; color: #738ab0; border: 0; background: none; }
@@ -64,7 +65,11 @@
 .ifm-row-actions button { display: inline-flex; align-items: center; gap: 3px; border: 0; padding: 0; font-size: 13px; color: #087bff; background: none; }
 .ifm-row-actions button:hover { text-decoration: underline; }
 .ifm-row-actions button:disabled { opacity: .5; }
-.ifm-sidebar { grid-column: 3; grid-row: 1; display: grid; grid-template-rows: minmax(0, 1fr); min-width: 0; min-height: 0; }
+.ifm-sidebar { grid-column: 3; grid-row: 1; display: grid; grid-template-rows: minmax(0, 1fr); margin-left: 8px; min-width: 0; min-height: 0; overflow: hidden; animation: ifm-details-enter 280ms cubic-bezier(.22, 1, .36, 1); }
+.ifm-details-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ifm-details-header > button { display: grid; place-items: center; flex: none; width: 27px; height: 27px; padding: 0; border: 0; border-radius: 5px; background: transparent; color: #738ab0; }
+.ifm-details-header > button:hover { color: #087bff; background: #edf5ff; }
+@keyframes ifm-details-enter { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
 .ifm-details { padding: 15px 16px 17px; min-height: 0; overflow: auto; }
 .ifm-detail-heading { display: flex; gap: 18px; align-items: center; margin: 16px 4px 20px; }
 .ifm-detail-heading > span { width: 58px; height: 61px; background: #edf5ff; border-radius: 10px; display: grid; place-items: center; flex: none; }
@@ -136,7 +141,8 @@
   .ifm-tree > header, .ifm-path, .ifm-toolbar, .ifm-selection { flex: none; }
 }
 @media (max-width: 1450px) {
-  .ifm-layout { grid-template-columns: 220px minmax(0, 1fr) 300px; }
+  .ifm-layout { grid-template-columns: 220px minmax(0, 1fr) 0px; }
+  .ifm-layout.has-details { grid-template-columns: 220px minmax(0, 1fr) 300px; }
   .ifm-toolbar { flex-wrap: wrap; gap: 8px; }
   .ifm-search { flex-basis: 100%; }
   .ifm-tools { width: 100%; }
@@ -145,8 +151,9 @@
   .ifm-details dl > div { grid-template-columns: 80px minmax(0, 1fr); gap: 8px; }
 }
 @media (max-width: 1100px) {
-  .ifm-layout { grid-template-columns: 200px minmax(0, 1fr); grid-template-rows: 455px auto; gap: 12px; }
-  .ifm-sidebar { grid-column: 1 / 3; grid-row: 2; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; align-items: stretch; }
+  .ifm-layout, .ifm-layout.has-details { grid-template-columns: 200px minmax(0, 1fr); grid-template-rows: 455px auto; gap: 12px; }
+  .ifm-tree { margin-right: 0; }
+  .ifm-sidebar { grid-column: 1 / 3; grid-row: 2; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; align-items: stretch; margin-left: 0; }
 }
 @media (max-width: 700px) {
   .ifm-layout { display: flex; flex-direction: column; }
@@ -163,4 +170,4 @@
   .ifm-details { padding: 16px; }
   .ifm-details dl > div { grid-template-columns: 98px minmax(0, 1fr); }
 }
-@media (prefers-reduced-motion: reduce) { .ifm-spin { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .ifm-layout { transition: none; } .ifm-spin, .ifm-sidebar { animation: none; } }
