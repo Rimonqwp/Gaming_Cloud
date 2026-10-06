@@ -1,0 +1,152 @@
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { ArrowUp, Archive, BarChart3, CalendarDays, CalendarCheck2, Check, ChevronDown, ChevronRight, CircleCheck, CirclePlay, CircleX, Clock3, Copy, FolderClosed, ClipboardList, Megaphone, MoreVertical, Pencil, Play, Plus, Search, Settings2, Square, Timer, Trash2 } from "lucide-react";
+import { Area, AreaChart, ResponsiveContainer } from "recharts";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
+import type { ConsoleInstance } from "./cloudDashboardData";
+import { initialServerTasks, initialTaskExecutions, nextTaskRun, parseTaskCron, taskTime, taskTones, taskTypes, type ServerTask, type TaskExecution, type TaskResult } from "./gameServerTasksData";
+import "../../../styles/cloud-server-tasks.css";
+
+const taskIcons = [CalendarDays, CirclePlay, CalendarCheck2, Clock3, Megaphone, Settings2];
+const iconFor = (task: ServerTask) => taskIcons[Number(task.id.replace("task-", "")) - 1] ?? CalendarDays;
+const blankTask = (): ServerTask => ({ id: "", name: "", description: "", command: "", cron: "0 3 * * *", type: "备份", enabled: true, directory: "/home/server/", retries: 3, timeout: 30, notify: true, created: taskTime(new Date()), lastRun: "-", nextRun: "", duration: "-", result: "成功" });
+
+function Result({ result, detailed = false }: { result: TaskResult; detailed?: boolean }) {
+  const Icon = result === "成功" ? (detailed ? Check : CircleCheck) : result === "失败" ? CircleX : Timer;
+  return <span className={`gst-result ${result === "成功" ? "success" : result === "失败" ? "failure" : "pending"}`}><Icon size={15} />{detailed && result !== "执行中" ? `执行${result}` : result}</span>;
+}
+
+function TaskStatus({ enabled }: { enabled: boolean }) {
+  return <span className={`gst-status ${enabled ? "enabled" : "paused"}`}><span />{enabled ? "已启用" : "已暂停"}</span>;
+}
+
+function TaskMetric({ title, value, unit, tone, change, caption, subline, icon: Icon, points }: {
+  title: string; value: ReactNode; unit?: string; tone: string; change?: string; caption: string; subline?: string; icon: typeof CalendarDays; points: number[];
+}) {
+  const color = { blue: "#087bff", green: "#00bf89", purple: "#a146ff", orange: "#ff8709" }[tone];
+  return <article className={`gst-metric ${tone}`}>
+    <div className="gst-metric-top"><span className="gst-icon-tile"><Icon size={27} /></span><div><h3>{title}</h3><strong>{value}{unit && <small>{unit}</small>}</strong>{subline && <p>{subline}</p>}</div>{change && <div className="gst-change"><span><ArrowUp size={13} />{change}</span><small>较上周</small></div>}</div>
+    <div className="gst-sparkline" aria-hidden="true"><ResponsiveContainer width="100%" height="100%"><AreaChart data={points.map(value => ({ value }))} margin={{ top: 3, bottom: 0, left: 0, right: 0 }}><Area type="monotone" dataKey="value" stroke={color} fill={color} fillOpacity={0.06} strokeWidth={1.4} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div>
+    <p className="gst-metric-caption">{caption}</p>
+  </article>;
+}
+
+export function GameServerTasks({ server, autosaveEnabled, onAutosaveChange, onNotice, onLog }: {
+  server: ConsoleInstance; autosaveEnabled: boolean; onAutosaveChange: (enabled: boolean) => void; onNotice: (message: string) => void; onLog: (message: string) => void;
+}) {
+  const [tasks, setTasks] = useState(() => initialServerTasks.map(task => ({ ...task })));
+  const [executions, setExecutions] = useState(initialTaskExecutions);
+  const [activeId, setActiveId] = useState("task-001");
+  const [selected, setSelected] = useState<string[]>([]);
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState("all");
+  const [type, setType] = useState("all");
+  const [frequency, setFrequency] = useState("all");
+  const [draft, setDraft] = useState<ServerTask | null>(null);
+  const [formError, setFormError] = useState("");
+  const [logTask, setLogTask] = useState<ServerTask | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [deleteTask, setDeleteTask] = useState<ServerTask | null>(null);
+  const timers = useRef(new Set<number>());
+  const runningTasks = useRef(new Set<string>());
+  const sequence = useRef(7);
+  const effectiveTasks = tasks.map(task => task.id === "task-004" ? { ...task, enabled: autosaveEnabled } : task);
+  const active = effectiveTasks.find(task => task.id === activeId) ?? effectiveTasks[0];
+  const enabledCount = effectiveTasks.filter(task => task.enabled).length;
+  const addedRuns = executions.filter(run => run.id.startsWith("manual-"));
+  const completedRuns = addedRuns.filter(run => run.result !== "执行中");
+  const successRate = ((205 + completedRuns.filter(run => run.result === "成功").length) / (215 + completedRuns.length) * 100).toFixed(1);
+  const upcomingTasks = effectiveTasks.filter(task => task.enabled && task.nextRun).sort((a, b) => a.nextRun.localeCompare(b.nextRun));
+  const next = upcomingTasks.find(task => task.nextRun > taskTime(new Date())) ?? upcomingTasks[0];
+  const nextDate = next ? new Date(`${next.nextRun.replace(" ", "T")}:00+08:00`) : null;
+  const nextMinutes = nextDate && nextDate > new Date() ? Math.max(1, Math.ceil((nextDate.getTime() - Date.now()) / 60000)) : 84;
+  const filtered = effectiveTasks.filter(task => {
+    const fields = task.cron.trim().split(/\s+/);
+    const taskFrequency = fields[1] === "*" ? "interval" : fields[4] !== "*" ? "weekly" : fields[2] !== "*" || fields[3] !== "*" ? "monthly" : "daily";
+    return `${task.name} ${task.command} ${task.description}`.toLowerCase().includes(query.trim().toLowerCase()) && (status === "all" || task.enabled === (status === "enabled")) && (type === "all" || task.type === type) && (frequency === "all" || frequency === taskFrequency);
+  });
+
+  useEffect(() => () => { timers.current.forEach(timer => window.clearTimeout(timer)); }, []);
+
+  const setEnabled = (ids: string[], enabled: boolean) => {
+    setTasks(previous => previous.map(task => ids.includes(task.id) ? { ...task, enabled } : task));
+    if (ids.includes("task-004")) onAutosaveChange(enabled);
+    onNotice(`${ids.length} 项任务已${enabled ? "启用" : "暂停"}（演示操作）`);
+  };
+  const edit = (task?: ServerTask) => { setDraft(task ? { ...task } : blankTask()); setFormError(""); };
+  const showLogs = (task: ServerTask) => { setActiveId(task.id); setLogTask(task); };
+  const execute = (task: ServerTask) => {
+    if (runningTasks.current.has(task.id)) return;
+    runningTasks.current.add(task.id);
+    const runId = `manual-${crypto.randomUUID()}`;
+    const now = new Date();
+    setActiveId(task.id);
+    setTasks(previous => previous.map(row => row.id === task.id ? { ...row, result: "执行中" } : row));
+    setExecutions(previous => [{ id: runId, taskId: task.id, name: task.name, time: taskTime(now, true), result: "执行中", duration: "-", output: "正在模拟执行，请稍候…" }, ...previous]);
+    onNotice(`正在模拟执行「${task.name}」`);
+    const timer = window.setTimeout(() => {
+      const result = server.running ? "成功" : "失败";
+      const output = server.running ? `模拟执行完成：${task.command}` : "模拟执行失败：服务器已停止，请先启动实例";
+      setTasks(previous => previous.map(row => row.id === task.id ? { ...row, result, lastRun: taskTime(now), duration: "1 秒", nextRun: nextTaskRun(task.cron) ?? row.nextRun } : row));
+      setExecutions(previous => previous.map(run => run.id === runId ? { ...run, result, duration: "1 秒", output } : run));
+      onLog(`Tasks: ${task.name} · ${output}`);
+      onNotice(`「${task.name}」模拟执行${result}`);
+      runningTasks.current.delete(task.id);
+      timers.current.delete(timer);
+    }, 900);
+    timers.current.add(timer);
+  };
+  const saveTask = () => {
+    if (!draft) return;
+    if (!draft.name.trim() || !draft.command.trim() || !draft.directory.trim()) { setFormError("请填写任务名称、执行命令和执行目录。"); return; }
+    if (!parseTaskCron(draft.cron)) { setFormError("请输入有效的 5 段 Cron 表达式，例如 0 3 * * *。"); return; }
+    const nextRun = nextTaskRun(draft.cron);
+    if (!nextRun) { setFormError("此 Cron 表达式没有可执行的日期，请检查日期与月份。"); return; }
+    const id = draft.id || `task-${String(sequence.current++).padStart(3, "0")}`;
+    const saved = { ...draft, id, name: draft.name.trim(), command: draft.command.trim(), directory: draft.directory.trim(), cron: draft.cron.trim().replace(/\s+/g, " "), nextRun };
+    setTasks(previous => draft.id ? previous.map(task => task.id === id ? saved : task) : [...previous, saved]);
+    if (id === "task-004") onAutosaveChange(saved.enabled);
+    setActiveId(id);
+    setDraft(null);
+    onNotice(`任务已${draft.id ? "更新" : "创建"}（演示操作）`);
+  };
+  const copy = async (value: string) => {
+    try { await navigator.clipboard.writeText(value); onNotice("已复制到剪贴板"); }
+    catch { onNotice("复制失败，请手动选择并复制文本"); }
+  };
+  const menu = (task: ServerTask, detail = false) => <DropdownMenu><DropdownMenuTrigger asChild><button className={detail ? "gst-icon-button" : "gst-more"} aria-label={`${task.name}更多操作`}>{detail ? <MoreVertical size={17} /> : <>更多<ChevronDown size={12} /></>}</button></DropdownMenuTrigger><DropdownMenuContent className="gst-menu" align="end"><DropdownMenuItem disabled={task.result === "执行中"} onSelect={() => setEnabled([task.id], !task.enabled)}>{task.enabled ? <Square size={14} /> : <Play size={14} />}{task.enabled ? "暂停任务" : "启用任务"}</DropdownMenuItem><DropdownMenuItem onSelect={() => { setDraft({ ...task, id: "", name: `${task.name}（副本）`, lastRun: "-", duration: "-", created: taskTime(new Date()), result: "成功" }); setFormError(""); }}><Copy size={14} />复制任务</DropdownMenuItem><DropdownMenuItem variant="destructive" disabled={task.result === "执行中"} onSelect={() => setDeleteTask(task)}><Trash2 size={14} />删除任务</DropdownMenuItem></DropdownMenuContent></DropdownMenu>;
+
+  const executionTable = (runs: TaskExecution[], expanded = false) => <div className="gst-table-scroll"><table className={`gst-history-table${expanded ? " expanded" : ""}`}><colgroup><col style={{ width: "14%" }} /><col style={{ width: "15.5%" }} /><col style={{ width: "9%" }} /><col style={{ width: "10%" }} /><col /></colgroup><thead><tr><th>执行时间</th><th>任务名称</th><th>结果</th><th>耗时</th><th>输出摘要</th></tr></thead><tbody>{runs.map((run, index) => <tr key={run.id} className={index === 0 ? "highlight" : undefined}><td>{run.time}</td><td>{run.name}</td><td><Result result={run.result} /></td><td>{run.duration}</td><td title={run.output}>{run.output}</td></tr>)}{!runs.length && <tr><td colSpan={5} className="gst-no-records">该任务还没有执行记录。</td></tr>}</tbody></table></div>;
+
+  return <div className="gst-workspace">
+    <div className="gst-layout">
+      <div className="gst-main">
+        <section className="gst-metrics" aria-label="定时任务统计">
+          <TaskMetric title="任务总数" value={effectiveTasks.length} unit="个" tone="blue" icon={CalendarDays} change="20%" caption="包含所有定时任务" points={[1, 4, 3, 6, 8, 7, 12, 14]} />
+          <TaskMetric title="启用任务" value={enabledCount} unit="个" tone="green" icon={CirclePlay} change="25%" caption={`占总数 ${effectiveTasks.length ? Math.round(enabledCount / effectiveTasks.length * 100) : 0}%`} points={[2, 3, 6, 6, 9, 8, 12, 14]} />
+          <TaskMetric title="成功率" value={successRate} unit="%" tone="purple" icon={BarChart3} change="2.1%" caption="近 7 天执行成功率" points={[3, 6, 8, 8, 13, 15, 14, 16]} />
+          <TaskMetric title="下次执行" value={next ? <>{Math.floor(nextMinutes / 60) > 0 && <>{Math.floor(nextMinutes / 60)}<small>小时</small> </>}{nextMinutes % 60}<small>分钟</small></> : "-"} tone="orange" icon={Clock3} subline={next?.nextRun} caption={next?.name ?? "暂无启用的定时任务"} points={[1, 2, 3, 4, 5, 8, 12, 14]} />
+        </section>
+        <section className="gsd-card gst-list" aria-label="定时任务列表">
+          <header><h2><ClipboardList size={20} />定时任务列表</h2><div className="gst-list-actions"><button className="gsd-button primary" onClick={() => edit()}><Plus size={18} />新建任务</button><button className="gsd-button gst-enable" disabled={!selected.length} onClick={() => selected.length ? setEnabled(selected, true) : onNotice("请先勾选要启用的任务")}><Play size={16} />批量启用</button><button className="gsd-button danger" disabled={!selected.length} onClick={() => selected.length ? setEnabled(selected, false) : onNotice("请先勾选要禁用的任务")}><Square size={16} />批量禁用</button></div></header>
+          <div className="gst-filters"><label className="gsd-search"><Search size={17} /><input aria-label="搜索定时任务" placeholder="搜索任务名称、执行命令或备注…" value={query} onChange={event => setQuery(event.target.value)} /></label><select aria-label="任务状态筛选" value={status} onChange={event => setStatus(event.target.value)}><option value="all">全部状态</option><option value="enabled">已启用</option><option value="paused">已暂停</option></select><select aria-label="任务类型筛选" value={type} onChange={event => setType(event.target.value)}><option value="all">全部类型</option>{taskTypes.map(type => <option key={type}>{type}</option>)}</select><select aria-label="执行频率筛选" value={frequency} onChange={event => setFrequency(event.target.value)}><option value="all">全部执行频率</option><option value="interval">定时间隔</option><option value="daily">每天</option><option value="weekly">每周</option><option value="monthly">按月或日期</option></select>{selected.length > 0 && <span className="gst-selection-count">已选 {selected.length} 项</span>}</div>
+          <div className="gst-table-scroll"><table className="gst-task-table"><colgroup><col style={{ width: "3.5%" }} /><col style={{ width: "14.5%" }} /><col style={{ width: "8.5%" }} /><col style={{ width: "15.5%" }} /><col style={{ width: "6%" }} /><col style={{ width: "7%" }} /><col style={{ width: "11.5%" }} /><col style={{ width: "11.5%" }} /><col style={{ width: "7.5%" }} /><col style={{ width: "14.5%" }} /></colgroup><thead><tr><th><input type="checkbox" aria-label="选择全部筛选任务" checked={filtered.length > 0 && filtered.every(task => selected.includes(task.id))} ref={element => { if (element) element.indeterminate = filtered.some(task => selected.includes(task.id)) && !filtered.every(task => selected.includes(task.id)); }} onChange={event => setSelected(previous => event.target.checked ? [...new Set([...previous, ...filtered.map(task => task.id)])] : previous.filter(id => !filtered.some(task => task.id === id)))} /></th>{["任务名称", "Cron 表达式", "执行命令", "类型", "状态", "上次执行", "下次执行", "最近结果", "操作"].map(label => <th key={label}>{label}</th>)}</tr></thead><tbody>{filtered.map(task => {
+            const Icon = iconFor(task);
+            return <tr key={task.id} className={task.id === active?.id ? "active" : selected.includes(task.id) ? "checked" : undefined}><td><input type="checkbox" aria-label={`选择${task.name}`} checked={selected.includes(task.id)} onChange={event => setSelected(previous => event.target.checked ? [...previous, task.id] : previous.filter(id => id !== task.id))} /></td><td><button className={`gst-task-name ${task.id === "task-005" ? "red" : task.id === "task-003" ? "blue" : task.id === "task-004" ? "orange" : taskTones[task.type]}`} onClick={() => setActiveId(task.id)} aria-pressed={active?.id === task.id}><span className="gst-task-symbol"><Icon size={18} /></span><span><strong>{task.name}</strong><small>{task.description || "自定义定时任务"}</small></span></button></td><td>{task.cron}</td><td><span className="gst-truncate" title={task.command}>{task.command}</span></td><td><span className={`gst-type ${taskTones[task.type]}`}>{task.type}</span></td><td><TaskStatus enabled={task.enabled} /></td><td>{task.lastRun}</td><td>{task.enabled ? task.nextRun : "-"}</td><td>{task.lastRun === "-" && task.result !== "执行中" ? <span className="gst-muted">未执行</span> : <Result result={task.result} />}</td><td><div className="gst-row-actions"><button onClick={() => edit(task)}>编辑</button><button disabled={task.result === "执行中"} onClick={() => execute(task)}>执行</button><button onClick={() => showLogs(task)}>日志</button>{menu(task)}</div></td></tr>;
+          })}{!filtered.length && <tr><td colSpan={10}><div className="gst-empty"><Search size={24} /><strong>没有符合条件的任务</strong><button onClick={() => { setQuery(""); setStatus("all"); setType("all"); setFrequency("all"); }}>清除筛选</button></div></td></tr>}</tbody></table></div>
+        </section>
+      </div>
+      <aside className="gsd-card gst-detail" aria-label="任务详情">
+        <header><h2><Archive size={18} />任务详情</h2>{active && <div className="gst-detail-controls"><TaskStatus enabled={active.enabled} />{menu(active, true)}</div>}</header>
+        {active ? <><div className={`gst-detail-title ${taskTones[active.type]}`}><span className="gst-icon-tile">{(() => { const Icon = iconFor(active); return <Icon size={27} />; })()}</span><div><h3>{active.name}</h3><p>{active.id === "task-001" ? `定期备份 ${server.game} 世界存档文件，防止数据丢失` : active.description || "自定义服务器定时任务"}</p></div></div>
+          <dl className="gst-detail-fields"><div><dt>任务 ID</dt><dd>{active.id}</dd></div><div><dt>执行目录</dt><dd>{active.directory}</dd></div><div><dt>触发方式</dt><dd>Cron 表达式</dd></div><div><dt>Cron 表达式</dt><dd>{active.cron}<button aria-label="复制 Cron 表达式" onClick={() => copy(active.cron)}><Copy size={13} /></button></dd></div><div><dt>执行命令</dt><dd><span title={active.command}>{active.command}</span><button aria-label="复制执行命令" onClick={() => copy(active.command)}><Copy size={13} /></button></dd></div><div><dt>重试策略</dt><dd>{active.retries ? `失败后重试 ${active.retries} 次（间隔 5 分钟）` : "不重试"}</dd></div><div><dt>超时时间</dt><dd>{active.timeout} 分钟</dd></div><div><dt>最近耗时</dt><dd>{active.duration}</dd></div><div><dt>通知方式</dt><dd>{active.notify ? "站内信、邮件（失败时）" : "不通知"}</dd></div><div><dt>创建时间</dt><dd>{active.created}</dd></div><div><dt>最近执行结果</dt><dd>{active.lastRun === "-" && active.result !== "执行中" ? "尚未执行" : <><Result result={active.result} detailed /><span className="gst-last-run">（{active.lastRun}）</span></>}</dd></div></dl>
+          <footer className="gst-detail-actions"><button className="gsd-button primary" disabled={active.result === "执行中"} onClick={() => execute(active)}><CirclePlay size={16} />{active.result === "执行中" ? "执行中…" : "立即执行"}</button><button className="gsd-button" onClick={() => edit(active)}><Pencil size={16} />编辑任务</button><button className="gsd-button" onClick={() => showLogs(active)}><FolderClosed size={17} />查看日志</button></footer></> : <div className="gst-empty"><CalendarDays size={28} /><strong>暂无定时任务</strong><button onClick={() => edit()}>新建第一个任务</button></div>}
+      </aside>
+    </div>
+    <section className="gsd-card gst-history" aria-label="最近执行记录"><header><h2><Clock3 size={20} />最近执行记录</h2><button onClick={() => setHistoryOpen(true)}>查看更多<ChevronRight size={14} /></button></header>{executionTable(executions.slice(0, 5))}</section>
+
+    <Dialog open={!!draft} onOpenChange={open => { if (!open) setDraft(null); }}><DialogContent className="cloud-modal gsd-dialog gst-dialog"><DialogTitle>{draft?.id ? "编辑任务" : "新建任务"}</DialogTitle><DialogDescription>配置服务器定时任务，时间以北京时间为准。本页面使用演示数据。</DialogDescription>{draft && <form onSubmit={event => { event.preventDefault(); saveTask(); }} className="gst-task-form"><label>任务名称<input aria-label="任务名称" value={draft.name} maxLength={60} required onChange={event => setDraft({ ...draft, name: event.target.value })} placeholder="例如：自动备份世界" /></label><label>任务备注<input aria-label="任务备注" value={draft.description} maxLength={150} onChange={event => setDraft({ ...draft, description: event.target.value })} placeholder="简要描述任务用途" /></label><div className="gst-form-grid"><label>任务类型<select aria-label="任务类型" value={draft.type} onChange={event => setDraft({ ...draft, type: event.target.value as ServerTask["type"] })}>{taskTypes.map(type => <option key={type}>{type}</option>)}</select></label><label>任务状态<select aria-label="任务状态" value={draft.enabled ? "enabled" : "paused"} onChange={event => setDraft({ ...draft, enabled: event.target.value === "enabled" })}><option value="enabled">已启用</option><option value="paused">已暂停</option></select></label></div><label>Cron 表达式<input aria-label="Cron 表达式" value={draft.cron} required onChange={event => setDraft({ ...draft, cron: event.target.value })} /><small>分钟 · 小时 · 日期 · 月份 · 星期（0 或 7 为周日）</small></label><div className="gst-presets">{[["每天 03:00", "0 3 * * *"], ["每 30 分钟", "*/30 * * * *"], ["每周一 12:00", "0 12 * * 1"]].map(([label, cron]) => <button type="button" key={cron} onClick={() => setDraft({ ...draft, cron })}>{label}</button>)}</div><label>执行目录<input aria-label="执行目录" value={draft.directory} required onChange={event => setDraft({ ...draft, directory: event.target.value })} /></label><label>执行命令<textarea aria-label="执行命令" value={draft.command} required onChange={event => setDraft({ ...draft, command: event.target.value })} placeholder="例如：bash /scripts/backup.sh" /></label><div className="gst-form-grid"><label>失败重试次数<input aria-label="失败重试次数" type="number" min={0} max={10} required value={draft.retries} onChange={event => setDraft({ ...draft, retries: Number(event.target.value) })} /></label><label>超时时间（分钟）<input aria-label="超时时间" type="number" min={1} max={120} required value={draft.timeout} onChange={event => setDraft({ ...draft, timeout: Number(event.target.value) })} /></label></div><label className="gst-form-check"><input type="checkbox" checked={draft.notify} onChange={event => setDraft({ ...draft, notify: event.target.checked })} />执行失败时通过站内信、邮件通知</label>{formError && <p className="gst-form-error" role="alert">{formError}</p>}<footer><button type="button" className="gsd-button" onClick={() => setDraft(null)}>取消</button><button type="submit" className="gsd-button primary"><Check size={16} />保存任务</button></footer></form>}</DialogContent></Dialog>
+    <Dialog open={!!logTask || historyOpen} onOpenChange={open => { if (!open) { setLogTask(null); setHistoryOpen(false); } }}><DialogContent className="cloud-modal gsd-dialog gst-log-dialog"><DialogTitle>{logTask ? `${logTask.name} · 执行日志` : "全部执行记录"}</DialogTitle><DialogDescription>查看任务执行结果与输出摘要（演示记录，北京时间）。</DialogDescription>{executionTable(logTask ? executions.filter(run => run.taskId === logTask.id) : executions, true)}</DialogContent></Dialog>
+    <Dialog open={!!deleteTask} onOpenChange={open => { if (!open) setDeleteTask(null); }}><DialogContent className="cloud-modal gsd-dialog"><DialogTitle>删除定时任务</DialogTitle><DialogDescription>确定删除「{deleteTask?.name}」？执行记录会保留。</DialogDescription><button className="gsd-button danger" onClick={() => { if (!deleteTask) return; setTasks(previous => previous.filter(task => task.id !== deleteTask.id)); setSelected(previous => previous.filter(id => id !== deleteTask.id)); if (deleteTask.id === "task-004") onAutosaveChange(false); setDeleteTask(null); onNotice("任务已删除（演示操作）"); }}><Trash2 size={16} />确认删除</button></DialogContent></Dialog>
+  </div>;
+}

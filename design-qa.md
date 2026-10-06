@@ -161,3 +161,9 @@ final result: passed
 按提供的审计日志截图完成统计、筛选表格、风险侧栏、底部历史与设备统计。保留现有紧凑密度和终端入口。完整对照、修正、交互及下载回读限制见 [日志页验收记录](output/design/logs/design-qa.md)。最终桌面截图为 `output/design/logs/desktop-final.png`，组合对照为 `output/design/logs/comparison-final.jpg`。
 
 final result: passed
+
+## 实例定时任务页新增验收（2026-10-06）
+
+按照参考图完成四张统计卡片、六项任务列表、详情栏和最近执行记录，支持搜索筛选、新建编辑、批量启停、模拟执行和日志查看。完整视觉迭代、交互验证、适配与演示范围见 [定时任务页验收记录](output/design/tasks/design-qa.md)。最终实现为 `output/design/tasks/desktop-final.png`，全屏组合对照为 `output/design/tasks/comparison-final.jpg`；表格与侧栏另有可读的局部对照。
+
+final result: passed

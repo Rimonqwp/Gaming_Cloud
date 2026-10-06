@@ -1,0 +1,178 @@
+/* The reference uses full-size console controls; scope this to the active task tab. */
+.cloud-shell:has(.gsd-panel > div:not([hidden]) > .gst-workspace) { zoom: 1; min-height: 100dvh; }
+body:has(.gsd-panel > div:not([hidden]) > .gst-workspace) [data-slot="dropdown-menu-content"] { zoom: 1; }
+body:has(.gsd-panel > div:not([hidden]) > .gst-workspace) [data-slot="dialog-content"] { scale: 1; }
+@media (min-width: 1201px) {
+  .cloud-shell:has(.gsd-panel > div:not([hidden]) > .gst-workspace) { padding-top: 10px; }
+  .cloud-shell:has(.gsd-panel > div:not([hidden]) > .gst-workspace) .cloud-header { height: 54px; padding-top: 6px; padding-bottom: 6px; }
+  .gsd-page:has(.gsd-panel > div:not([hidden]) > .gst-workspace) .gsd-hero { margin-bottom: 11px; }
+  .gsd-page:has(.gsd-panel > div:not([hidden]) > .gst-workspace) .gsd-tabs { height: 40px; margin-bottom: 12px; }
+}
+.gst-workspace { color: #657da6; min-width: 0; }
+.gst-layout { display: grid; grid-template-columns: minmax(0, 3.22fr) minmax(340px, 1fr); gap: 10px; align-items: stretch; }
+.gst-main { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.gst-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.gst-metric { --gst-tone: #087bff; position: relative; min-width: 0; height: 128px; padding: 15px 18px 10px; border: 1px solid #e0eaf7; border-radius: 7px; background: #fff; }
+.gst-metric.green, .gst-enable { --gst-tone: #00bf89; }
+.gst-metric.purple, .gst-detail-title.purple { --gst-tone: #a146ff; }
+.gst-metric.orange, .gst-detail-title.orange { --gst-tone: #ff8709; }
+.gst-metric-top { display: flex; gap: 14px; align-items: flex-start; min-height: 51px; }
+.gst-icon-tile { display: grid; place-items: center; height: 48px; width: 48px; flex: none; border-radius: 11px; color: var(--gst-tone, #087bff); background: color-mix(in srgb, var(--gst-tone, #087bff) 10%, white); }
+.cloud-shell .gst-metric h3 { font-size: 13px; line-height: 20px; font-weight: 500; color: #5c749c; margin: 0 0 1px; }
+.gst-metric strong { display: block; color: #0b1235; font-size: 25px; font-weight: 700; line-height: 31px; white-space: nowrap; }
+.gst-metric strong small { font-size: 13px; margin-left: 5px; font-weight: 600; }
+.gst-metric-top p { margin: 0; font-size: 11px; line-height: 16px; }
+.gst-change { margin-left: auto; text-align: right; padding-top: 5px; white-space: nowrap; }
+.gst-change > span { display: flex; align-items: center; justify-content: flex-end; gap: 3px; color: #00b985; font-size: 12px; }
+.gst-change small { display: block; color: #889abb; margin-top: 5px; font-size: 11px; }
+.gst-sparkline { position: absolute; left: 18px; right: 18px; bottom: 30px; height: 27px; }
+.gst-metric.orange .gst-sparkline { height: 20px; }
+.gst-metric-caption { position: absolute; left: 18px; right: 18px; bottom: 8px; margin: 0; color: #8399ba; font-size: 11px; line-height: 17px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.gst-list { padding: 8px 10px 5px; flex: 1; }
+.gst-list > header { margin: 0 4px 4px; min-height: 34px; }
+.gst-list-actions { display: flex; align-items: center; gap: 8px; }
+.gst-list-actions .gsd-button { height: 35px; padding: 0 14px; gap: 8px; }
+.gsd-page .gst-enable { color: #00b985; border-color: #d6f0e7; }
+.gst-list-actions .danger { border-color: #fde2e4; }
+.gst-filters { display: flex; align-items: center; gap: 8px; margin: 0 5px 8px; }
+.gst-filters .gsd-search { flex: 0 1 386px; min-width: 160px; height: 34px; }
+.gst-filters .gsd-search input { width: 100%; outline: 0; border: 0; color: #5d759e; background: transparent; font: inherit; }
+.gst-filters .gsd-search input::placeholder { color: #7890b5; }
+.gst-filters select { flex: 0 1 130px; height: 34px; }
+.gst-filters select:nth-of-type(2) { flex-basis: 160px; }
+.gst-selection-count { margin-left: auto; color: #087bff; white-space: nowrap; font-size: 11px; }
+.gst-table-scroll { min-width: 0; overflow-x: auto; scrollbar-width: thin; }
+.gst-task-table, .gst-history-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 12px; }
+.gst-task-table { min-width: 1120px; }
+.gst-task-table th { height: 30px; font-weight: 600; font-size: 12px; color: #5d739b; background: #f7f9fc; padding: 0 9px; text-align: left; white-space: nowrap; }
+.gst-task-table th:first-child { border-radius: 5px 0 0 5px; }
+.gst-task-table th:last-child { border-radius: 0 5px 5px 0; }
+.gst-task-table td { height: 39px; padding: 3px 9px; border-bottom: 1px solid #eaf0f9; white-space: nowrap; color: #6b81a9; font-size: 12px; }
+.gst-task-table tr:last-child td { border-bottom: 0; }
+.gst-task-table tr.active td, .gst-history-table .highlight td { background: #eaf3ff; }
+.gst-task-table tr.active td:first-child, .gst-history-table .highlight td:first-child { border-radius: 5px 0 0 5px; }
+.gst-task-table tr.active td:last-child, .gst-history-table .highlight td:last-child { border-radius: 0 5px 5px 0; }
+.gst-task-table tr.checked td { background: #f3f8ff; }
+.gst-task-table tbody tr:hover td { background: #f2f7ff; }
+.gst-task-table input[type="checkbox"], .gst-task-form input[type="checkbox"] { width: 13px; height: 13px; accent-color: #087bff; vertical-align: middle; cursor: pointer; }
+.gst-task-name { --gst-tone: #087bff; display: flex; align-items: center; gap: 8px; width: 100%; padding: 0; border: 0; background: transparent; text-align: left; }
+.gst-task-name.purple { --gst-tone: #00bf89; }
+.gst-task-name.orange { --gst-tone: #ff8709; }
+.gst-task-name.red { --gst-tone: #ff4351; }
+.gst-task-symbol { display: grid; place-items: center; width: 26px; height: 26px; color: var(--gst-tone); background: color-mix(in srgb, var(--gst-tone) 9%, white); border-radius: 7px; flex: none; }
+.gst-task-name > span:last-child { min-width: 0; }
+.gst-task-name strong { display: block; font-size: 12px; line-height: 16px; color: #40597f; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.gst-task-name small { display: block; font-size: 10px; line-height: 14px; color: #8b9cba; overflow: hidden; text-overflow: ellipsis; }
+.gst-task-table tr.active .gst-task-name strong { color: #087bff; }
+.gst-truncate { display: block; overflow: hidden; text-overflow: ellipsis; }
+.gst-type { padding: 4px 8px; border-radius: 5px; font-size: 11px; font-weight: 600; }
+.gst-type.blue { background: #e5f1ff; color: #087bff; }
+.gst-type.purple { background: #f1e7ff; color: #a146ff; }
+.gst-type.orange { background: #fff0df; color: #f48b15; }
+.gst-status { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; white-space: nowrap; }
+.gst-status > span { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.gst-status.enabled { color: #00b580; }
+.gst-status.paused { color: #ff8b0d; }
+.gst-result { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; white-space: nowrap; }
+.gst-result.success { color: #00b985; }
+.gst-result.failure { color: #ff4351; }
+.gst-result.pending { color: #087bff; }
+.gst-result svg { flex: none; stroke-width: 2.5px; }
+.gst-row-actions { display: flex; align-items: center; justify-content: space-between; gap: 7px; }
+.gst-row-actions button, .gst-history header > button, .gst-empty button { padding: 0; border: 0; background: transparent; color: #087bff; font-size: 12px; white-space: nowrap; }
+.gst-row-actions button:hover, .gst-history header > button:hover { color: #005bd7; }
+.gst-row-actions button:disabled { opacity: .5; }
+.gst-row-actions .gst-more { display: flex; align-items: center; gap: 2px; }
+.gst-menu { font-family: Inter, "Noto Sans SC", "Microsoft YaHei", sans-serif; background: #fff; color: #4c668e; border-color: #e0eaf7; }
+.gst-menu [role="menuitem"] { font-size: 12px; }
+.gst-detail { padding: 14px 16px; display: flex; flex-direction: column; }
+.gst-detail > header { margin-bottom: 17px; }
+.gst-detail-controls { display: flex; align-items: center; gap: 13px; }
+.gst-detail-controls .gst-status { background: #e0f9ef; border-radius: 16px; padding: 4px 10px; font-size: 10px; gap: 6px; }
+.gst-detail-controls .gst-status.paused { background: #fff2e2; }
+.gst-icon-button { padding: 0; border: 0; background: transparent; color: #5b7ba8; display: inline-flex; }
+.gst-detail-title { --gst-tone: #087bff; display: flex; align-items: center; gap: 13px; margin-bottom: 19px; }
+.cloud-shell .gst-detail-title h3 { margin: 0 0 4px; font-size: 16px; line-height: 23px; font-weight: 650; color: #0b1235; }
+.gst-detail-title > div { min-width: 0; }
+.gst-detail-title p { margin: 0; color: #8095b7; font-size: 11px; line-height: 18px; }
+.gst-detail-fields { margin: 0 0 17px; }
+.gst-detail-fields > div { display: grid; grid-template-columns: 100px minmax(0, 1fr); align-items: start; gap: 11px; min-height: 28px; }
+.gst-detail-fields dt { color: #7c91b4; font-size: 13px; line-height: 21px; }
+.gst-detail-fields dd { margin: 0; color: #4e6b99; font-size: 13px; line-height: 21px; display: flex; align-items: center; min-width: 0; overflow-wrap: anywhere; }
+.gst-detail-fields dd > span[title] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gst-detail-fields dd button { margin-left: auto; border: 0; background: transparent; color: #6584b2; padding: 2px 0 2px 6px; display: inline-flex; flex: none; }
+.gst-detail-fields .gst-last-run { font-size: 11px; white-space: nowrap; }
+.gst-detail-fields .gst-result { gap: 5px; }
+.gst-detail-fields .gst-result svg { height: 20px; width: 20px; border-radius: 50%; background: currentColor; fill: currentColor; stroke: white; }
+.gst-detail-fields .gst-result.pending svg { background: transparent; fill: none; stroke: currentColor; }
+.gst-detail-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: auto; }
+.gst-detail-actions .gsd-button { padding: 0 6px; gap: 7px; font-size: 12px; height: 38px; }
+.gst-history { padding: 10px 14px 6px; margin-top: 10px; }
+.gst-history > header { margin-bottom: 5px; }
+.gst-history header > button { display: flex; align-items: center; gap: 3px; }
+.gst-history-table { min-width: 940px; }
+.gst-history-table th { height: 26px; text-align: left; padding: 0 7px; font-size: 11px; font-weight: 600; }
+.gst-history-table td { height: 26px; border-bottom: 1px solid #e9eff9; padding: 2px 7px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gst-history-table .gst-result svg { width: 13px; height: 13px; fill: currentColor; stroke: white; background: #00b985; border-radius: 50%; }
+.gst-history-table .failure svg { background: #ff4351; }
+.gst-history-table .pending svg { fill: none; stroke: #087bff; background: none; }
+.gst-history-table.expanded { min-width: 800px; }
+.gst-history-table.expanded td { height: 36px; }
+.gst-no-records { text-align: center; height: 90px !important; }
+.gst-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 30px 16px; color: #8399ba; }
+.gst-empty strong { color: #627ca4; font-weight: 500; }
+.gst-muted { color: #8b9cba; }
+.gst-dialog { max-width: 540px; max-height: 90dvh; overflow-y: auto; }
+.gst-log-dialog { width: calc(100vw - 32px); max-width: 1080px; max-height: 85dvh; overflow-y: auto; }
+.gst-task-form { display: flex; flex-direction: column; gap: 12px; font-size: 12px; }
+.gst-task-form label:not(.gst-form-check) { display: flex; flex-direction: column; gap: 6px; }
+.gst-task-form input:not([type="checkbox"]), .gst-task-form select, .gst-task-form textarea { width: 100%; min-height: 35px; border: 1px solid #dbe5f4; background: white; border-radius: 6px; padding: 7px 10px; font: inherit; color: #4e6b99; }
+.gst-task-form textarea { min-height: 68px; }
+.gst-task-form small { color: #8b9cba; font-size: 11px; }
+.gst-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.gst-presets { display: flex; gap: 7px; flex-wrap: wrap; }
+.gst-presets button { border: 1px solid #dbe5f4; background: #f6faff; color: #087bff; font-size: 11px; padding: 4px 7px; border-radius: 5px; }
+.gst-task-form footer { display: flex; justify-content: flex-end; gap: 8px; }
+.gst-form-check { display: flex; align-items: center; gap: 8px; }
+.gst-form-error { margin: 0; color: #d94351; font-size: 12px; }
+.gst-workspace button:focus-visible, .gst-workspace select:focus-visible, .gst-workspace input:focus-visible, .gst-task-form input:focus-visible, .gst-task-form textarea:focus-visible, .gst-task-form select:focus-visible { outline: 2px solid #6aaaff; outline-offset: 2px; }
+@media (max-width: 1550px) {
+  .gst-layout { grid-template-columns: minmax(0, 1fr) 340px; }
+  .gst-metric { padding: 14px 12px 10px; }
+  .gst-metric-top { gap: 9px; }
+  .gst-icon-tile { width: 42px; height: 46px; }
+  .gst-metric strong { font-size: 23px; }
+  .gst-metric strong small { font-size: 11px; }
+  .gst-change { font-size: 10px; }
+  .gst-detail-fields > div { grid-template-columns: 91px minmax(0, 1fr); gap: 8px; }
+  .gst-detail-fields .gst-last-run { font-size: 9px; }
+  .gst-task-table { min-width: 1080px; }
+}
+@media (max-width: 1280px) {
+  .gst-layout { grid-template-columns: minmax(0, 1fr); }
+  .gst-detail-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px 20px; }
+  .gst-detail-actions { max-width: 440px; }
+}
+@media (max-width: 760px) {
+  .gst-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .gst-metric { padding: 12px; height: 128px; }
+  .gst-metric-top { gap: 8px; }
+  .gst-icon-tile { width: 35px; height: 38px; border-radius: 8px; }
+  .gst-icon-tile svg { width: 23px; }
+  .gst-metric strong { font-size: 22px; }
+  .cloud-shell .gst-metric h3 { font-size: 11px; }
+  .gst-change { display: none; }
+  .gst-list > header { flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+  .gst-list-actions { width: 100%; gap: 6px; }
+  .gst-list-actions .gsd-button { flex: 1; padding: 0 8px; font-size: 11px; gap: 5px; }
+  .gst-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .gst-filters .gsd-search { grid-column: 1 / -1; min-width: 0; }
+  .gst-filters select { width: 100%; font-size: 10px; padding: 0 4px; }
+  .gst-selection-count { grid-column: 1 / -1; margin-left: 0; }
+  .gst-detail-fields { display: block; }
+  .gst-detail { padding: 14px; }
+  .gst-detail-title .gst-icon-tile { width: 46px; height: 46px; }
+  .gst-detail-fields > div { min-height: 29px; }
+  .gst-detail-fields .gst-last-run { font-size: 10px; }
+  .gst-history { padding: 12px 10px 8px; }
+}

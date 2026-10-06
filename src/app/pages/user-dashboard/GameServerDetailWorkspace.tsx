@@ -8,6 +8,7 @@ import { InstanceDetailFilesView } from "./InstanceDetailFilesView";
 import { InstanceDetailLogsView } from "./InstanceDetailLogsView";
 import "../../../styles/cloud-server-detail.css";
 import { GameServerOverview } from "./GameServerOverview";
+import { GameServerTasks } from "./GameServerTasks";
 
 type PlayerStatus = "在线" | "离线" | "已封禁";
 type PlayerRole = "管理员" | "成员" | "白名单" | "黑名单";
@@ -172,7 +173,8 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
       <div hidden={activeTab !== "files"}><InstanceDetailFilesView onNotice={onNotice} /></div>
       <div hidden={activeTab !== "logs"}><InstanceDetailLogsView serverName={server.name} onNotice={onNotice} /></div>
       <div hidden={activeTab !== "overview"}><GameServerOverview server={server} onStart={onStart} onStop={onStop} onRestart={onRestart} onBackup={save} onOpen={setActiveTab} onNotice={onNotice} terminal={consolePanel} /></div>
-      {activeTab === "files" || activeTab === "overview" ? null : activeTab === "players" ? <div className="gsd-layout">
+      <div hidden={activeTab !== "tasks"}><GameServerTasks server={server} autosaveEnabled={modes.autosave} onAutosaveChange={checked => toggleMode("autosave", checked)} onNotice={onNotice} onLog={log} /></div>
+      {activeTab === "files" || activeTab === "overview" || activeTab === "tasks" ? null : activeTab === "players" ? <div className="gsd-layout">
         <section className="gsd-main gsd-card" aria-label="玩家管理">
           <div className="gsd-metrics"><Metric title="在线玩家" value={Math.max(0, server.running ? server.players + onlineDelta : 0)} description="当前服务器在线人数" tone="green" icon={Users} points={[7, 9, 9, 9, 15, 15, 13, 14, 24, 24, 24, 22, 29, 29, 30, 31, 32]} /><Metric title="白名单" value={40} description="已加入白名单的玩家" tone="blue" icon={ClipboardList} points={[5, 12, 16, 18, 17, 15, 16, 21, 27, 32, 36, 38, 40]} /><Metric title="黑名单" value={3 + players.filter(player => player.role === "黑名单").length - 1} description="已加入黑名单的玩家" tone="red" icon={Ban} points={[1, 2, 3, 3, 3, 3, 5, 8, 11, 14, 16, 18]} /><Metric title="管理员" value={2 + players.filter(player => player.role === "管理员").length - 1} description="拥有管理员权限的玩家" tone="orange" icon={Crown} points={[4, 12, 15, 17, 20, 23, 26, 28, 30, 32, 35, 37]} /></div>
           <div className="gsd-filters"><label className="gsd-search"><Search size={17} /><input aria-label="搜索玩家" placeholder="搜索玩家昵称或 Steam ID..." value={query} onChange={event => { setQuery(event.target.value); setPage(1); }} /></label><select aria-label="玩家状态筛选" value={status} onChange={event => { setStatus(event.target.value); setPage(1); }}><option value="all">全部状态</option>{["在线", "离线", "已封禁"].map(value => <option key={value}>{value}</option>)}</select><select aria-label="权限组筛选" value={group} onChange={event => { setGroup(event.target.value); setPage(1); }}><option value="all">全部权限组</option>{["管理员", "成员", "白名单", "黑名单"].map(value => <option key={value}>{value}</option>)}</select><button className="gsd-button" onClick={() => { setPlayers(previous => [...previous]); onNotice("玩家列表已刷新"); }}><RefreshCw size={17} />刷新</button></div>
@@ -183,7 +185,6 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
       </div> : activeTab === "logs" ? null : <section className="gsd-card gsd-secondary">
         {activeTab === "performance" && <><header><h2><Shield size={20} />资源监控</h2><select aria-label="监控时间范围" value={period} onChange={event => onPeriodChange(event.target.value)}><option value="24">近 24 小时</option><option value="7">近 7 天</option></select></header><p className="gsd-monitor-legend">CPU 使用率 {server.cpu}% · 内存使用率 {server.memory}%</p>{monitor}</>}
         {activeTab === "backups" && <><h2><Archive size={20} />世界存档与备份</h2><p>当前游戏存档 {server.saveGB} GB，已保留 {server.backups} 份备份。</p><button className="gsd-button primary" onClick={save}><Save size={17} />创建存档备份</button></>}
-        {activeTab === "tasks" && <><h2><Timer size={20} />定时任务</h2><div className="gsd-scheduled-task"><div><strong>自动保存世界数据</strong><p>每 30 分钟保存一次</p></div><Switch className="gsd-switch" aria-label="定时自动保存" checked={modes.autosave} onCheckedChange={checked => toggleMode("autosave", checked)} /></div></>}
       </section>}
     </div>
     {notice && <div className="gsd-toast" role="status"><Check size={17} /><span>{notice}</span><button aria-label="关闭提示" onClick={() => onNotice("")}><X size={16} /></button></div>}
