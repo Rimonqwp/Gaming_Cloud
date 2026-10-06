@@ -25,8 +25,17 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // Keep Vite's shared lazy-loading helper out of the optional editor bundle.
+          if (id.includes('vite/preload-helper')) {
+            return 'vendor'
+          }
+
           if (!id.includes('node_modules')) {
             return
+          }
+
+          if (id.includes('monaco-editor')) {
+            return 'code-editor'
           }
 
           if (id.includes('react-router')) {

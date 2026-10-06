@@ -18,6 +18,29 @@
 .ifm-tree-label svg { color: #5c9cff; fill: #e3efff; flex: none; }
 .ifm-tree-row.active .ifm-tree-label svg { color: #087bff; fill: #b4d8ff; }
 .ifm-tree-row:hover { background: #f0f6ff; }
+.ifm-tree-toggle-space { width: 15px; flex: none; }
+.ifm-tree-file .ifm-file-icon { width: 18px; height: 18px; }
+.ifm-tree-row.ifm-tree-file .ifm-tree-label svg { fill: none; }
+.ifm-tree-dirty, .ifm-code-dirty { width: 6px; height: 6px; flex: none; border-radius: 50%; background: #087bff; }
+.ifm-tree-dirty { margin-left: auto; margin-right: 8px; }
+.ifm-code-workspace { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
+.ifm-code-toolbar { display: flex; align-items: center; gap: 14px; padding: 10px 14px; border-bottom: 1px solid #e2eaf5; flex: none; }
+.ifm-code-toolbar .gsd-button { height: 34px; font-size: 12px; gap: 7px; }
+.ifm-code-toolbar .gsd-button:disabled { opacity: .5; cursor: default; }
+.ifm-code-current { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.ifm-code-unsaved { font-size: 11px; color: #d28a0e; }
+.ifm-code-shortcut { font-size: 10px; opacity: .75; }
+.ifm-code-tabs { display: flex; overflow-x: auto; flex: none; min-height: 39px; background: #f3f6fb; border-bottom: 1px solid #e2eaf5; scrollbar-width: thin; }
+.ifm-code-tab { display: flex; align-items: center; gap: 6px; border-right: 1px solid #e2eaf5; border-top: 2px solid transparent; padding: 0 9px 0 12px; color: #6980a3; flex: none; }
+.ifm-code-tab.active { color: #2466b4; background: #fff; border-top-color: #087bff; }
+.ifm-code-tab > button { display: flex; align-items: center; gap: 8px; background: none; border: 0; padding: 8px 0; color: inherit; font-size: 12px; }
+.ifm-code-tab .ifm-code-close { padding: 3px; border-radius: 4px; }
+.ifm-code-close:hover { background: #e5edf8; }
+.ifm-code-surface { flex: 1; min-height: 0; position: relative; overflow: hidden; background: #fff; }
+.ifm-code-loading, .ifm-code-empty { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px; height: 100%; color: #8397b4; }
+.ifm-code-empty strong { color: #526d96; font-weight: 500; }
+.ifm-code-status { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex: none; min-height: 26px; padding: 4px 14px; font-size: 11px; background: #087bff; color: #fff; }
+.ifm-code-status > div { display: flex; gap: 18px; }
 .ifm-browser { padding: 12px 16px 14px; position: relative; display: flex; flex-direction: column; min-height: 0; }
 .ifm-path-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; min-height: 23px; margin: 0 6px 13px; }
 .ifm-path { display: flex; align-items: center; flex: 1 1 160px; min-width: 0; gap: 9px; height: 23px; font-size: 14px; overflow-x: auto; white-space: nowrap; }
@@ -161,6 +184,7 @@
   .ifm-layout, .ifm-layout.has-details { grid-template-columns: 200px minmax(0, 1fr); grid-template-rows: 455px auto; gap: 12px; }
   .ifm-tree { margin-right: 0; }
   .ifm-sidebar { grid-column: 1 / 3; grid-row: 2; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; align-items: stretch; margin-left: 0; }
+  .ifm-layout.editor-mode { grid-template-rows: minmax(455px, 65vh); }
 }
 @media (max-width: 700px) {
   .ifm-layout { display: flex; flex-direction: column; }
@@ -176,5 +200,13 @@
   .cloud-shell .gsd-page .ifm-layout h2 { font-size: 14px; gap: 8px; }
   .ifm-details { padding: 16px; }
   .ifm-details dl > div { grid-template-columns: 98px minmax(0, 1fr); }
+  .editor-mode .ifm-tree-scroll { max-height: 220px; }
+  .ifm-code-workspace { height: 500px; flex: none; }
+  .ifm-code-toolbar { gap: 8px; padding: 8px; }
+  .ifm-code-toolbar .gsd-button { padding: 0 7px; }
+  .ifm-code-current, .ifm-code-shortcut { display: none; }
+  .ifm-code-toolbar > button:last-child { margin-left: auto; }
+  .ifm-code-status { padding: 4px 8px; gap: 8px; }
+  .ifm-code-status > div { gap: 8px; }
 }
 @media (prefers-reduced-motion: reduce) { .ifm-layout { transition: none; } .ifm-spin, .ifm-sidebar { animation: none; } }
