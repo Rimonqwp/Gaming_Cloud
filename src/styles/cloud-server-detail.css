@@ -47,7 +47,7 @@ html:has(.gsd-page) { scrollbar-gutter: stable; }
 .gsd-full-console .gsd-console { height: auto; display: flex; flex-direction: column; }
 .gsd-full-console .gsd-console > pre { flex: none; min-height: 0; }
 .gsd-full-console .gsd-console > header, .gsd-full-console .gsd-command { flex: none; }
-.gsd-layout { display: grid; grid-template-columns: minmax(0, 2.6fr) minmax(0, 1fr); align-items: start; gap: 10px; }
+.gsd-layout { display: grid; grid-template-columns: minmax(0, 1fr) calc(220px / var(--console-display-scale, 1)); align-items: start; gap: 10px; }
 .gsd-card { border: 1px solid #e0eaf7; border-radius: 8px; background: #fff; min-width: 0; }
 .gsd-main { padding: 12px 13px 13px; }
 .gsd-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
@@ -114,6 +114,8 @@ html:has(.gsd-page) { scrollbar-gutter: stable; }
 .gsd-pagination select { height: 29px; font-size: 11px; margin-left: 4px; }
 .gsd-sidebar { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .gsd-sidebar .gsd-card { padding: 12px 13px; }
+.gsd-sidebar .gsd-console > header { flex-wrap: wrap; gap: 6px; }
+.gsd-sidebar .gsd-console > header > div { margin-left: auto; gap: 12px; }
 .cloud-shell .gsd-page h2 { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 650; line-height: 20px; color: #0b1235; margin: 0; }
 .cloud-shell .gsd-metric h2 { font-size: 12px; font-weight: 500; color: #6880a6; line-height: 18px; margin: 0 0 1px; }
 .gsd-card > header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
