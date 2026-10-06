@@ -1,15 +1,12 @@
-import { useState } from "react";
-import { Archive, ArrowDown, ArrowUp, BadgeCheck, Check, ChevronRight, ClipboardCheck, Clock3, Copy, Cpu, Crown, Database, FileText, Folder, Gamepad2, Globe2, HardDrive, KeyRound, MapPin, Megaphone, ChartColumnBig, Pin, PlayCircle, RefreshCw, Save, Settings, ShieldCheck, Square, Target, Timer, TrendingUp, UsersRound, Users, Waypoints } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useState, type ReactNode } from "react";
+import { Archive, ArrowDown, ArrowUp, BadgeCheck, Check, ChevronRight, ClipboardCheck, Clock3, Copy, Cpu, Crown, Database, FileText, Folder, Gamepad2, Globe2, HardDrive, KeyRound, MapPin, Megaphone, ChartColumnBig, Pin, PlayCircle, RefreshCw, Save, Settings, ShieldCheck, Square, Target, Timer, UsersRound, Users, Waypoints } from "lucide-react";
+import { Area, AreaChart, ResponsiveContainer } from "recharts";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
 import type { ConsoleInstance } from "./cloudDashboardData";
 import "../../../styles/cloud-instance-overview.css";
 
-type Resource = "cpu" | "memory" | "network" | "players";
 type Modal = "files" | "config" | "renew" | "upgrade" | "billing" | "announcements" | "activity" | "stop" | null;
-const cpuHistory = [25,22,25,28,31,37,43,35,32,27,23,21,28,34,36,33,25,18,19,23,24,25,24,29,32,34,31,25,25,25,31,38,34,27,23,22,24,23,25,25];
-const memoryHistory = [50,50,55,64,69,75,65,61,55,51,48,49,55,64,69,65,61,52,54,60,58,57,50,51,57,57,57,58,59,58,51,54,65,61,56,59,61,57,62,63];
 const tones = { blue: "#087bff", green: "#00bf87", purple: "#943dff", orange: "#ff8b18" };
 const recentPlayers = ["Steve", "Alex", "Notch_233", "今天扶她山", "BrickPlayer", "萍キ人間"];
 const announcements = [
@@ -23,12 +20,10 @@ function Spark({ points, tone }: { points: number[]; tone: keyof typeof tones })
   return <div className="gso-spark" aria-hidden="true"><ResponsiveContainer width="100%" height="100%"><AreaChart data={points.map(value => ({ value }))} margin={{ top: 3, right: 0, bottom: 0, left: 0 }}><Area type="monotone" dataKey="value" stroke={tones[tone]} strokeWidth={1.5} fill={tones[tone]} fillOpacity={0.055} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div>;
 }
 
-export function GameServerOverview({ server, onStart, onStop, onRestart, onBackup, onOpen, onNotice }: {
+export function GameServerOverview({ server, onStart, onStop, onRestart, onBackup, onOpen, onNotice, terminal }: {
   server: ConsoleInstance; onStart: () => void; onStop: () => void; onRestart: () => void; onBackup: () => void;
-  onOpen: (tab: "players" | "backups" | "logs") => void; onNotice: (message: string) => void;
+  onOpen: (tab: "players" | "backups" | "logs") => void; onNotice: (message: string) => void; terminal: ReactNode;
 }) {
-  const [resource, setResource] = useState<Resource>("cpu");
-  const [hours, setHours] = useState(1);
   const [modal, setModal] = useState<Modal>(null);
   const [autoRenew, setAutoRenew] = useState(true);
   const [expiresAt, setExpiresAt] = useState(server.expiresAt);
@@ -47,14 +42,6 @@ export function GameServerOverview({ server, onStart, onStop, onRestart, onBacku
     try { await navigator.clipboard.writeText("76561198000000001"); onNotice("世界种子已复制"); }
     catch { onNotice("世界种子：76561198000000001，请手动复制"); }
   };
-  const data = cpuHistory.map((cpu, index) => ({
-    minute: 820 + index * 54 / (cpuHistory.length - 1) * hours,
-    cpu: server.running ? cpu : 0,
-    memory: server.running ? memoryHistory[index] : 0,
-    network: server.running ? Math.round(cpu * 0.6 + 5) : 0,
-    players: server.running ? Math.max(0, Math.min(server.slots, Math.round(server.players * (0.65 + memoryHistory[index] / 200)))) : 0,
-  }));
-  const resourceMeta = { cpu: { label: "CPU 使用率", unit: "%", color: tones.blue, max: 100 }, memory: { label: "内存使用率", unit: "%", color: tones.green, max: 100 }, network: { label: "网络流量", unit: " MB/s", color: tones.blue, max: 60 }, players: { label: "在线玩家", unit: " 人", color: tones.green, max: server.slots } }[resource];
   const info = [
     { label: "世界名称", value: worldName, icon: Gamepad2 },
     { label: "游戏版本", value: minecraft ? version : server.game.split(" / ")[0], icon: Globe2 },
@@ -97,8 +84,7 @@ export function GameServerOverview({ server, onStart, onStop, onRestart, onBacku
     </section>
     <section className="gso-metrics" aria-label="服务器运行指标">{metrics.map(metric => <article key={metric.label} className={`gso-metric ${metric.tone}`}><span className="gso-icon"><metric.icon size={25} /></span><div><h3>{metric.label}</h3><strong>{metric.value}<small>{metric.unit}</small></strong></div><span className={`gso-change${"danger" in metric ? " danger" : ""}`}>{metric.direction === "down" ? <ArrowDown size={14} /> : <ArrowUp size={14} />}{metric.change}</span><Spark points={server.running ? [...metric.points] : metric.points.map(() => 0)} tone={metric.tone} /></article>)}</section>
     <div className="gso-middle-grid">
-      <section className="gso-panel gso-resources" aria-label="实时资源趋势"><header><h2><TrendingUp size={20} />实时资源趋势</h2><div className="gso-ranges" aria-label="资源趋势时间范围">{[1,6,24].map(value => <button key={value} aria-pressed={hours === value} className={hours === value ? "active" : ""} onClick={() => setHours(value)}>近 {value} 小时</button>)}</div></header><div className="gso-resource-tabs" role="tablist" aria-label="资源类型">{[{id:"cpu",label:"CPU"},{id:"memory",label:"内存"},{id:"network",label:"网络流量"},{id:"players",label:"在线玩家"}].map(item => <button key={item.id} role="tab" aria-selected={resource === item.id} className={resource === item.id ? "active" : ""} onClick={() => setResource(item.id as Resource)}>{item.label}</button>)}</div><div className="gso-resource-chart" role="img" aria-label={`${resourceMeta.label}近${hours}小时演示趋势`}><ResponsiveContainer width="100%" height="100%"><AreaChart data={data} margin={{ top: 8, right: 13, left: -18, bottom: 0 }}><CartesianGrid stroke="#e9eff9" vertical={false} /><XAxis type="number" dataKey="minute" domain={[820,820+54*hours]} ticks={[0,10,20,30,40,50].map(value => 820+value*hours)} tickFormatter={value => `${String(Math.floor(value / 60) % 24).padStart(2,"0")}:${String(Math.floor(value % 60)).padStart(2,"0")}`} axisLine={false} tickLine={false} tick={{fontSize:11,fill:"#6c81aa"}} /><YAxis domain={[0,resourceMeta.max]} ticks={[0,.25,.5,.75,1].map(value => value*resourceMeta.max)} tickFormatter={value => `${Math.round(value)}${resourceMeta.unit}`} tick={{fontSize:11,fill:"#7186ad"}} axisLine={false} tickLine={false} /><Tooltip labelFormatter={value => `${String(Math.floor(Number(value)/60)%24).padStart(2,"0")}:${String(Math.floor(Number(value)%60)).padStart(2,"0")} · 演示数据`} formatter={(value:number,name:string) => [`${value}${name === "cpu" || name === "memory" ? "%" : resourceMeta.unit}`,name === "cpu" ? "CPU 使用率" : name === "memory" ? "内存使用率" : resourceMeta.label]} contentStyle={{fontSize:12,borderRadius:8,borderColor:"#dbe8fa"}} /><Area type="linear" dataKey={resource} stroke={resourceMeta.color} fill={resourceMeta.color} fillOpacity={0.045} strokeWidth={1.6} dot={{r:2,fill:"#fff",strokeWidth:1.2}} activeDot={{r:4}} isAnimationActive={false} />{(resource === "cpu" || resource === "memory") && <Area type="linear" dataKey={resource === "cpu" ? "memory" : "cpu"} stroke={resource === "cpu" ? tones.green : tones.blue} fill={resource === "cpu" ? tones.green : tones.blue} fillOpacity={0.025} strokeWidth={1.6} dot={{r:2,fill:"#fff",strokeWidth:1.2}} isAnimationActive={false} />}</AreaChart></ResponsiveContainer></div><div className="gso-legend">{resource === "cpu" || resource === "memory" ? <><span><i />CPU 使用率</span><span className="memory"><i />内存使用率</span></> : <span style={{color:resourceMeta.color}}><i style={{backgroundColor:resourceMeta.color}} />{resourceMeta.label}</span>}</div></section>
-      <section className="gso-panel gso-quick" aria-label="快捷操作"><h2><Settings size={20} />快捷操作</h2><div>{quickActions.map(action => <button key={action.label} className={action.tone} onClick={action.action}><span className="gso-icon"><action.icon size={22} /></span><span><strong>{action.label}</strong><small>{action.text}</small></span></button>)}</div></section>
+      <div className="gso-terminal">{terminal}</div>
       <section className="gso-panel gso-billing"><header><h2><Crown size={20} />到期与计费提醒</h2><button className="gso-link" onClick={() => setModal("billing")}>查看详情<ChevronRight size={13} /></button></header><div className="gso-plan"><HardDrive size={15} /><div><small>当前套餐</small><strong>{plan} {server.cores}核 {server.ram}GB</strong></div><button onClick={() => { setPlanDraft(plan); setModal("upgrade"); }}>升级套餐</button></div><dl><div><dt><ClipboardCheck size={15} />到期时间</dt><dd className="expiry">{dateFormat.format(new Date(expiresAt))}<span>（剩余 {remainingDays} 天）</span></dd></div><div><dt><ShieldCheck size={15} />自动续费</dt><dd><button className="gso-autorenew" aria-pressed={autoRenew} onClick={() => { setAutoRenew(value => !value); onNotice(`自动续费已${autoRenew ? "关闭" : "开启"}（演示设置）`); }}><Check size={14} />{autoRenew ? "已开启" : "已关闭"}</button></dd></div><div><dt><MapPin size={15} />月付价格</dt><dd>¥ 120.00 / 月</dd></div></dl><button className="gsd-button primary gso-renew" onClick={() => setModal("renew")}>立即续费</button></section>
     </div>
     <div className="gso-bottom-grid">
