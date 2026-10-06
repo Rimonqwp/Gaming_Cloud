@@ -28,9 +28,9 @@ function Spark({ points, tone, label, unit }: { points: number[]; tone: keyof ty
   };
   return <div className="gso-spark" title="滚动调整显示范围（24 小时至 7 天）" aria-label={`${label}近${hours}小时趋势，可滚动调整时间范围`} onWheel={onWheel}>
     <span className="gso-spark-range">近 {hours} 小时</span>
-    <ResponsiveContainer width="100%" height="100%"><AreaChart data={data} margin={{ top: 3, right: 0, bottom: 0, left: 0 }}>
+    <ResponsiveContainer width="100%" height="100%"><AreaChart key={`${label}-${hours}`} data={data} margin={{ top: 3, right: 0, bottom: 0, left: 0 }}>
       <Tooltip cursor={{ stroke: "#c8dcf7", strokeWidth: 1 }} labelFormatter={(_, payload) => payload?.[0]?.payload?.time ? sparkDateFormat.format(payload[0].payload.time) : ""} formatter={(value: number) => [`${value}${unit}`, label]} contentStyle={{ fontSize: 10, borderRadius: 6, borderColor: "#dbe8fa", padding: "5px 7px" }} itemStyle={{ color: tones[tone] }} labelStyle={{ color: "#6c81aa", marginBottom: 2 }} />
-      <Area type="monotone" dataKey="value" stroke={tones[tone]} strokeWidth={1.5} fill={tones[tone]} fillOpacity={0.055} isAnimationActive={false} activeDot={{ r: 3 }} />
+      <Area type="monotone" dataKey="value" stroke={tones[tone]} strokeWidth={1.5} fill={tones[tone]} fillOpacity={0.055} isAnimationActive animationBegin={0} animationDuration={500} animationEasing="ease-out" activeDot={{ r: 3 }} />
     </AreaChart></ResponsiveContainer>
   </div>;
 }
