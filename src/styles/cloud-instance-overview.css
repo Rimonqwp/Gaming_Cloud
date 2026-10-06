@@ -32,7 +32,7 @@
 .gso-metric strong small { font-size: 12px; font-weight: 500; margin-left: 4px; }
 .gso-metric strong.gso-metric-compact { font-size: clamp(14px, 14cqi, 21px); }
 .gso-metric strong.gso-metric-compact small { font-size: clamp(9px, 8cqi, 12px); }
-.gso-change { position: absolute; bottom: 13px; right: 12px; display: flex; align-items: center; gap: 4px; font-size: 10px; color: #00bf87; }
+.gso-change { position: absolute; top: 15px; right: 12px; display: flex; align-items: center; gap: 4px; font-size: 10px; color: #00bf87; }
 .gso-change.danger { color: #ff4356; }
 .gso-spark { position: absolute; left: 15px; right: 12px; bottom: 10px; height: 27px; cursor: crosshair; }
 .gso-spark-range { position: absolute; z-index: 1; right: 0; top: -14px; bottom: auto; padding: 1px 3px; border-radius: 3px; background: #ffffffd9; color: #8a9bbb; font-size: 9px; line-height: 12px; pointer-events: none; }
