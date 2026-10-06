@@ -27,9 +27,12 @@
 .gso-quick button.red { --gso-tone: #ff4356; }
 .gso-icon { display: grid; place-items: center; height: 48px; width: 48px; flex: none; border-radius: 12px; color: var(--gso-tone); background: color-mix(in srgb,var(--gso-tone) 10%,white); }
 .cloud-shell .gso-metric h3 { margin: 1px 0 4px; font-size: 14px; font-weight: 500; line-height: 19px; color: #56709e; }
-.gso-metric strong { display: block; color: #0b1235; font-size: 27px; line-height: 30px; font-weight: 700; }
-.gso-metric strong small { font-size: 12px; font-weight: 500; margin-left: 5px; }
-.gso-change { position: absolute; top: 21px; right: 14px; display: flex; align-items: center; gap: 4px; font-size: 12px; color: #00bf87; }
+.gso-metric-content { min-width: 0; flex: 1; container-type: inline-size; }
+.gso-metric strong { display: block; color: #0b1235; font-size: clamp(18px, 20cqi, 25px); line-height: 30px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.gso-metric strong small { font-size: 12px; font-weight: 500; margin-left: 4px; }
+.gso-metric strong.gso-metric-compact { font-size: clamp(14px, 14cqi, 21px); }
+.gso-metric strong.gso-metric-compact small { font-size: clamp(9px, 8cqi, 12px); }
+.gso-change { position: absolute; bottom: 13px; right: 12px; display: flex; align-items: center; gap: 4px; font-size: 10px; color: #00bf87; }
 .gso-change.danger { color: #ff4356; }
 .gso-spark { position: absolute; left: 15px; right: 12px; bottom: 10px; height: 27px; cursor: crosshair; }
 .gso-spark-range { position: absolute; z-index: 1; right: 0; top: -14px; bottom: auto; padding: 1px 3px; border-radius: 3px; background: #ffffffd9; color: #8a9bbb; font-size: 9px; line-height: 12px; pointer-events: none; }
@@ -137,7 +140,7 @@
   .gso-summary dd { font-size: 11px; }
   .gso-metric { gap: 8px; padding: 12px 9px; }
   .gso-metric .gso-icon { width: 39px; height: 44px; }
-  .gso-change { right: 9px; top: 74px; font-size: 10px; }
+  .gso-change { right: 9px; }
   .gso-metric h3 { font-size: 12px !important; }
   .gso-quick small { font-size: 9px; white-space: normal; }
   .gso-quick .gso-icon { width: 31px; }
@@ -175,8 +178,8 @@
   .gso-metric { gap: 8px; padding: 11px 9px; }
   .gso-metric .gso-icon { width: 35px; height: 40px; }
   .cloud-shell .gso-metric h3 { font-size: 12px; margin-top: 0; }
-  .gso-metric strong { font-size: 24px; }
-  .gso-change { top: 17px; right: 9px; font-size: 10px; }
+  .gso-metric strong { font-size: clamp(18px, 20cqi, 24px); }
+  .gso-change { right: 9px; }
   .gso-health p { white-space: normal; font-size: 10px; }
   .gso-health-check { right: 10px; top: 16px; }
   .gso-middle-grid, .gso-bottom-grid { grid-template-columns: minmax(0,1fr); }
@@ -201,4 +204,7 @@
   .gso-announcement strong { font-size: 12px; }
   .gso-announcement small { font-size: 11px; }
   .gso-all-activity time { font-size: 8px; }
+}
+@media (max-width: 360px) {
+  .gso-metrics { grid-template-columns: minmax(0,1fr); }
 }
