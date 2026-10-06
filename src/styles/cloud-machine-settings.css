@@ -1,0 +1,161 @@
+.gsm-workspace { color: #526b99; font-size: 13px; }
+.gsm-specs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+.gsm-spec { display: flex; align-items: flex-start; gap: 22px; min-width: 0; min-height: 105px; padding: 16px; background: white; border: 1px solid #deebfb; border-radius: 7px; }
+.gsm-spec-icon { display: grid; place-items: center; flex: none; width: 48px; height: 48px; border-radius: 8px; color: #087bff; background: #e7f2ff; }
+.gsm-spec-icon.purple { color: #8933ff; background: #f0e8ff; }
+.gsm-spec-icon.green { color: #00b779; background: #e0faf0; }
+.gsm-spec-icon.orange { color: #ff8800; background: #fff1de; }
+.cloud-shell .gsm-spec h3 { font-size: 13px; font-weight: 500; line-height: 22px; color: #526b99; margin: 0 0 3px; }
+.gsm-spec strong { display: block; font-size: 17px; font-weight: 650; color: #0a102b; line-height: 23px; white-space: nowrap; }
+.gsm-spec p { margin: 4px 0 0; font-size: 12px; line-height: 20px; }
+.gsm-main-grid { display: grid; grid-template-columns: minmax(0, 1.14fr) minmax(0, 1.24fr) minmax(0, 1fr); gap: 11px; margin-bottom: 12px; }
+.gsm-card { min-width: 0; border: 1px solid #deebfb; border-radius: 7px; background: #fff; padding: 14px 17px 8px; }
+.cloud-shell .gsm-card h2 { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; font-size: 18px; font-weight: 650; line-height: 25px; color: #080f27; }
+.gsm-card dl { margin: 0; }
+.gsm-info-row { display: grid; grid-template-columns: 153px minmax(0, 1fr); align-items: center; gap: 0; min-height: 31px; border-bottom: 1px solid #edf2fb; }
+.gsm-info-row:last-child { border-bottom: 0; }
+.gsm-card dt { display: flex; align-items: center; gap: 16px; font-weight: 400; min-width: 0; }
+.gsm-card dt svg { flex: none; }
+.gsm-card dd { margin: 0; min-width: 0; color: #172650; }
+.gsm-info-row dd { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; line-height: 22px; }
+.gsm-secondary { color: #526b99; }
+.gsm-bgp { display: inline-block; background: #e6f2ff; color: #087bff; border-radius: 4px; padding: 0 8px; white-space: nowrap; font-size: 12px; }
+.gsm-dot { display: inline-block; background: #00bd85; width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.gsm-network-row { display: grid; grid-template-columns: 135px minmax(0, 1fr); min-height: 47px; align-items: center; border-bottom: 1px solid #edf2fb; }
+.gsm-network-row:last-child { border-bottom: 0; }
+.gsm-network-row dd { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.gsm-address { display: inline-flex; align-items: center; gap: 14px; padding: 8px 12px; border-radius: 6px; background: #f4f7fc; min-width: 0; }
+.gsm-address code, .gsm-scripts code, .gsm-port-badge { font-family: Consolas, "Liberation Mono", monospace; font-size: 12px; color: #526b99; }
+.gsm-address code { overflow-wrap: anywhere; }
+.gsm-address button { display: flex; background: transparent; padding: 0; border: 0; color: #58719f; flex: none; }
+.gsm-address button:hover { color: #087bff; }
+.gsm-status { display: inline-flex; align-items: center; gap: 8px; color: #00b783; white-space: nowrap; padding-right: 15px; font-size: 12px; }
+.gsm-tip { display: flex; align-items: flex-start; gap: 12px; background: #eff7ff; border-radius: 7px; margin-top: 23px; padding: 16px; color: #087bff; }
+.gsm-tip > svg { flex: none; stroke: white; }
+.gsm-tip strong { font-weight: 600; font-size: 13px; }
+.gsm-tip p { color: #7d8eae; line-height: 22px; font-size: 12px; margin: 5px 0 0; }
+.cloud-shell .gsm-maintenance h2 { margin-bottom: 8px; }
+.gsm-maintenance-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.gsm-maintenance-grid button { display: flex; align-items: center; flex-direction: column; justify-content: center; gap: 2px; min-height: 88px; padding: 9px; border: 1px solid #deebfb; border-radius: 7px; background: #fff; color: #087bff; }
+.gsm-maintenance-grid button.orange { color: #ff8900; }
+.gsm-maintenance-grid button.purple { color: #8933ff; }
+.gsm-maintenance-grid button:hover { border-color: #a8cbff; background: #f8fbff; }
+.gsm-maintenance-grid strong { color: #0b1235; line-height: 20px; font-weight: 600; font-size: 13px; }
+.gsm-maintenance-grid .purple strong { color: #8230ed; }
+.gsm-maintenance-grid span { color: #7d8eae; font-size: 12px; line-height: 18px; }
+.gsm-reinstall { margin-top: 19px; }
+.gsm-system-picker { display: flex; align-items: center; border: 1px solid #cbdfff; border-radius: 7px; padding: 6px 12px 6px 18px; gap: 16px; height: 51px; }
+.gsm-system-picker > span:last-child { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.gsm-os-icon { display: grid; place-items: center; flex: none; height: 35px; width: 35px; background: #ef3b0a; color: #fff; border-radius: 50%; }
+.gsm-os-icon img { width: 25px; height: 25px; filter: invert(1); }
+.gsm-system-picker select { width: 100%; padding: 0; border: 0; background: transparent; color: #101831; font-size: 13px; font-weight: 600; height: 20px; }
+.gsm-system-picker small { color: #7d8eae; font-size: 12px; line-height: 18px; }
+.gsm-reinstall-button { width: 100%; margin-top: 8px; height: 35px; }
+.gsm-warning { display: flex; align-items: flex-start; gap: 8px; margin: 10px 0 0; font-size: 11px; line-height: 18px; color: #7d8eae; }
+.gsm-warning svg { color: #ff5261; stroke: white; flex: none; margin-top: 2px; }
+.gsm-warning strong { color: #ff5261; font-weight: 400; }
+.gsm-bottom-grid { display: grid; grid-template-columns: minmax(0, 1.69fr) minmax(0, 1fr); gap: 12px; }
+.cloud-shell .gsm-bottom-grid h2 { margin-bottom: 7px; }
+.gsm-startup-content { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 24px; }
+.gsm-toggle-row { display: flex; align-items: center; gap: 16px; min-height: 36px; border-bottom: 1px solid #edf2fb; }
+.gsm-toggle-row:last-child { border-bottom: 0; }
+.gsm-toggle-row > span { display: flex; align-items: center; gap: 16px; width: 116px; flex: none; font-size: 12px; }
+.gsm-toggle-row small { color: #7d8eae; font-size: 11px; flex: 1; }
+.gsm-toggle-row > b { color: #087bff; font-size: 12px; font-weight: 500; flex: none; }
+.gsm-workspace .gsd-switch { width: 41px; height: 22px; flex: none; }
+.gsm-workspace .gsd-switch [data-slot="switch-thumb"] { width: 18px; height: 18px; }
+.gsm-scripts { border-left: 1px solid #edf2fb; padding-left: 25px; }
+.gsm-script-row { display: flex; align-items: center; gap: 10px; min-height: 48px; }
+.gsm-script-row > span { display: flex; align-items: center; gap: 15px; flex: none; width: 93px; font-size: 12px; }
+.gsm-script-row code { padding: 9px 12px; border-radius: 7px; background: #f4f7fc; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.gsm-script-row .gsd-button { height: 33px; padding: 0 11px; gap: 6px; font-size: 12px; }
+.gsm-security-row { display: grid; grid-template-columns: 200px minmax(0, 1fr); align-items: center; border-bottom: 1px solid #edf2fb; min-height: 27px; }
+.gsm-security-row:last-child { border-bottom: 0; }
+.gsm-security-row dt { font-size: 12px; gap: 12px; }
+.gsm-security-row dd { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.gsm-security-row .gsd-button { height: 26px; padding: 0 10px; font-size: 11px; border-color: #cbdfff; }
+.gsm-badge { display: inline-flex; align-items: center; gap: 5px; background: #def9ef; color: #00b783; padding: 1px 10px; border-radius: 14px; font-size: 12px; line-height: 18px; white-space: nowrap; }
+.gsm-badge .gsm-dot { width: 5px; height: 5px; }
+.gsm-port-badge { background: #edf5ff; border-radius: 12px; padding: 2px 9px; overflow-wrap: anywhere; }
+.gsm-dialog { color: #526b99; }
+.gsm-dialog footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.gsm-dialog form > label { display: flex; flex-direction: column; gap: 10px; }
+.gsm-dialog input, .gsm-dialog textarea { border: 1px solid #cedff4; border-radius: 6px; background: #f8fbff; padding: 10px 12px; color: #172650; width: 100%; font: 13px Consolas, monospace; }
+.gsm-dialog textarea { min-height: 130px; resize: vertical; }
+.gsm-form-error { color: #d94351; font-size: 12px; line-height: 20px; }
+.gsm-dialog-note { color: #7d8eae; font-size: 12px; }
+.gsm-rule-list label { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #edf2fb; }
+.gsm-rule-list small { display: block; color: #7d8eae; margin-top: 4px; }
+.gsm-protection { display: flex; flex-direction: column; align-items: center; gap: 10px; color: #00b783; padding: 15px; }
+.gsm-protection p { color: #7d8eae; font-size: 12px; }
+.gsm-protection-details > div { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #edf2fb; }
+.gsm-protection-details dd { margin: 0; }
+.gsm-workspace button:focus-visible, .gsm-workspace select:focus-visible, .gsm-dialog input:focus-visible, .gsm-dialog textarea:focus-visible { outline: 2px solid #087bff; outline-offset: 3px; }
+@media (min-width: 1500px) {
+  .cloud-shell:has(.gsd-panel > div:not([hidden]) > .gsm-workspace) { zoom: 1; min-height: 100dvh; }
+  .cloud-container:has(.gsd-panel > div:not([hidden]) > .gsm-workspace) { width: calc(100% - 156px); }
+  .cloud-shell:has(.gsd-panel > div:not([hidden]) > .gsm-workspace) .cloud-header { height: 58px; }
+  .gsd-page:has(#gsd-tab-machine[aria-selected="true"]) .gsd-hero { margin-bottom: 8px; }
+  .gsd-page:has(#gsd-tab-machine[aria-selected="true"]) .gsd-tabs { height: 41px; margin-bottom: 12px; }
+  .cloud-shell .gsm-maintenance h2 { line-height: 22px; }
+}
+body:has(.gsd-panel > div:not([hidden]) > .gsm-workspace) [data-slot="dialog-content"] { scale: 1; }
+@media (max-width: 1499px) {
+  .gsm-spec { gap: 12px; padding: 14px 12px; }
+  .gsm-spec-icon { width: 40px; height: 40px; }
+  .gsm-spec strong { font-size: 14px; }
+  .gsm-card { padding: 14px 13px; }
+  .gsm-info-row { grid-template-columns: 115px minmax(0, 1fr); font-size: 11px; }
+  .gsm-network-row { grid-template-columns: 105px minmax(0, 1fr); font-size: 12px; }
+  .gsm-card dt { gap: 10px; }
+  .gsm-address { padding: 8px; gap: 8px; }
+  .gsm-address code { font-size: 10px; }
+  .gsm-status { padding-right: 0; }
+  .gsm-startup-content { gap: 15px; }
+  .gsm-toggle-row { gap: 10px; }
+  .gsm-toggle-row > span { width: 100px; gap: 10px; }
+  .gsm-scripts { padding-left: 15px; }
+  .gsm-script-row > span { width: 78px; gap: 8px; }
+  .gsm-security-row { grid-template-columns: 135px minmax(0, 1fr); }
+}
+@media (max-width: 1150px) {
+  .gsm-specs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .gsm-main-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gsm-maintenance { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 24px; }
+  .gsm-maintenance > h2 { grid-column: 1; }
+  .gsm-reinstall { grid-column: 2; grid-row: 1 / span 2; margin-top: 0; }
+  .gsm-bottom-grid { grid-template-columns: 1fr; }
+  .gsm-network-row { grid-template-columns: 90px minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .gsm-workspace { font-size: 12px; }
+  .gsm-specs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .gsm-spec { gap: 9px; min-height: 97px; padding: 12px 10px; }
+  .gsm-spec-icon { width: 34px; height: 34px; }
+  .gsm-spec-icon svg { width: 23px; }
+  .gsm-spec strong { white-space: normal; font-size: 13px; line-height: 19px; }
+  .gsm-spec p { font-size: 11px; line-height: 16px; }
+  .cloud-shell .gsm-spec h3 { font-size: 12px; line-height: 18px; }
+  .gsm-main-grid { grid-template-columns: 1fr; gap: 10px; }
+  .gsm-card { padding: 14px; }
+  .cloud-shell .gsm-card h2 { font-size: 16px; }
+  .gsm-info-row { grid-template-columns: 110px minmax(0, 1fr); min-height: 36px; }
+  .gsm-info-row dd { gap: 4px; }
+  .gsm-network-row { grid-template-columns: 90px minmax(0, 1fr); min-height: 53px; }
+  .gsm-network-row dd { gap: 6px; }
+  .gsm-status { gap: 4px; font-size: 10px; }
+  .gsm-status .gsm-dot { width: 6px; height: 6px; }
+  .gsm-maintenance { display: block; }
+  .gsm-reinstall { margin-top: 22px; }
+  .gsm-startup-content { grid-template-columns: 1fr; }
+  .gsm-toggle-row { gap: 8px; min-height: 50px; }
+  .gsm-toggle-row > span { width: 94px; font-size: 11px; gap: 7px; }
+  .gsm-toggle-row small { font-size: 10px; }
+  .gsm-toggle-row b { font-size: 11px; }
+  .gsm-scripts { padding: 8px 0 0; border-left: 0; border-top: 1px solid #edf2fb; }
+  .gsm-script-row code { font-size: 11px; padding: 9px; }
+  .gsm-security-row { grid-template-columns: 120px minmax(0, 1fr); min-height: 38px; }
+  .gsm-security-row dt { font-size: 11px; gap: 8px; }
+  .gsm-security-row .gsd-button { font-size: 10px; padding: 0 7px; flex: none; }
+  .gsm-port-badge { font-size: 10px; }
+}

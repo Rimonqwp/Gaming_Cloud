@@ -9,6 +9,7 @@ import { InstanceDetailLogsView } from "./InstanceDetailLogsView";
 import "../../../styles/cloud-server-detail.css";
 import { GameServerOverview } from "./GameServerOverview";
 import { GameServerTasks } from "./GameServerTasks";
+import { GameServerMachineSettings } from "./GameServerMachineSettings";
 import { GameServerBackups } from "./GameServerBackups";
 import { Box } from "lucide-react";
 import { GameServerPlugins } from "./GameServerPlugins";
@@ -16,7 +17,7 @@ import { GameServerPlugins } from "./GameServerPlugins";
 type PlayerStatus = "在线" | "离线" | "已封禁";
 type PlayerRole = "管理员" | "成员" | "白名单" | "黑名单";
 type Player = { name: string; id: string; status: PlayerStatus; lastLogin: string; hours: number; role: PlayerRole; avatar: string };
-type DetailTab = "overview" | "performance" | "players" | "files" | "plugins" | "backups" | "logs" | "tasks";
+type DetailTab = "overview" | "performance" | "players" | "files" | "plugins" | "backups" | "logs" | "tasks" | "machine";
 type Mode = "whitelist" | "pvp" | "autosave" | "maintenance";
 const tabs = [
   { id: "overview", label: "概览", icon: House },
@@ -27,6 +28,7 @@ const tabs = [
   { id: "backups", label: "文件备份", icon: FolderClosed },
   { id: "logs", label: "日志", icon: FileText },
   { id: "tasks", label: "定时任务", icon: Timer },
+  { id: "machine", label: "机器设定", icon: Settings },
 ] as const;
 const initialPlayers: Player[] = [
   { name: "小帕帕", id: "76561198000000001", status: "在线", lastLogin: "2024-10-26 14:32", hours: 26, role: "管理员", avatar: "player-1" },
@@ -176,13 +178,14 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
       if (next >= 0) { event.preventDefault(); setActiveTab(availableTabs[next].id); document.getElementById(`gsd-tab-${availableTabs[next].id}`)?.focus(); }
     }}><tab.icon size={17} />{tab.label}</button>)}</nav>
     <div ref={panelRef} id="gsd-panel" className="gsd-panel" role="tabpanel" tabIndex={0} aria-labelledby={`gsd-tab-${activeTab}`}>
+      <div hidden={activeTab !== "machine"}><GameServerMachineSettings server={server} onNotice={onNotice} onRestart={onRestart} onLog={log} /></div>
       <div hidden={activeTab !== "files"}><InstanceDetailFilesView onNotice={onNotice} /></div>
       <div hidden={activeTab !== "logs"}><InstanceDetailLogsView serverName={server.name} onNotice={onNotice} /></div>
       <div hidden={activeTab !== "overview"}><GameServerOverview server={server} onStart={onStart} onStop={onStop} onRestart={onRestart} onBackup={save} onOpen={setActiveTab} onNotice={onNotice} terminal={consolePanel} /></div>
       <div hidden={activeTab !== "tasks"}><GameServerTasks server={server} autosaveEnabled={modes.autosave} onAutosaveChange={checked => toggleMode("autosave", checked)} onNotice={onNotice} onLog={log} /></div>
       <div hidden={activeTab !== "backups"}><GameServerBackups server={server} backupRequest={backupRequest} onBackup={save} onNotice={onNotice} /></div>
       {activeTab === "plugins" && <GameServerPlugins server={server} onNotice={onNotice} />}
-      {activeTab === "files" || activeTab === "overview" || activeTab === "tasks" || activeTab === "plugins" || activeTab === "backups" ? null : activeTab === "players" ? <div className="gsd-layout">
+      {activeTab === "files" || activeTab === "overview" || activeTab === "tasks" || activeTab === "plugins" || activeTab === "backups" || activeTab === "machine" ? null : activeTab === "players" ? <div className="gsd-layout">
         <section className="gsd-main gsd-card" aria-label="玩家管理">
           <div className="gsd-metrics"><Metric title="在线玩家" value={Math.max(0, server.running ? server.players + onlineDelta : 0)} description="当前服务器在线人数" tone="green" icon={Users} points={[7, 9, 9, 9, 15, 15, 13, 14, 24, 24, 24, 22, 29, 29, 30, 31, 32]} /><Metric title="白名单" value={40} description="已加入白名单的玩家" tone="blue" icon={ClipboardList} points={[5, 12, 16, 18, 17, 15, 16, 21, 27, 32, 36, 38, 40]} /><Metric title="黑名单" value={3 + players.filter(player => player.role === "黑名单").length - 1} description="已加入黑名单的玩家" tone="red" icon={Ban} points={[1, 2, 3, 3, 3, 3, 5, 8, 11, 14, 16, 18]} /><Metric title="管理员" value={2 + players.filter(player => player.role === "管理员").length - 1} description="拥有管理员权限的玩家" tone="orange" icon={Crown} points={[4, 12, 15, 17, 20, 23, 26, 28, 30, 32, 35, 37]} /></div>
           <div className="gsd-filters"><label className="gsd-search"><Search size={17} /><input aria-label="搜索玩家" placeholder="搜索玩家昵称或 Steam ID..." value={query} onChange={event => { setQuery(event.target.value); setPage(1); }} /></label><select aria-label="玩家状态筛选" value={status} onChange={event => { setStatus(event.target.value); setPage(1); }}><option value="all">全部状态</option>{["在线", "离线", "已封禁"].map(value => <option key={value}>{value}</option>)}</select><select aria-label="权限组筛选" value={group} onChange={event => { setGroup(event.target.value); setPage(1); }}><option value="all">全部权限组</option>{["管理员", "成员", "白名单", "黑名单"].map(value => <option key={value}>{value}</option>)}</select><button className="gsd-button" onClick={() => { setPlayers(previous => [...previous]); onNotice("玩家列表已刷新"); }}><RefreshCw size={17} />刷新</button></div>
