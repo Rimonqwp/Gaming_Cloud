@@ -174,3 +174,9 @@ final result: passed
 按参考图新增插件广场入口、Minecraft 横幅、四列插件卡片、搜索与分类/服务端/版本/排序筛选、插件概览、快捷操作及排行榜。安装、批量更新、启停、卸载、文件添加和付费安装均使用按实例保存的本地演示状态。完整视觉对照、响应式修正与交互验证见 [插件广场验收记录](output/design/plugins/design-qa.md)，最终组合对照为 `output/design/plugins/comparison-full.jpg`。
 
 final result: passed
+
+## 实例文件备份页新增验收（2026-10-06）
+
+按照参考图实现四张统计卡片、八行备份列表、详情侧栏、活动记录和存储空间；支持搜索与日期/类型筛选、分页、多选、创建、ZIP 上传、重命名与恢复/删除确认。桌面、手机和平板已检查。完整比较、迭代修正、演示范围与下载落盘验证限制见 [文件备份页验收记录](output/design/backups/design-qa.md)。最终全屏对照为 `output/design/backups/comparison-final.jpg`，实现为 `output/design/backups/desktop-final.jpg`。
+
+final result: passed

@@ -9,6 +9,7 @@ import { InstanceDetailLogsView } from "./InstanceDetailLogsView";
 import "../../../styles/cloud-server-detail.css";
 import { GameServerOverview } from "./GameServerOverview";
 import { GameServerTasks } from "./GameServerTasks";
+import { GameServerBackups } from "./GameServerBackups";
 import { Box } from "lucide-react";
 import { GameServerPlugins } from "./GameServerPlugins";
 
@@ -84,6 +85,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
   notice: string; onNotice: (message: string) => void; monitor: ReactNode; period: string; onPeriodChange: (value: string) => void; onStart: () => void; onStop: () => void; onForceStop: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<DetailTab>("overview");
+  const [backupRequest, setBackupRequest] = useState(0);
   const availableTabs = tabs.filter(tab => tab.id !== "plugins" || server.game === "Minecraft");
   const [players, setPlayers] = useState(() => initialPlayers.map(player => ({ ...player, status: !server.running && player.status === "在线" ? "离线" as PlayerStatus : player.status })));
   const [query, setQuery] = useState("");
@@ -141,7 +143,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
     const text = `${player.name} ${action === "kick" ? "已被踢出服务器" : action === "ban" ? "已被管理员封禁" : "已解除封禁"}`;
     log(`Player: ${text}`); addEvent(text, action === "ban"); onNotice(`${text}（演示操作）`);
   };
-  const save = () => { onBackup(); log("Save: 世界存档备份已完成（演示操作）"); addEvent("已创建世界存档备份"); };
+  const save = () => { onBackup(); setBackupRequest(previous => previous + 1); log("Save: 世界存档备份已完成（演示操作）"); addEvent("已创建世界存档备份"); };
   const sendCommand = () => {
     const value = command.trim();
     if (!value) return;
@@ -178,8 +180,9 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
       <div hidden={activeTab !== "logs"}><InstanceDetailLogsView serverName={server.name} onNotice={onNotice} /></div>
       <div hidden={activeTab !== "overview"}><GameServerOverview server={server} onStart={onStart} onStop={onStop} onRestart={onRestart} onBackup={save} onOpen={setActiveTab} onNotice={onNotice} terminal={consolePanel} /></div>
       <div hidden={activeTab !== "tasks"}><GameServerTasks server={server} autosaveEnabled={modes.autosave} onAutosaveChange={checked => toggleMode("autosave", checked)} onNotice={onNotice} onLog={log} /></div>
+      <div hidden={activeTab !== "backups"}><GameServerBackups server={server} backupRequest={backupRequest} onBackup={save} onNotice={onNotice} /></div>
       {activeTab === "plugins" && <GameServerPlugins server={server} onNotice={onNotice} />}
-      {activeTab === "files" || activeTab === "overview" || activeTab === "tasks" || activeTab === "plugins" ? null : activeTab === "players" ? <div className="gsd-layout">
+      {activeTab === "files" || activeTab === "overview" || activeTab === "tasks" || activeTab === "plugins" || activeTab === "backups" ? null : activeTab === "players" ? <div className="gsd-layout">
         <section className="gsd-main gsd-card" aria-label="玩家管理">
           <div className="gsd-metrics"><Metric title="在线玩家" value={Math.max(0, server.running ? server.players + onlineDelta : 0)} description="当前服务器在线人数" tone="green" icon={Users} points={[7, 9, 9, 9, 15, 15, 13, 14, 24, 24, 24, 22, 29, 29, 30, 31, 32]} /><Metric title="白名单" value={40} description="已加入白名单的玩家" tone="blue" icon={ClipboardList} points={[5, 12, 16, 18, 17, 15, 16, 21, 27, 32, 36, 38, 40]} /><Metric title="黑名单" value={3 + players.filter(player => player.role === "黑名单").length - 1} description="已加入黑名单的玩家" tone="red" icon={Ban} points={[1, 2, 3, 3, 3, 3, 5, 8, 11, 14, 16, 18]} /><Metric title="管理员" value={2 + players.filter(player => player.role === "管理员").length - 1} description="拥有管理员权限的玩家" tone="orange" icon={Crown} points={[4, 12, 15, 17, 20, 23, 26, 28, 30, 32, 35, 37]} /></div>
           <div className="gsd-filters"><label className="gsd-search"><Search size={17} /><input aria-label="搜索玩家" placeholder="搜索玩家昵称或 Steam ID..." value={query} onChange={event => { setQuery(event.target.value); setPage(1); }} /></label><select aria-label="玩家状态筛选" value={status} onChange={event => { setStatus(event.target.value); setPage(1); }}><option value="all">全部状态</option>{["在线", "离线", "已封禁"].map(value => <option key={value}>{value}</option>)}</select><select aria-label="权限组筛选" value={group} onChange={event => { setGroup(event.target.value); setPage(1); }}><option value="all">全部权限组</option>{["管理员", "成员", "白名单", "黑名单"].map(value => <option key={value}>{value}</option>)}</select><button className="gsd-button" onClick={() => { setPlayers(previous => [...previous]); onNotice("玩家列表已刷新"); }}><RefreshCw size={17} />刷新</button></div>
@@ -189,7 +192,6 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
         <aside className="gsd-sidebar">{consolePanel}<section className="gsd-card gsd-quick"><h2><Settings size={20} />快捷管理</h2><div className="gsd-quick-grid">{modeDefinitions.map(mode => <div className={`gsd-quick-item ${mode.tone}`} key={mode.key}><span className="gsd-icon-tile"><mode.icon size={21} /></span><div><h3>{mode.title}</h3><p>{mode.description}</p>{"detail" in mode && <small>{mode.detail}</small>}</div><Switch className="gsd-switch" aria-label={mode.title} checked={modes[mode.key]} onCheckedChange={checked => toggleMode(mode.key, checked)} /></div>)}</div></section><section className="gsd-card gsd-events"><header><h2><Clock3 size={19} />最近事件</h2><button onClick={() => setEventsOpen(true)}>查看全部</button></header>{events.slice(0, 5).map((event, index) => <div className={`gsd-event${event.danger ? " danger" : ""}`} key={index}><i /><span>{event.text}</span><time>{event.time}</time></div>)}</section></aside>
       </div> : activeTab === "logs" ? null : <section className="gsd-card gsd-secondary">
         {activeTab === "performance" && <><header><h2><Shield size={20} />资源监控</h2><select aria-label="监控时间范围" value={period} onChange={event => onPeriodChange(event.target.value)}><option value="24">近 24 小时</option><option value="7">近 7 天</option></select></header><p className="gsd-monitor-legend">CPU 使用率 {server.cpu}% · 内存使用率 {server.memory}%</p>{monitor}</>}
-        {activeTab === "backups" && <><h2><Archive size={20} />世界存档与备份</h2><p>当前游戏存档 {server.saveGB} GB，已保留 {server.backups} 份备份。</p><button className="gsd-button primary" onClick={save}><Save size={17} />创建存档备份</button></>}
       </section>}
     </div>
     {notice && <div className="gsd-toast" role="status"><Check size={17} /><span>{notice}</span><button aria-label="关闭提示" onClick={() => onNotice("")}><X size={16} /></button></div>}
