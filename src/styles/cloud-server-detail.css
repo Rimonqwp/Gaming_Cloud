@@ -25,6 +25,8 @@
 .gsd-actions { display: flex; align-items: center; gap: 11px; padding-top: 3px; flex: none; }
 .gsd-button { display: inline-flex; justify-content: center; align-items: center; gap: 9px; height: 37px; padding: 0 16px; font-size: 12px; font-weight: 600; white-space: nowrap; border: 1px solid #dbe6f5; background: #fff; color: var(--gsd-blue); border-radius: 6px; }
 .gsd-button:hover:not(:disabled) { background: #f3f8ff; border-color: #a8c9fc; }
+.gsd-button.danger { color: #d94351; border-color: #f3c4ca; background: #fff; }
+.gsd-button.danger:hover:not(:disabled) { color: #c42d3c; border-color: #e9969f; background: #fff5f6; }
 .gsd-button.primary { color: white; background: #0866ff; border-color: #0866ff; }
 .gsd-button.primary:hover:not(:disabled) { background: #005ae8; }
 .gsd-button.dark { color: #fff; background: #232a3d; border-color: #232a3d; }

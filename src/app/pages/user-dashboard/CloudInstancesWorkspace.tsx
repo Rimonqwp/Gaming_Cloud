@@ -136,9 +136,9 @@ export function CloudInstancesWorkspace() {
   const openDetail = (id: string) => { setDetailId(id); setDetailTab("info"); };
   const openFullDetail = (id: string) => { openDetail(id); setNotice(""); setFullDetail(true); };
   const closeDetail = () => { setFullDetail(false); setDetailId(null); };
-  const setRunning = (ids: string[], value: boolean) => {
+  const setRunning = (ids: string[], value: boolean, noticeText?: string) => {
     setServers(previous => previous.map(row => ids.includes(row.id) ? { ...row, running: value, players: value ? row.players : 0, cpu: value ? row.cpu || 15 : 0, memory: value ? row.memory || 25 : 0, uptime: value ? "刚刚启动" : "—" } : row));
-    setNotice(`已${value ? "启动" : "停止"} ${ids.length} 台服务器（演示操作）`);
+    setNotice(noticeText ?? `已${value ? "启动" : "停止"} ${ids.length} 台服务器（演示操作）`);
   };
   const copyAddress = async (server: ConsoleInstance) => {
     try { await navigator.clipboard.writeText(`${server.ip}:${server.port}`); setNotice(`已复制 ${server.name} 的连接地址`); }
@@ -148,7 +148,7 @@ export function CloudInstancesWorkspace() {
   const toggleSelected = (id: string) => setSelected(previous => previous.includes(id) ? previous.filter(item => item !== id) : [...previous, id]);
 
   return <div className={`instances-workspace${detail ? fullDetail ? " full-detail" : " has-detail" : ""}`}>
-    {fullDetail && detail && <GameServerDetailWorkspace key={detail.id} server={detail} onBack={() => setFullDetail(false)} onCopy={() => void copyAddress(detail)} onRestart={() => detail.running ? setRestartId(detail.id) : setRunning([detail.id], true)} onBackup={() => backup(detail)} notice={notice} onNotice={setNotice} monitor={<ResourceChart server={detail} period={period} />} period={period} onPeriodChange={setPeriod} onStart={() => setRunning([detail.id], true)} onStop={() => setRunning([detail.id], false)} />}
+    {fullDetail && detail && <GameServerDetailWorkspace key={detail.id} server={detail} onBack={() => setFullDetail(false)} onCopy={() => void copyAddress(detail)} onRestart={() => detail.running ? setRestartId(detail.id) : setRunning([detail.id], true)} onBackup={() => backup(detail)} notice={notice} onNotice={setNotice} monitor={<ResourceChart server={detail} period={period} />} period={period} onPeriodChange={setPeriod} onStart={() => setRunning([detail.id], true)} onStop={() => setRunning([detail.id], false)} onForceStop={() => setRunning([detail.id], false, `已硬关机 ${detail.name}（演示操作）`)} />}
     {!fullDetail && <div className="iw-main">
       <div className="iw-breadcrumb">控制台 <ChevronRight size={12} /> 实例 <ChevronRight size={12} /><span>游戏服务器</span></div>
       <header className="iw-heading"><h1>服务器列表</h1></header>
