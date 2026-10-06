@@ -92,14 +92,8 @@
 .gsm-protection-details dd { margin: 0; }
 .gsm-workspace button:focus-visible, .gsm-workspace select:focus-visible, .gsm-dialog input:focus-visible, .gsm-dialog textarea:focus-visible { outline: 2px solid #087bff; outline-offset: 3px; }
 @media (min-width: 1500px) {
-  .cloud-shell:has(.gsd-panel > div:not([hidden]) > .gsm-workspace) { zoom: 1; min-height: 100dvh; }
-  .cloud-container:has(.gsd-panel > div:not([hidden]) > .gsm-workspace) { width: calc(100% - 156px); }
-  .cloud-shell:has(.gsd-panel > div:not([hidden]) > .gsm-workspace) .cloud-header { height: 58px; }
-  .gsd-page:has(#gsd-tab-machine[aria-selected="true"]) .gsd-hero { margin-bottom: 8px; }
-  .gsd-page:has(#gsd-tab-machine[aria-selected="true"]) .gsd-tabs { height: 41px; margin-bottom: 12px; }
   .cloud-shell .gsm-maintenance h2 { line-height: 22px; }
 }
-body:has(.gsd-panel > div:not([hidden]) > .gsm-workspace) [data-slot="dialog-content"] { scale: 1; }
 @media (max-width: 1499px) {
   .gsm-spec { gap: 12px; padding: 14px 12px; }
   .gsm-spec-icon { width: 40px; height: 40px; }

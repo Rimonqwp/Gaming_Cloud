@@ -1,15 +1,3 @@
-/* Reference-sized controls apply only while the backup tab is visible. */
-.cloud-shell:has(.gsd-panel > div:not([hidden]) > .gsb-workspace) { zoom: 1; min-height: 100dvh; padding-bottom: 8px; }
-body:has(.gsd-panel > div:not([hidden]) > .gsb-workspace) [data-slot="dropdown-menu-content"] { zoom: 1; }
-body:has(.gsd-panel > div:not([hidden]) > .gsb-workspace) [data-slot="dialog-content"] { scale: 1; }
-@media (min-width: 1201px) {
-  .cloud-container:has(.gsd-panel > div:not([hidden]) > .gsb-workspace) { width: calc(100% - 156px); }
-  .cloud-shell:has(.gsd-panel > div:not([hidden]) > .gsb-workspace) .cloud-header { height: 58px; }
-  .gsd-page:has(.gsb-workspace):has(#gsd-tab-backups[aria-selected="true"]) .gsd-breadcrumb { margin-bottom: 12px; }
-  .gsd-page:has(#gsd-tab-backups[aria-selected="true"]) .gsd-hero { margin-bottom: 12px; }
-  .gsd-page:has(#gsd-tab-backups[aria-selected="true"]) .gsd-identity p { margin-top: 3px; }
-  .gsd-page:has(#gsd-tab-backups[aria-selected="true"]) .gsd-tabs { height: 41px; margin-bottom: 12px; }
-}
 .gsb-workspace { --gsb-blue: #087bff; --gsb-green: #00b985; color: #657da6; font-size: 12px; min-width: 0; }
 .gsb-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 11px; }
 .gsb-metric { display: flex; align-items: flex-start; gap: 16px; height: 94px; padding: 12px 14px; position: relative; }
