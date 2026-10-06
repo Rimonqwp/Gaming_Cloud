@@ -1,8 +1,9 @@
-import { lazy, Suspense, useRef, useState } from "react";
+import { lazy, Suspense, useRef, useState, type ReactNode } from "react";
 import { unzip, zip } from "fflate";
 import { ArrowDown, ArrowUp, ArrowUpDown, ArchiveRestore, Braces, ChevronDown, ChevronRight, ChevronUp, Copy, Download, File as FileIcon, FilePenLine, FileText, Folder, FolderOpen, FolderPlus, House, ListTree, LoaderCircle, PlusCircle, RefreshCw, Search, Settings, Terminal, Trash2, Upload, UserRound, X } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "../../components/ui/context-menu";
 import "../../../styles/cloud-files.css";
 
 const InstanceFileCodeEditor = lazy(() => import("./InstanceFileCodeEditor"));
@@ -256,6 +257,22 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
     }
     setDialog(null);
   };
+  const treeContextMenu = (entry: Entry, content: ReactNode) => <ContextMenu key={entry.path}>
+    <ContextMenuTrigger asChild>{content}</ContextMenuTrigger>
+    <ContextMenuContent className="ifm-menu">
+      {entry.path === rootDirectory ? <>
+        <ContextMenuItem onSelect={() => openDialog("file")}><FileIcon size={15} />新建文件</ContextMenuItem>
+        <ContextMenuItem onSelect={() => openDialog("folder")}><FolderPlus size={15} />新建文件夹</ContextMenuItem>
+        <ContextMenuItem onSelect={() => void copy(entry.path)}><Copy size={15} />复制路径</ContextMenuItem>
+      </> : <>
+        <ContextMenuItem onSelect={() => { setActivePath(entry.path); setDetailsOpen(true); }}><FileText size={15} />查看详情</ContextMenuItem>
+        <ContextMenuItem onSelect={() => openDialog("rename", entry)}><FilePenLine size={15} />重命名</ContextMenuItem>
+        <ContextMenuItem onSelect={() => void copy(entry.path)}><Copy size={15} />复制路径</ContextMenuItem>
+        <ContextMenuItem onSelect={() => void download(entry)}><Download size={15} />{entry.folder ? "下载压缩包" : "下载文件"}</ContextMenuItem>
+        <ContextMenuItem className="ifm-danger" onSelect={() => openDialog("delete", entry)}><Trash2 size={15} />删除</ContextMenuItem>
+      </>}
+    </ContextMenuContent>
+  </ContextMenu>;
   const renderTree = (path: string, depth: number) => {
     // Keep the reference's frequently used directories first; all folders remain accessible in the file list.
     const children = entries.filter(entry => (editorMode || entry.folder) && parentPath(entry.path) === path).sort((a, b) => {
@@ -263,7 +280,17 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
       const order = ["config", "mods", "logs", "backups", "plugins", "savegame", "worlddata"];
       return path === rootDirectory ? order.indexOf(baseName(a.path)) - order.indexOf(baseName(b.path)) : 0;
     });
-    return <div key={path}><div className={`ifm-tree-row${directory === path && !editorMode ? " active" : ""}`} style={{ paddingLeft: 8 + depth * 20 }}><button className="ifm-tree-toggle" aria-label={`${expanded.includes(path) ? "收起" : "展开"} ${baseName(path)}`} aria-expanded={expanded.includes(path)} onClick={() => setExpanded(previous => previous.includes(path) ? previous.filter(item => item !== path) : [...previous, path])}>{expanded.includes(path) ? <ChevronDown size={15} /> : <ChevronRight size={15} />}</button><button className="ifm-tree-label" onClick={() => { if (editorMode) setExpanded(previous => [...new Set([...previous, path])]); else navigate(path); }} aria-current={directory === path && !editorMode ? "location" : undefined}>{directory === path ? <FolderOpen size={19} /> : <Folder size={19} />}<span>{baseName(path)}</span></button></div>{expanded.includes(path) && <div className={path === rootDirectory ? "ifm-server-children" : undefined}>{children.map(entry => entry.folder ? renderTree(entry.path, depth + 1) : <div key={entry.path} className={`ifm-tree-row ifm-tree-file${editorPath === entry.path ? " active" : ""}`} style={{ paddingLeft: 8 + (depth + 1) * 20 }}><span className="ifm-tree-toggle-space" /><button className="ifm-tree-label" title={baseName(entry.path)} onClick={() => openEditor(entry)} aria-current={editorPath === entry.path ? "true" : undefined}><EntryIcon entry={entry} /><span>{baseName(entry.path)}</span>{isDraftDirty(drafts[entry.path]) && <span className="ifm-tree-dirty" aria-label="未保存修改" />}</button></div>)}</div>}</div>;
+    const folderRow = <div className={`ifm-tree-row${directory === path && !editorMode ? " active" : ""}`} style={{ paddingLeft: 8 + depth * 20 }}>
+      <button className="ifm-tree-toggle" aria-label={`${expanded.includes(path) ? "收起" : "展开"} ${baseName(path)}`} aria-expanded={expanded.includes(path)} onClick={() => setExpanded(previous => previous.includes(path) ? previous.filter(item => item !== path) : [...previous, path])}>{expanded.includes(path) ? <ChevronDown size={15} /> : <ChevronRight size={15} />}</button>
+      <button className="ifm-tree-label" onClick={() => { if (editorMode) setExpanded(previous => [...new Set([...previous, path])]); else navigate(path); }} aria-current={directory === path && !editorMode ? "location" : undefined}>{directory === path ? <FolderOpen size={19} /> : <Folder size={19} />}<span>{baseName(path)}</span></button>
+    </div>;
+    const folderEntry: Entry = { path, folder: true, bytes: 0, modified: "", created: "", permission: "drwxr-xr-x" };
+    const childRows = children.map(entry => {
+      if (entry.folder) return renderTree(entry.path, depth + 1);
+      const fileRow = <div className={`ifm-tree-row ifm-tree-file${editorPath === entry.path ? " active" : ""}`} style={{ paddingLeft: 8 + (depth + 1) * 20 }}><span className="ifm-tree-toggle-space" /><button className="ifm-tree-label" title={baseName(entry.path)} onClick={() => openEditor(entry)} aria-current={editorPath === entry.path ? "true" : undefined}><EntryIcon entry={entry} /><span>{baseName(entry.path)}</span>{isDraftDirty(drafts[entry.path]) && <span className="ifm-tree-dirty" aria-label="未保存修改" />}</button></div>;
+      return treeContextMenu(entry, fileRow);
+    });
+    return <div key={path}>{treeContextMenu(folderEntry, folderRow)}{expanded.includes(path) && <div className={path === rootDirectory ? "ifm-server-children" : undefined}>{childRows}</div>}</div>;
   };
   return <div className={`ifm-layout${detailsVisible ? " has-details" : ""}${editorMode ? " editor-mode" : ""}`}>
     <aside className="gsd-card ifm-tree"><header><h2><ListTree size={20} />目录结构</h2><div><button className="ifm-add-directory" aria-label="新建目录" onClick={() => openDialog("folder")}><PlusCircle size={16} /></button><button aria-label={treeOpen ? "收起目录结构" : "展开目录结构"} aria-expanded={treeOpen} onClick={() => setTreeOpen(!treeOpen)}>{treeOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</button></div></header>{treeOpen && <nav aria-label="文件目录" className="ifm-tree-scroll">{renderTree(rootDirectory, 0)}</nav>}</aside>
