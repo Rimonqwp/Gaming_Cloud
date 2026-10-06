@@ -9,6 +9,7 @@ type Entry = { path: string; folder: boolean; bytes: number; modified: string; c
 type FileDialog = { kind: "file" | "folder" | "rename" | "edit" | "delete" | "extract"; target?: Entry; paths?: string[] };
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
+const rootDirectory = "/home/server";
 const parentPath = (path: string) => path.slice(0, path.lastIndexOf("/")) || "/";
 const baseName = (path: string) => path.split("/").pop() || "/";
 const timestamp = () => new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" }).format(new Date());
@@ -35,8 +36,8 @@ function EntryIcon({ entry, large = false }: { entry: Entry; large?: boolean }) 
 
 export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: string) => void }) {
   const [entries, setEntries] = useState<Entry[]>(seedEntries);
-  const [directory, setDirectory] = useState("/home/server");
-  const [expanded, setExpanded] = useState<string[]>(["/home", "/home/server"]);
+  const [directory, setDirectory] = useState(rootDirectory);
+  const [expanded, setExpanded] = useState<string[]>([rootDirectory]);
   const [treeOpen, setTreeOpen] = useState(true);
   const [activePath, setActivePath] = useState<string | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -56,6 +57,7 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
   const dragDepth = useRef(0);
   const selected = entries.find(entry => entry.path === activePath);
   const detailsVisible = detailsOpen && !!selected;
+  const breadcrumbParts = [baseName(rootDirectory), ...directory.slice(rootDirectory.length).split("/").filter(Boolean)];
   const rows = entries.filter(entry => parentPath(entry.path) === directory && baseName(entry.path).toLowerCase().includes(query.trim().toLowerCase()));
   rows.sort((a, b) => {
     if (a.folder !== b.folder) return a.folder ? -1 : 1;
@@ -63,8 +65,9 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
     return sort.direction * (sort.key === "name" ? nameOrder : a.modified.localeCompare(b.modified) || nameOrder);
   });
   const navigate = (path: string) => {
+    if (path !== rootDirectory && !path.startsWith(`${rootDirectory}/`)) return;
     setDirectory(path); setQuery(""); setChecked([]); setActivePath(null); setDetailsOpen(false);
-    const ancestors = path.split("/").filter(Boolean).map((_, index, parts) => `/${parts.slice(0, index + 1).join("/")}`);
+    const ancestors = path.split("/").filter(Boolean).map((_, index, parts) => `/${parts.slice(0, index + 1).join("/")}`).filter(ancestor => ancestor === rootDirectory || ancestor.startsWith(`${rootDirectory}/`));
     setExpanded(previous => [...new Set([...previous, ...ancestors])]);
   };
   const openDialog = (kind: FileDialog["kind"], target?: Entry, paths?: string[]) => {
@@ -175,15 +178,15 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
     // Keep the reference's frequently used directories first; all folders remain accessible in the file list.
     const children = entries.filter(entry => entry.folder && parentPath(entry.path) === path).sort((a, b) => {
       const order = ["config", "mods", "logs", "backups", "plugins", "savegame", "worlddata"];
-      return path === "/home/server" ? order.indexOf(baseName(a.path)) - order.indexOf(baseName(b.path)) : 0;
+      return path === rootDirectory ? order.indexOf(baseName(a.path)) - order.indexOf(baseName(b.path)) : 0;
     });
-    return <div key={path}><div className={`ifm-tree-row${directory === path ? " active" : ""}`} style={{ paddingLeft: 8 + depth * 20 }}><button className="ifm-tree-toggle" aria-label={`${expanded.includes(path) ? "收起" : "展开"} ${path === "/home" ? "根目录" : baseName(path)}`} aria-expanded={expanded.includes(path)} onClick={() => setExpanded(previous => previous.includes(path) ? previous.filter(item => item !== path) : [...previous, path])}>{expanded.includes(path) ? <ChevronDown size={15} /> : <ChevronRight size={15} />}</button><button className="ifm-tree-label" onClick={() => navigate(path)} aria-current={directory === path ? "location" : undefined}>{directory === path ? <FolderOpen size={19} /> : <Folder size={19} />}<span>{path === "/home" ? "/（根目录）" : baseName(path)}</span></button></div>{expanded.includes(path) && <div className={path === "/home/server" ? "ifm-server-children" : undefined}>{children.map(entry => renderTree(entry.path, depth + 1))}</div>}</div>;
+    return <div key={path}><div className={`ifm-tree-row${directory === path ? " active" : ""}`} style={{ paddingLeft: 8 + depth * 20 }}><button className="ifm-tree-toggle" aria-label={`${expanded.includes(path) ? "收起" : "展开"} ${baseName(path)}`} aria-expanded={expanded.includes(path)} onClick={() => setExpanded(previous => previous.includes(path) ? previous.filter(item => item !== path) : [...previous, path])}>{expanded.includes(path) ? <ChevronDown size={15} /> : <ChevronRight size={15} />}</button><button className="ifm-tree-label" onClick={() => navigate(path)} aria-current={directory === path ? "location" : undefined}>{directory === path ? <FolderOpen size={19} /> : <Folder size={19} />}<span>{baseName(path)}</span></button></div>{expanded.includes(path) && <div className={path === rootDirectory ? "ifm-server-children" : undefined}>{children.map(entry => renderTree(entry.path, depth + 1))}</div>}</div>;
   };
   return <div className={`ifm-layout${detailsVisible ? " has-details" : ""}`}>
-    <aside className="gsd-card ifm-tree"><header><h2><ListTree size={20} />目录结构</h2><div><button className="ifm-add-directory" aria-label="新建目录" onClick={() => openDialog("folder")}><PlusCircle size={16} /></button><button aria-label={treeOpen ? "收起目录结构" : "展开目录结构"} aria-expanded={treeOpen} onClick={() => setTreeOpen(!treeOpen)}>{treeOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</button></div></header>{treeOpen && <nav aria-label="文件目录" className="ifm-tree-scroll">{renderTree("/home", 0)}</nav>}</aside>
+    <aside className="gsd-card ifm-tree"><header><h2><ListTree size={20} />目录结构</h2><div><button className="ifm-add-directory" aria-label="新建目录" onClick={() => openDialog("folder")}><PlusCircle size={16} /></button><button aria-label={treeOpen ? "收起目录结构" : "展开目录结构"} aria-expanded={treeOpen} onClick={() => setTreeOpen(!treeOpen)}>{treeOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</button></div></header>{treeOpen && <nav aria-label="文件目录" className="ifm-tree-scroll">{renderTree(rootDirectory, 0)}</nav>}</aside>
     <section className={`gsd-card ifm-browser${dragging ? " dragging" : ""}`} aria-label="文件列表" onDragEnter={event => { event.preventDefault(); dragDepth.current++; setDragging(true); }} onDragOver={event => event.preventDefault()} onDragLeave={() => { if (--dragDepth.current <= 0) setDragging(false); }} onDrop={event => { event.preventDefault(); dragDepth.current = 0; setDragging(false); if (!busy) void upload(Array.from(event.dataTransfer.files)); }}>
       <div className="ifm-path-row">
-        <nav className="ifm-path" aria-label="当前文件路径"><button aria-label="打开根目录" onClick={() => navigate("/home")}><House size={16} /></button><span>/</span>{directory.split("/").filter(Boolean).map((part, index, parts) => <span key={index}><button onClick={() => navigate(`/${parts.slice(0, index + 1).join("/")}`)}>{part}</button><span>/</span></span>)}<button aria-label="复制当前目录路径" onClick={() => void copy(`${directory}/`)}><Copy size={15} /></button></nav>
+        <nav className="ifm-path" aria-label="当前文件路径"><button aria-label="打开根目录" onClick={() => navigate(rootDirectory)}><House size={16} /></button><span>/</span>{breadcrumbParts.map((part, index, parts) => <span key={index}><button onClick={() => navigate(index === 0 ? rootDirectory : `${rootDirectory}/${parts.slice(1, index + 1).join("/")}`)}>{part}</button><span>/</span></span>)}<button aria-label="复制当前目录路径" onClick={() => void copy(`${directory}/`)}><Copy size={15} /></button></nav>
         {checked.length > 0 && <div className="ifm-selection"><span>已选择 {checked.length} 项</span><button onClick={() => setChecked([])}>取消选择</button><button className="ifm-selection-delete" onClick={() => openDialog("delete", undefined, checked)}><Trash2 size={14} />删除所选</button></div>}
       </div>
       <div className="ifm-toolbar"><label className="ifm-search"><Search size={18} /><input aria-label="搜索文件或文件夹" placeholder="搜索文件或文件夹（支持名称、扩展名）" value={query} onChange={event => setQuery(event.target.value)} /></label><div className="ifm-tools"><button className="gsd-button primary" disabled={busy} onClick={() => uploadRef.current?.click()}>{busy ? <LoaderCircle className="ifm-spin" size={18} /> : <Upload size={18} />}上传文件</button><button className="gsd-button" onClick={() => openDialog("folder")}><FolderPlus size={18} />新建文件夹</button><button className="gsd-button" onClick={() => openDialog("file")}><FileIcon size={18} />新建文件</button><button className="gsd-button" disabled={busy} onClick={() => openDialog("extract")}><ArchiveRestore size={18} />解压缩</button><button className="gsd-button ifm-refresh" disabled={busy} onClick={() => { setQuery(""); onNotice("文件列表已刷新"); }}><RefreshCw size={18} />刷新</button></div></div>
