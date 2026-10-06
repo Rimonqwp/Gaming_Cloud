@@ -154,3 +154,10 @@ final result: passed
 final result: passed
 
 本次文件管理页的同尺寸视觉对照、交互检查、响应式截图与环境限制见 [完整验收记录](output/design/files/design-qa.md)。最终对照为 `output/design/files/comparison-final.jpg`，桌面实现为 `output/design/files/desktop-final.jpg`。此记录补充既有页面验收记录。
+
+
+## 实例日志页新增验收（2026-10-06）
+
+按提供的审计日志截图完成统计、筛选表格、风险侧栏、底部历史与设备统计。保留现有紧凑密度和终端入口。完整对照、修正、交互及下载回读限制见 [日志页验收记录](output/design/logs/design-qa.md)。最终桌面截图为 `output/design/logs/desktop-final.png`，组合对照为 `output/design/logs/comparison-final.jpg`。
+
+final result: passed

@@ -1,0 +1,203 @@
+.ial-layout { --ial-blue: #087bff; --ial-muted: #7285a8; display: grid; grid-template-columns: minmax(0, 3.73fr) minmax(300px, 1fr); align-items: start; gap: 10px; color: #657ba2; font-size: 11px; }
+.ial-main, .ial-sidebar { min-width: 0; }
+.ial-main { display: grid; gap: 11px; }
+.ial-sidebar { display: grid; gap: 10px; }
+.ial-layout button { cursor: pointer; }
+.ial-layout button:focus-visible, .ial-dialog button:focus-visible { outline: 2px solid var(--ial-blue, #087bff); outline-offset: 2px; }
+.ial-layout .red, .ial-dialog .red { color: #ff3d55; }
+.ial-layout .green, .ial-dialog .green { color: #00b887; }
+.ial-layout .orange, .ial-dialog .orange { color: #f28b20; }
+.ial-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 26px; margin-bottom: 8px; }
+.cloud-shell .ial-layout h2 { margin: 0; display: flex; align-items: center; gap: 10px; font-size: 14px; line-height: 1.4; font-weight: 650; color: #0b1641; white-space: nowrap; }
+.ial-heading h2 svg { flex: none; color: #233b6c; }
+.ial-link { display: inline-flex; align-items: center; justify-content: center; gap: 2px; padding: 0; border: 0; background: none; color: #087bff; font-size: 11px; white-space: nowrap; }
+.ial-link:hover { color: #0055d4; text-decoration: underline; }
+.ial-heading > span { display: flex; align-items: center; gap: 6px; }
+.ial-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(115px, .49fr); gap: 10px; }
+.ial-metric { position: relative; height: 102px; padding: 12px 15px; overflow: hidden; }
+.ial-metric-top { display: flex; gap: 13px; align-items: flex-start; }
+.ial-icon-tile { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 9px; color: #087bff; background: #e9f3ff; flex: none; }
+.ial-metric.red .ial-icon-tile, .ial-metric.purple .ial-icon-tile { background: #ffecef; color: #ff3d55; }
+.ial-metric.orange .ial-icon-tile { background: #fff2e3; color: #ff931c; }
+.cloud-shell .ial-metric h2 { color: #6b7f9e; font-size: 12px; font-weight: 600; margin-bottom: 1px; }
+.ial-metric strong { display: block; color: #10183f; font-size: 23px; font-weight: 700; line-height: 1.35; white-space: nowrap; }
+.ial-metric strong small { font-size: 12px; font-weight: 400; margin-left: 5px; }
+.ial-change { position: absolute; top: 16px; right: 19px; display: flex; align-items: center; gap: 3px; font-size: 12px; }
+.ial-metric-period { position: absolute; right: 18px; top: 42px; font-size: 10px; color: #8093b1; }
+.ial-sparkline { position: absolute; right: 12px; bottom: 11px; width: 48%; height: 28px; }
+.ial-metric:last-child { padding-left: 13px; padding-right: 8px; }
+.ial-metric:last-child .ial-metric-top { gap: 8px; }
+.ial-metric:last-child .ial-icon-tile { width: 38px; }
+.ial-metric:last-child .ial-metric-period { display: none; }
+.ial-audit { padding: 8px 13px 7px; }
+.cloud-shell .ial-audit .ial-heading h2 { font-size: 16px; }
+.ial-filters { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+.ial-layout select, .ial-date, .ial-tool { height: 30px; border: 1px solid #dce7f7; border-radius: 4px; color: #6078a0; background: #fff; font: inherit; padding: 0 9px; min-width: 0; }
+.ial-layout select { cursor: pointer; }
+.ial-search { display: flex; align-items: center; gap: 9px; flex: 1; min-width: 150px; border: 1px solid #dce7f7; border-radius: 4px; padding: 0 9px; height: 30px; }
+.ial-search:focus-within { border-color: #087bff; }
+.ial-search svg { flex: none; }
+.ial-search input { width: 100%; min-width: 0; font: inherit; border: 0; outline: none; background: none; color: #50678f; }
+.ial-search input::placeholder { color: #8b9cbb; }
+.ial-filters > select:nth-of-type(1) { width: 110px; }
+.ial-filters > select:nth-of-type(2) { width: 118px; }
+.ial-filters > select:nth-of-type(3) { width: 132px; }
+.ial-date { display: flex; align-items: center; justify-content: space-between; gap: 9px; white-space: nowrap; }
+.ial-tool { display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; padding: 0 13px; }
+.ial-tool:hover, .ial-date:hover { background: #f4f8ff; border-color: #a8c9fc; }
+.ial-export { color: #087bff; }
+.ial-tool:disabled { opacity: .45; cursor: not-allowed; }
+.ial-table-scroll { overflow: auto; scrollbar-width: thin; scrollbar-color: #cfdef3 transparent; }
+.ial-table { table-layout: fixed; border-collapse: collapse; text-align: left; width: 100%; white-space: nowrap; font-size: 11px; }
+.ial-col-check { width: 3%; }
+.ial-col-time { width: 12%; }
+.ial-col-actor { width: 10.5%; }
+.ial-col-ip { width: 8.2%; }
+.ial-col-type { width: 8.8%; }
+.ial-col-target { width: 14.5%; }
+.ial-col-result { width: 6.6%; }
+.ial-col-risk { width: 8.8%; }
+.ial-col-action { width: 4%; }
+.ial-table th { background: #f4f8fd; height: 30px; color: #6d83a8; font-weight: 500; padding: 0 6px; }
+.ial-table td { height: 34.7px; padding: 2px 6px; border-bottom: 1px solid #e8eff8; overflow: hidden; text-overflow: ellipsis; color: #627ca8; }
+.ial-table tbody tr:hover, .ial-table tr.selected { background: #f4f9ff; }
+.ial-table th:first-child, .ial-table td:first-child { padding-left: 9px; }
+.ial-layout input[type="checkbox"] { height: 13px; width: 13px; accent-color: #087bff; vertical-align: middle; cursor: pointer; }
+.ial-actor { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.ial-actor > img, .ial-bot { height: 28px; width: 28px; flex: none; border-radius: 50%; }
+.ial-actor img { object-fit: cover; }
+.ial-bot { display: grid; place-items: center; color: #398cff; background: #e7f3ff; }
+.ial-actor > span:last-child { min-width: 0; }
+.ial-actor strong { display: block; font-size: 11px; font-weight: 600; color: #1a2a53; overflow: hidden; text-overflow: ellipsis; }
+.ial-actor small { display: block; font-size: 10px; line-height: 1.3; color: #899bb9; }
+.ial-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 42px; padding: 3px 10px; line-height: 16px; border-radius: 4px; font-size: 11px; }
+.ial-badge.blue { color: #328bff; background: #eaf3ff; }
+.ial-badge.green { color: #00ae87; background: #e1faf2; }
+.ial-badge.red { color: #ff3d55; background: #ffebee; }
+.ial-badge.orange { color: #f28b20; background: #fff3e7; }
+.ial-pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 34px; padding-top: 7px; color: #8397b8; }
+.ial-pagination nav { display: flex; align-items: center; gap: 6px; }
+.ial-pagination button { display: grid; place-items: center; min-width: 28px; height: 28px; padding: 0 6px; background: #fff; color: #4d6d9c; border: 1px solid #dfebfc; border-radius: 5px; }
+.ial-pagination button.current { background: #087bff; color: #fff; border-color: #087bff; }
+.ial-pagination button:disabled { color: #bfd5f3; }
+.ial-pagination select { margin-left: 6px; height: 28px; }
+.ial-empty { min-height: 347px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; }
+.ial-bottom { display: grid; grid-template-columns: minmax(0, 1.32fr) minmax(0, 1.16fr) minmax(0, 1fr); gap: 10px; }
+.ial-small-card { padding: 8px 13px 9px; }
+.ial-small-card .ial-heading { margin-bottom: 2px; }
+.ial-mini-table { width: 100%; border-collapse: collapse; text-align: left; table-layout: fixed; font-size: 11px; }
+.ial-mini-table th { font-size: 10px; color: #7c90ae; font-weight: 500; background: #f4f8fc; }
+.ial-mini-table th, .ial-mini-table td { height: 20px; padding: 1px 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ial-mini-table td { border-bottom: 1px solid #edf2fa; }
+.ial-mini-table th:nth-child(1) { width: 20%; }
+.ial-mini-table th:nth-child(2) { width: 24%; }
+.ial-mini-table th:last-child { width: 12%; }
+.ial-success { color: #00b887; }
+.ial-donut { width: 118px; height: 118px; position: relative; flex: none; }
+.ial-donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+.ial-donut-center strong { color: #10183f; font-size: 22px; line-height: 1.3; font-weight: 700; }
+.ial-donut-center span { color: #7588a6; font-size: 11px; }
+.ial-legend { display: grid; gap: 6px; flex: 1; min-width: 0; font-size: 11px; }
+.ial-legend > div, .ial-legend > button { display: flex; align-items: center; gap: 7px; }
+.ial-legend > button { border: 0; padding: 0; color: inherit; background: none; font: inherit; text-align: left; }
+.ial-legend > button:hover { color: #087bff; }
+.ial-legend i { height: 8px; width: 8px; border-radius: 2px; flex: none; }
+.ial-legend span { flex: 1; }
+.ial-legend strong { color: #445e89; font-weight: 500; }
+.ial-legend small { font: inherit; min-width: 34px; text-align: right; }
+.ial-device-content, .ial-risk-content { display: flex; align-items: center; gap: 16px; }
+.ial-device-content .ial-donut { width: 111px; height: 111px; }
+.ial-devices .ial-heading select, .ial-risk-card select { height: 27px; font-size: 11px; }
+.ial-risk-card { height: 165px; padding: 8px 13px 10px; }
+.ial-risk-card .ial-heading { margin-bottom: 8px; }
+.ial-places { padding: 8px 13px 9px; }
+.ial-places .ial-heading { margin-bottom: 4px; }
+.ial-place { display: flex; align-items: center; gap: 14px; height: 25px; border-bottom: 1px solid #edf2fa; font-size: 11px; }
+.ial-place:last-child { border-bottom: 0; }
+.ial-place img { width: 22px; height: 15px; object-fit: cover; border-radius: 2px; flex: none; }
+.ial-place > span { flex: 1; }
+.ial-place strong { font-size: 12px; font-weight: 400; }
+.ial-place small { width: 32px; text-align: right; font-size: 11px; }
+.ial-alerts { padding: 8px 13px 11px; }
+.ial-alerts .ial-heading h2 svg { color: #ff3d55; }
+.ial-alerts .ial-heading { margin-bottom: 2px; }
+.ial-alert { display: flex; align-items: center; gap: 8px; height: 24px; font-size: 10px; }
+.ial-alert > i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+.ial-alert > span { color: #61769d; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ial-alert time { color: #8a9dbd; font-size: 9px; white-space: nowrap; }
+.ial-bans { padding: 8px 13px 11px; }
+.ial-bans .ial-heading { margin-bottom: 2px; }
+.ial-ban { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #e9eff9; }
+.ial-ban:last-child { border-bottom: 0; }
+.ial-ban > img { width: 31px; height: 31px; border-radius: 50%; object-fit: cover; flex: none; }
+.ial-ban > div { flex: 1; min-width: 0; }
+.ial-ban p { display: flex; align-items: center; gap: 7px; margin: 0; font-size: 10px; min-width: 0; }
+.ial-ban p:first-child { margin-bottom: 4px; }
+.ial-ban p:first-child > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ial-ban strong { color: #1a2a53; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.ial-status { font-size: 10px; border-radius: 3px; padding: 0 3px; background: #ffedf0; flex: none; }
+.ial-status.green { background: #e1faf2; }
+.ial-ban time { color: #8a9dbd; white-space: nowrap; font-size: 10px; }
+.ial-ban .ial-badge { margin-left: auto; padding: 1px 5px; min-width: 36px; white-space: nowrap; font-size: 10px; }
+.ial-dialog .ial-actor img { width: 40px; height: 40px; }
+.ial-dialog label { display: grid; gap: 6px; font-size: 13px; }
+.ial-dialog input[type="date"] { border: 1px solid #dce7f7; padding: 9px; border-radius: 5px; color: #425c87; }
+.ial-dialog dd { overflow-wrap: anywhere; }
+.ial-terminal-dialog { width: min(900px, calc(100vw - 32px)); max-width: 900px; }
+.ial-terminal-dialog .gsd-console > pre { height: min(50vh, 430px); }
+@media (max-width: 1450px) {
+  .ial-layout { grid-template-columns: minmax(0, 1fr) 300px; }
+  .ial-filters { flex-wrap: wrap; }
+  .ial-search { flex-basis: 220px; }
+  .ial-table { min-width: 1060px; }
+  .ial-metrics { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .ial-metric { padding: 12px 9px; }
+  .ial-metric-top { gap: 8px; }
+  .ial-change { right: auto; left: 12px; font-size: 10px; top: 67px; }
+  .ial-metric-period { display: none; }
+  .ial-sparkline { width: 46%; right: 7px; }
+  .ial-bottom { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ial-devices { grid-column: 1 / -1; }
+  .ial-device-content { justify-content: center; }
+  .ial-device-content .ial-legend { flex: 0 1 200px; }
+}
+@media (max-width: 1100px) {
+  .ial-layout { grid-template-columns: minmax(0, 1fr); }
+  .ial-sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ial-metric-top { gap: 12px; }
+  .ial-bottom { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ial-devices { grid-column: auto; }
+  .ial-mini-scroll { overflow-x: auto; }
+  .ial-mini-table { min-width: 340px; }
+  .ial-mini-table th:nth-child(1) { width: 25%; }
+  .ial-mini-table th:nth-child(2) { width: 22%; }
+  .ial-small-card { padding: 8px 10px; }
+  .ial-device-content { gap: 8px; }
+  .ial-device-content .ial-donut { width: 100px; height: 100px; }
+}
+@media (max-width: 700px) {
+  .ial-layout { font-size: 12px; }
+  .ial-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ial-metric:last-child { grid-column: 1 / -1; }
+  .ial-change { top: 16px; right: 12px; left: auto; }
+  .ial-metric-period { display: block; right: 12px; }
+  .ial-sparkline { width: 45%; }
+  .ial-bottom, .ial-sidebar { grid-template-columns: minmax(0, 1fr); }
+  .ial-audit { padding: 10px; }
+  .ial-filters > .ial-search { flex-basis: 100%; }
+  .ial-filters > .ial-date { order: 5; width: 100%; }
+  .ial-filters > select { flex: 1 1 90px; }
+  .ial-filters > .ial-tool { flex: 1; order: 6; }
+  .ial-layout select, .ial-date, .ial-tool, .ial-search { height: 36px; }
+  .ial-pagination { flex-direction: column; align-items: flex-start; gap: 8px; padding-top: 10px; }
+  .ial-pagination nav { gap: 4px; flex-wrap: wrap; }
+  .ial-pagination button { min-width: 27px; height: 32px; }
+  .ial-pagination select { margin-left: 0; padding: 0 5px; }
+  .ial-heading .ial-link { min-height: 28px; }
+  .ial-table .ial-link { min-height: 32px; }
+  .ial-risk-content { justify-content: space-around; }
+  .ial-risk-content .ial-legend { max-width: 160px; }
+  .ial-device-content .ial-donut { width: 118px; height: 118px; }
+  .ial-alert time { font-size: 10px; }
+  .ial-ban p, .ial-ban time { font-size: 11px; }
+}
