@@ -6,6 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { consoleInstances, type ConsoleInstance } from "./cloudDashboardData";
 import { poolInstances, poolResources } from "./cloudAccountSummaryData";
+import { GameServerDetailWorkspace } from "./GameServerDetailWorkspace";
 import "../../../styles/cloud-instances-workspace.css";
 
 const dateFormat = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" });
@@ -133,7 +134,7 @@ export function CloudInstancesWorkspace() {
   ];
 
   const openDetail = (id: string) => { setDetailId(id); setDetailTab("info"); };
-  const openFullDetail = (id: string) => { openDetail(id); setFullDetail(true); };
+  const openFullDetail = (id: string) => { openDetail(id); setNotice(""); setFullDetail(true); };
   const closeDetail = () => { setFullDetail(false); setDetailId(null); };
   const setRunning = (ids: string[], value: boolean) => {
     setServers(previous => previous.map(row => ids.includes(row.id) ? { ...row, running: value, players: value ? row.players : 0, cpu: value ? row.cpu || 15 : 0, memory: value ? row.memory || 25 : 0, uptime: value ? "刚刚启动" : "—" } : row));
@@ -147,7 +148,7 @@ export function CloudInstancesWorkspace() {
   const toggleSelected = (id: string) => setSelected(previous => previous.includes(id) ? previous.filter(item => item !== id) : [...previous, id]);
 
   return <div className={`instances-workspace${detail ? fullDetail ? " full-detail" : " has-detail" : ""}`}>
-    {fullDetail && detail && <header className="iw-full-heading iw-heading"><div className="iw-breadcrumb">控制台 <ChevronRight size={12} /> 实例 <ChevronRight size={12} /><button className="iw-text-button" onClick={() => setFullDetail(false)}>游戏服务器</button><ChevronRight size={12} /><span>{detail.name}</span></div><h1>实例详情</h1><p>查看服务器信息、资源监控与存档备份 <span>演示数据</span></p><button className="iw-button" onClick={() => setFullDetail(false)}><ChevronLeft size={15} />返回服务器列表</button>{notice && <div className="iw-notice" role="status">{notice}</div>}</header>}
+    {fullDetail && detail && <GameServerDetailWorkspace key={detail.id} server={detail} onBack={() => setFullDetail(false)} onCopy={() => void copyAddress(detail)} onRestart={() => detail.running ? setRestartId(detail.id) : setRunning([detail.id], true)} onBackup={() => backup(detail)} notice={notice} onNotice={setNotice} monitor={<ResourceChart server={detail} period={period} />} period={period} onPeriodChange={setPeriod} />}
     {!fullDetail && <div className="iw-main">
       <div className="iw-breadcrumb">控制台 <ChevronRight size={12} /> 实例 <ChevronRight size={12} /><span>游戏服务器</span></div>
       <header className="iw-heading"><h1>服务器列表</h1></header>
@@ -186,7 +187,7 @@ export function CloudInstancesWorkspace() {
       </section>
       <p className="iw-footnote"><HardDrive size={13} />服务器数据与操作为演示，实际资源以服务端为准。</p>
     </div>}
-    {detail && <aside className="iw-detail" aria-label={fullDetail ? "完整实例详情" : "简易实例信息"}><div className="iw-detail-heading"><h2>{fullDetail ? "服务器详情" : "简易实例信息"}</h2>{fullDetail ? <button aria-label="返回服务器列表" onClick={() => setFullDetail(false)}><ChevronLeft size={20} /></button> : <button aria-label="关闭简易实例信息" onClick={closeDetail}><X size={20} /></button>}</div><div className="iw-detail-identity"><span className="iw-game-icon"><Gamepad2 size={27} /></span><div><div><h3>{detail.name}</h3><ServerStatus running={detail.running} /></div><p>{detail.game}</p></div></div><div className="iw-detail-tabs" role="tablist" aria-label="实例详情分类">{detailTabs.map(item => <button role="tab" tabIndex={detailTab === item.id ? 0 : -1} onKeyDown={event => {
+    {detail && !fullDetail && <aside className="iw-detail" aria-label={fullDetail ? "完整实例详情" : "简易实例信息"}><div className="iw-detail-heading"><h2>{fullDetail ? "服务器详情" : "简易实例信息"}</h2>{fullDetail ? <button aria-label="返回服务器列表" onClick={() => setFullDetail(false)}><ChevronLeft size={20} /></button> : <button aria-label="关闭简易实例信息" onClick={closeDetail}><X size={20} /></button>}</div><div className="iw-detail-identity"><span className="iw-game-icon"><Gamepad2 size={27} /></span><div><div><h3>{detail.name}</h3><ServerStatus running={detail.running} /></div><p>{detail.game}</p></div></div><div className="iw-detail-tabs" role="tablist" aria-label="实例详情分类">{detailTabs.map(item => <button role="tab" tabIndex={detailTab === item.id ? 0 : -1} onKeyDown={event => {
           const index = detailTabs.findIndex(tab => tab.id === item.id);
           const next = event.key === "ArrowRight" ? (index + 1) % detailTabs.length : event.key === "ArrowLeft" ? (index + detailTabs.length - 1) % detailTabs.length : event.key === "Home" ? 0 : event.key === "End" ? detailTabs.length - 1 : -1;
           if (next >= 0) { event.preventDefault(); setDetailTab(detailTabs[next].id); document.getElementById(`iw-tab-${detailTabs[next].id}`)?.focus(); }
