@@ -37,11 +37,11 @@
 .gsd-tabs button.active { color: var(--gsd-blue); font-weight: 600; }
 .gsd-tabs button.active::after { content: ""; position: absolute; height: 3px; left: 0; right: 0; bottom: 0; background: #087bff; border-radius: 2px 2px 0 0; }
 /* Keep the shared frame stationary; longer tabs scroll inside the same panel. */
-.gsd-panel { height: var(--gsd-panel-height); min-width: 0; overflow-y: auto; overflow-anchor: none; scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: #cdddf3 transparent; }
-.gsd-panel > .gsd-secondary, .gsd-panel > .gsd-layout { min-height: 100%; }
-.gsd-panel > .gsd-full-console { height: 100%; }
-.gsd-full-console .gsd-console { height: 100%; display: flex; flex-direction: column; }
-.gsd-full-console .gsd-console > pre { flex: 1; min-height: 0; }
+.gsd-panel { min-width: 0; overflow: visible; overflow-anchor: none; }
+.gsd-panel > .gsd-secondary, .gsd-panel > .gsd-layout { min-height: 0; }
+.gsd-panel > .gsd-full-console { height: auto; }
+.gsd-full-console .gsd-console { height: auto; display: flex; flex-direction: column; }
+.gsd-full-console .gsd-console > pre { flex: none; min-height: 0; }
 .gsd-full-console .gsd-console > header, .gsd-full-console .gsd-command { flex: none; }
 .gsd-layout { display: grid; grid-template-columns: minmax(0, 2.065fr) minmax(0, 1fr); align-items: start; gap: 10px; }
 .gsd-card { border: 1px solid #e0eaf7; border-radius: 8px; background: #fff; min-width: 0; }
