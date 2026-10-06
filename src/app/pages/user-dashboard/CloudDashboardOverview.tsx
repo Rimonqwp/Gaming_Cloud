@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { AlertTriangle, ChevronRight, Gamepad2, Archive, Wallet, Activity } from "lucide-react";
-import { Area, AreaChart, ResponsiveContainer } from "recharts";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import type { UserDashboardTabId } from "../../config/userDashboardNavTabs";
-import { resourceMetrics, metricColors, gameRegions } from "./cloudDashboardData";
+import { resourceMetrics, gameRegions } from "./cloudDashboardData";
 import { NetworkTraffic } from "./CloudDashboardCharts";
 import { CloudDashboardInstances } from "./CloudDashboardInstances";
 import "../../../styles/cloud-dashboard.css";
@@ -37,16 +36,12 @@ export function CloudDashboardOverview({ onSelectTab, mode = "overview", balance
         {resourceMetrics.map((metric, index) => {
           const Icon = metricIcons[index];
           const value = metric.title === "账户余额" ? balance.toFixed(2) : metric.value;
-          const isServerMetric = metric.title === "游戏服务器";
           return <button key={metric.title} className={`dash-metric ${metric.tone}`} onClick={() => setDetail({ title: metric.title, description: `当前${metric.title}为 ${value} ${metric.unit}。${metric.description}` })}>
-            {!isServerMetric && <span className="dash-metric-icon"><Icon /></span>}
             <div className="dash-metric-content">
               <h2>{metric.title}</h2>
               <strong>{value}<small>{metric.unit}</small></strong>
-              {!isServerMetric && <p>{metric.summary}</p>}
             </div>
             <Icon className="dash-metric-decoration" />
-            {!isServerMetric && <div className="dash-sparkline" aria-hidden="true"><ResponsiveContainer width="100%" height="100%"><AreaChart data={metric.points.map(value => ({ value }))}><Area dataKey="value" type="linear" stroke={metricColors[metric.tone]} strokeWidth={1.8} fill={metricColors[metric.tone]} fillOpacity={0.08} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div>}
           </button>;
         })}
       </section>

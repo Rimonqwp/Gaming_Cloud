@@ -14,15 +14,13 @@ export const consoleInstances: ConsoleInstance[] = [
 ];
 
 const sum = (key: "players" | "slots" | "saveGB" | "backups" | "cores" | "ram") => consoleInstances.reduce((total, server) => total + server[key], 0);
-const runningCount = consoleInstances.filter(server => server.running).length;
 export const resourceMetrics = [
-  { title: "游戏服务器", value: String(consoleInstances.length), unit: "台", summary: `${runningCount} 台运行中 · ${consoleInstances.length - runningCount} 台已停止`, description: "已部署的游戏服务器，包含运行中与已停止的服务器。", tone: "blue", points: [2, 2, 3, 3, 4, 4, 5, 5] },
-  { title: "存档备份", value: String(sum("backups")), unit: "份", summary: "全部服务器存档备份", description: "保留的游戏存档备份副本合计，可按服务器查看备份数量。", tone: "green", points: [24, 38, 32, 50, 44, 68, 72, 86] },
-  { title: "累计流量消耗", value: "1,280", unit: "GB", summary: "全部服务器累计流量", description: "所有服务器累计消耗的网络流量，当前为演示数据。", tone: "purple", points: [80, 88, 90, 101, 108, 116, 122, 128] },
-  { title: "账户余额", value: "", unit: "美元", summary: "账户当前可用余额", description: "账户当前可用余额，可在财务页面查看充值与消费记录。", tone: "teal", points: [8, 10, 12, 16, 18, 20, 22, 24] },
+  { title: "游戏服务器", value: String(consoleInstances.length), unit: "台", description: "已部署的游戏服务器，包含运行中与已停止的服务器。", tone: "blue" },
+  { title: "存档备份", value: String(sum("backups")), unit: "份", description: "保留的游戏存档备份副本合计，可按服务器查看备份数量。", tone: "green" },
+  { title: "累计流量消耗", value: "1,280", unit: "GB", description: "所有服务器累计消耗的网络流量，当前为演示数据。", tone: "purple" },
+  { title: "账户余额", value: "", unit: "美元", description: "账户当前可用余额，可在财务页面查看充值与消费记录。", tone: "teal" },
 ];
 
-export const metricColors: Record<string, string> = { blue: "#1683ff", green: "#00c78e", purple: "#7660ff", teal: "#08c9cb" };
 export const resourceUsage = [
   { key: "cpu", title: "CPU 使用率", color: "#1683ff", total: sum("cores"), used: consoleInstances.reduce((total, server) => total + (server.running ? server.cores * server.cpu / 100 : 0), 0), unit: "核" },
   { key: "memory", title: "内存使用率", color: "#20d3be", total: sum("ram"), used: consoleInstances.reduce((total, server) => total + (server.running ? server.ram * server.memory / 100 : 0), 0), unit: "GB" },
