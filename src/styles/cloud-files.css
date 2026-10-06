@@ -24,10 +24,12 @@
 .ifm-tree-dirty, .ifm-code-dirty { width: 6px; height: 6px; flex: none; border-radius: 50%; background: #087bff; }
 .ifm-tree-dirty { margin-left: auto; margin-right: 8px; }
 .ifm-code-workspace { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
-.ifm-code-toolbar { display: flex; align-items: center; gap: 14px; padding: 10px 14px; border-bottom: 1px solid #e2eaf5; flex: none; }
+.ifm-code-toolbar { display: grid; grid-template-columns: minmax(132px, 1fr) minmax(0, 3fr) minmax(132px, 1fr); align-items: center; gap: 14px; padding: 10px 14px; border-bottom: 1px solid #e2eaf5; flex: none; }
+.ifm-code-toolbar > button:first-child { justify-self: start; }
+.ifm-code-toolbar > button:last-child { justify-self: end; }
 .ifm-code-toolbar .gsd-button { height: 34px; font-size: 12px; gap: 7px; }
 .ifm-code-toolbar .gsd-button:disabled { opacity: .5; cursor: default; }
-.ifm-code-current { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.ifm-code-current { display: flex; align-items: center; justify-content: center; gap: 10px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; text-align: center; }
 .ifm-code-unsaved { font-size: 11px; color: #d28a0e; }
 .ifm-code-shortcut { font-size: 10px; opacity: .75; }
 .ifm-code-tabs { display: flex; overflow-x: auto; flex: none; min-height: 39px; background: #f3f6fb; border-bottom: 1px solid #e2eaf5; scrollbar-width: thin; }
@@ -125,7 +127,7 @@
 .ifm-empty strong { font-size: 13px; font-weight: 500; }
 .ifm-empty button { color: #087bff; background: none; border: 0; }
 .ifm-detail-empty { height: 335px; }
-.ifm-drop-hint { position: absolute; inset: 12px; border: 2px dashed #087bff; border-radius: 7px; background: #f1f7fff5; display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: center; color: #087bff; pointer-events: none; }
+.ifm-drop-hint { position: absolute; inset: 12px; z-index: 2; border: 2px dashed #087bff; border-radius: 7px; background: #f1f7fff5; display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: center; color: #087bff; pointer-events: none; }
 .ifm-menu { color: #506b97; font-family: Inter, "Noto Sans SC", "Microsoft YaHei", sans-serif; }
 .ifm-danger, .ifm-error { color: #f04451 !important; }
 .ifm-dialog { color: #536b92; font-family: Inter, "Noto Sans SC", "Microsoft YaHei", sans-serif; }
@@ -202,7 +204,7 @@
   .ifm-details dl > div { grid-template-columns: 98px minmax(0, 1fr); }
   .editor-mode .ifm-tree-scroll { max-height: 220px; }
   .ifm-code-workspace { height: 500px; flex: none; }
-  .ifm-code-toolbar { gap: 8px; padding: 8px; }
+  .ifm-code-toolbar { display: flex; gap: 8px; padding: 8px; }
   .ifm-code-toolbar .gsd-button { padding: 0 7px; }
   .ifm-code-current, .ifm-code-shortcut { display: none; }
   .ifm-code-toolbar > button:last-child { margin-left: auto; }
