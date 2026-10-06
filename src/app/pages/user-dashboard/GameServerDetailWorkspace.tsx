@@ -22,11 +22,11 @@ type Mode = "whitelist" | "pvp" | "autosave" | "maintenance";
 const tabs = [
   { id: "overview", label: "概览", icon: House },
   { id: "players", label: "玩家管理", icon: Users },
-  { id: "files", label: "文件管理", icon: ClipboardList },
   { id: "plugins", label: "插件广场", icon: Box },
+  { id: "files", label: "文件管理", icon: ClipboardList },
   { id: "backups", label: "文件备份", icon: FolderClosed },
-  { id: "logs", label: "日志", icon: FileText },
   { id: "tasks", label: "定时任务", icon: Timer },
+  { id: "logs", label: "日志", icon: FileText },
   { id: "machine", label: "机器设定", icon: Settings },
 ] as const;
 const initialPlayers: Player[] = [
