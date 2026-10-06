@@ -18,7 +18,7 @@
 .gso-online-preview > div { display: flex; align-items: center; gap: 14px; }
 .gso-online-preview img { width: 28px; height: 28px; image-rendering: pixelated; border-radius: 2px; }
 .gso-online-preview b { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #fff; color: #087bff; font-size: 12px; }
-.gso-metrics { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 10px; margin-bottom: 11px; }
+.gso-metrics { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 10px; margin-bottom: 11px; }
 .gso-metric { position: relative; height: 108px; display: flex; gap: 12px; align-items: flex-start; padding: 12px 11px; background: #fff; border: 1px solid #e4eefb; border-radius: 9px; min-width: 0; }
 .gso-metric, .gso-quick button { --gso-tone: #087bff; }
 .gso-metric.green, .gso-quick button.green { --gso-tone: #00bf87; }
