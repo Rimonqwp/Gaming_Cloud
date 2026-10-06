@@ -1,0 +1,44 @@
+/* 控制面板公共显示规则：新增页面沿用 cloud-shell，不在页面样式中覆盖缩放。 */
+body:has(.cloud-shell) {
+  --console-display-scale: 1;
+}
+
+/* 桌面端（含 1080p）固定 80%，不受窗口高度或当前标签页影响。 */
+@media (min-width: 1101px) {
+  body:has(.cloud-shell) {
+    --console-display-scale: 0.8;
+  }
+
+  /* Fractional zoom can produce a one-pixel overflow in the navigation. */
+  .cloud-shell .cloud-nav-pills { scrollbar-width: none; }
+  .cloud-shell .cloud-nav-pills::-webkit-scrollbar { display: none; }
+}
+
+.cloud-shell {
+  zoom: var(--console-display-scale) !important;
+  min-height: calc(100dvh / var(--console-display-scale)) !important;
+}
+
+/* Portal 菜单在公共容器外，同步缩放内容，定位容器仍使用视口坐标。 */
+body:has(.cloud-shell) :is(
+  [data-slot="dropdown-menu-content"],
+  [data-slot="dropdown-menu-sub-content"],
+  [data-slot="popover-content"],
+  [data-slot="select-content"],
+  [data-slot="context-menu-content"],
+  [data-slot="context-menu-sub-content"],
+  [data-slot="tooltip-content"],
+  [data-slot="hover-card-content"],
+  [data-slot="menubar-content"],
+  [data-slot="menubar-sub-content"]
+):not(.cloud-shell *) {
+  zoom: var(--console-display-scale) !important;
+}
+
+/* 居中弹窗只缩放视觉尺寸，保留居中定位和全屏遮罩。 */
+body:has(.cloud-shell) :is(
+  [data-slot="dialog-content"],
+  [data-slot="alert-dialog-content"]
+):not(.cloud-shell *) {
+  scale: var(--console-display-scale) !important;
+}

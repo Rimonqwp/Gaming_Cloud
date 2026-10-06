@@ -1,9 +1,7 @@
 html:has(.gsd-page) { scrollbar-gutter: stable; }
 .cloud-container:has(.gsd-page) { width: calc(100% - 104px); }
-/* All detail tabs share one frame, including the page scale and portal controls. */
-.cloud-shell:has(.gsd-page) { zoom: 1; min-height: 100dvh; padding-bottom: 12px; }
-body:has(.gsd-page) :is([data-slot="dropdown-menu-content"], [data-slot="dropdown-menu-sub-content"], [data-slot="popover-content"], [data-slot="select-content"], [data-slot="context-menu-content"], [data-slot="context-menu-sub-content"], [data-slot="tooltip-content"]) { zoom: 1; }
-body:has(.gsd-page) [data-slot="dialog-content"] { scale: 1; }
+/* Detail tabs share one frame; scaling is owned by cloud-display.css. */
+.cloud-shell:has(.gsd-page) { padding-bottom: 12px; }
 .dash-overview:has(.gsd-page) { padding-bottom: 0; }
 .cloud-shell .dash-overview:has(.gsd-page) > .cloud-page-heading { display: none; }
 .instances-workspace:has(.gsd-page) { padding-top: 0; display: block; }

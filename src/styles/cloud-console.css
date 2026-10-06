@@ -1206,14 +1206,3 @@ body:has(.cloud-shell),
     scrollbar-color: var(--console-scroll-thumb) var(--console-scroll-track);
   }
 }
-
-/* Keep the requested compact dashboard density on desktop Full HD viewports. */
-@media (min-width: 1101px) and (max-height: 1080px) {
-  .cloud-shell { zoom: 0.8; min-height: 125vh; }
-  /* Fractional zoom can produce a one-pixel overflow in the navigation. */
-  .cloud-nav-pills { scrollbar-width: none; }
-  .cloud-nav-pills::-webkit-scrollbar { display: none; }
-  /* Scale portal contents while their positioning wrappers retain viewport coordinates. */
-  body:has(.cloud-shell) :is([data-slot="dropdown-menu-content"], [data-slot="dropdown-menu-sub-content"], [data-slot="popover-content"], [data-slot="select-content"], [data-slot="context-menu-content"], [data-slot="context-menu-sub-content"], [data-slot="tooltip-content"]) { zoom: 0.8; }
-  body:has(.cloud-shell) [data-slot="dialog-content"] { scale: 0.8; }
-}

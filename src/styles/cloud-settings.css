@@ -1,4 +1,3 @@
-html:has(.cloud-shell .ec-settings) { zoom: 1; }
 .ec-settings { width: 100%; max-width: 1172px; margin: 0 auto; padding: 34px 0 60px; color: #111b36; }
 .ec-settings-heading { margin-bottom: 28px; }
 .ec-settings-heading h1 { margin: 0 0 7px; font-size: 28px; font-weight: 700; letter-spacing: -.6px; }
