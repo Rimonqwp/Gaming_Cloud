@@ -35,11 +35,15 @@ type Props = {
   onClose: (path: string) => void;
   onSave: () => void;
   onBack: () => void;
+  onCreateScratch: () => void;
 };
-const filename = (path: string) => path.split("/").pop() || path;
+const filename = (path: string) => {
+  const name = path.split("/").pop() || path;
+  return /^\.untitled-\d+\.txt$/.test(name) ? "未命名.txt" : name;
+};
 const languageFor = (path: string) => ({ json: "json", sh: "shell", ini: "ini", cfg: "ini", conf: "ini", properties: "ini", yml: "yaml", yaml: "yaml", xml: "xml", md: "markdown" }[path.split(".").pop()?.toLowerCase() || ""] || "plaintext");
 
-export default function InstanceFileCodeEditor({ tabs, path, value, dirty, onChange, onSelect, onClose, onSave, onBack }: Props) {
+export default function InstanceFileCodeEditor({ tabs, path, value, dirty, onChange, onSelect, onClose, onSave, onBack, onCreateScratch }: Props) {
   const saveRef = useRef(onSave);
   saveRef.current = onSave;
   const cursorSubscription = useRef<monaco.IDisposable | null>(null);
@@ -52,7 +56,7 @@ export default function InstanceFileCodeEditor({ tabs, path, value, dirty, onCha
       <span className="ifm-code-current" title={path || ""}>{path ? filename(path) : "代码编辑器"}{dirty && <span className="ifm-code-unsaved">未保存</span>}</span>
       <button className="gsd-button primary" disabled={!path || !dirty} onClick={onSave}><Save size={16} />保存文件<span className="ifm-code-shortcut">Ctrl+S</span></button>
     </header>
-    <div className="ifm-code-tabs" role="tablist" aria-label="打开的文件">
+    <div className="ifm-code-tabs" role="tablist" aria-label="打开的文件" onDoubleClick={event => { if (event.target === event.currentTarget) onCreateScratch(); }}>
       {tabs.map(tab => <div key={tab.path} className={`ifm-code-tab${tab.path === path ? " active" : ""}`}>
         <button role="tab" aria-selected={tab.path === path} aria-label={`编辑 ${filename(tab.path)}`} onClick={() => onSelect(tab.path)}><FileCode2 size={15} /><span>{filename(tab.path)}</span>{tab.dirty && <span className="ifm-code-dirty" aria-label="未保存修改" />}</button>
         <button className="ifm-code-close" aria-label={`关闭 ${filename(tab.path)}`} onClick={() => onClose(tab.path)}><X size={14} /></button>
