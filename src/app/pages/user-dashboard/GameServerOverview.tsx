@@ -1,6 +1,6 @@
-import { useState, type ReactNode, type WheelEvent } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Archive, ArrowDown, ArrowUp, BadgeCheck, Check, ChevronRight, ClipboardCheck, Clock3, Copy, Cpu, Crown, Database, FileText, Folder, Gamepad2, Globe2, HardDrive, KeyRound, MapPin, Megaphone, ChartColumnBig, Pin, PlayCircle, RefreshCw, Save, Settings, ShieldCheck, Square, Target, Timer, UsersRound, Users, Waypoints } from "lucide-react";
-import { Area, AreaChart, ResponsiveContainer, Tooltip } from "recharts";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
 import type { ConsoleInstance } from "./cloudDashboardData";
@@ -16,21 +16,50 @@ const announcements = [
 ];
 const dateFormat = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" });
 
-const sparkBaseTime = new Date("2024-10-26T14:30:00+08:00");
-const sparkDateFormat = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+const trendTimeFormat = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+const trendHourMs = 3600000;
+const maxTrendHours = 7 * 24;
 
 function Spark({ points, tone, label, unit }: { points: number[]; tone: keyof typeof tones; label: string; unit: string }) {
-  const [hours, setHours] = useState(24);
-  const data = points.map((value, index) => ({ value, time: new Date(sparkBaseTime.getTime() - (points.length - 1 - index) * hours * 3600000 / (points.length - 1)) }));
-  const onWheel = (event: WheelEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setHours(previous => Math.min(168, Math.max(24, previous + (event.deltaY < 0 ? 24 : -24))));
-  };
-  return <div className="gso-spark" title="滚动调整显示范围（24 小时至 7 天）" aria-label={`${label}近${hours}小时趋势，可滚动调整时间范围`} onWheel={onWheel}>
-    <span className="gso-spark-range">近 {hours} 小时</span>
-    <ResponsiveContainer width="100%" height="100%"><AreaChart key={`${label}-${hours}`} data={data} margin={{ top: 3, right: 0, bottom: 0, left: 0 }}>
-      <Tooltip cursor={{ stroke: "#c8dcf7", strokeWidth: 1 }} labelFormatter={(_, payload) => payload?.[0]?.payload?.time ? sparkDateFormat.format(payload[0].payload.time) : ""} formatter={(value: number) => [`${value}${unit}`, label]} contentStyle={{ fontSize: 10, borderRadius: 6, borderColor: "#dbe8fa", padding: "5px 7px" }} itemStyle={{ color: tones[tone] }} labelStyle={{ color: "#6c81aa", marginBottom: 2 }} />
-      <Area type="monotone" dataKey="value" stroke={tones[tone]} strokeWidth={1.5} fill={tones[tone]} fillOpacity={0.055} isAnimationActive animationBegin={0} animationDuration={500} animationEasing="ease-out" activeDot={{ r: 3 }} />
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [endTime] = useState(() => Math.floor(Date.now() / trendHourMs) * trendHourMs);
+  const [rangeHours, setRangeHours] = useState(24);
+
+  useEffect(() => {
+    const chart = chartRef.current;
+    if (!chart) return;
+    let wheelDelta = 0;
+    const adjustRange = (event: WheelEvent) => {
+      if (event.ctrlKey || event.deltaY === 0) return;
+      event.preventDefault();
+      event.stopPropagation();
+      wheelDelta += event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 100 : 1);
+      const steps = Math.trunc(wheelDelta / 100);
+      if (!steps) return;
+      wheelDelta -= steps * 100;
+      setRangeHours(previous => Math.max(24, Math.min(maxTrendHours, previous + steps * 24)));
+    };
+    chart.addEventListener("wheel", adjustRange, { passive: false });
+    return () => chart.removeEventListener("wheel", adjustRange);
+  }, []);
+
+  const history = Array.from({ length: maxTrendHours + 1 }, (_, index) => {
+    const hoursAgo = maxTrendHours - index;
+    const position = ((24 - hoursAgo % 24) % 24) / 24 * (points.length - 1);
+    const left = Math.floor(position);
+    const right = Math.min(left + 1, points.length - 1);
+    const value = Math.round(points[left] + (points[right] - points[left]) * (position - left));
+    return { time: endTime - hoursAgo * trendHourMs, value: hoursAgo === 0 ? points[points.length - 1] : value };
+  });
+  const data = history.slice(-(rangeHours + 1));
+  const rangeLabel = rangeHours === 24 ? "近 24 小时" : `近 ${rangeHours / 24} 天`;
+
+  return <div ref={chartRef} className="gso-spark" title="滚动调整显示范围（24 小时至 7 天）" role="img" aria-label={`${label}${rangeLabel}演示趋势，滚轮调整范围，最多7天，时间为北京时间`}>
+    <span className="gso-spark-range">{rangeLabel}</span>
+    <ResponsiveContainer width="100%" height="100%"><AreaChart data={data}>
+      <XAxis dataKey="time" hide />
+      <Tooltip allowEscapeViewBox={{ y: true }} isAnimationActive={false} labelFormatter={value => `时间：${trendTimeFormat.format(new Date(Number(value)))}`} formatter={(value: number) => [`${value} ${unit}`, label]} cursor={{ stroke: "var(--gso-tone)", strokeOpacity: 0.3, strokeDasharray: "3 3" }} wrapperStyle={{ zIndex: 10 }} contentStyle={{ fontSize: 11, padding: "8px 10px", borderRadius: 8, borderColor: "#e0eaf7", boxShadow: "0 4px 16px #28375614" }} labelStyle={{ color: "#697793", marginBottom: 4 }} />
+      <Area dataKey="value" type="linear" stroke={tones[tone]} fill={tones[tone]} fillOpacity={0.06} strokeWidth={1.5} activeDot={{ r: 3, stroke: "#fff", strokeWidth: 1.5 }} isAnimationActive={false} />
     </AreaChart></ResponsiveContainer>
   </div>;
 }
