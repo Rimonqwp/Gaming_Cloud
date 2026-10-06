@@ -102,12 +102,15 @@
 .ifm-delete-button { color: #fff; background: #f04451; border-color: #f04451; }
 .ifm-spin { animation: ifm-spin 1s linear infinite; }
 @keyframes ifm-spin { to { transform: rotate(360deg); } }
-/* 文件管理三栏填满导航以下的剩余视口，自动沿用控制面板的缩放比例。 */
+/* 文件管理三栏以 1080p 页面底部为高度上限，较矮窗口继续自适应。 */
 @media (min-width: 1101px) {
   .cloud-shell:has(#gsd-tab-files[aria-selected="true"]) {
     height: calc(100dvh / var(--console-display-scale));
     display: flex;
     flex-direction: column;
+  }
+  .cloud-shell:has(#gsd-tab-files[aria-selected="true"]) .cloud-container {
+    max-height: calc(1080px / var(--console-display-scale) - 18px);
   }
   .cloud-shell:has(#gsd-tab-files[aria-selected="true"]) :is(
     .cloud-container,
