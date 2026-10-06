@@ -30,6 +30,7 @@
 .ifm-search:focus-within { border-color: #087bff; box-shadow: 0 0 0 2px #087bff0d; }
 .ifm-search svg { flex: none; }
 .ifm-search input { border: 0; background: none; width: 100%; min-width: 0; outline: none; font: inherit; font-size: 12px; color: #536c98; }
+.ifm-layout .ifm-search input:focus-visible { outline: none; }
 .ifm-search input::placeholder { color: #8092af; }
 .ifm-tools { display: flex; gap: 7px; flex: none; }
 .ifm-tools .gsd-button { height: 39px; padding: 0 12px; gap: 7px; font-size: 13px; border-color: #d3e2fb; }
