@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Archive, Ban, Check, ChevronLeft, ChevronRight, ClipboardList, Clock3, Copy, Crown, Eye, FileText, FolderClosed, Gamepad2, House, Megaphone, RefreshCw, Save, Search, Send, Settings, Shield, SquareTerminal, Swords, Timer, Trash2, Users, Wrench, X } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
@@ -97,7 +97,12 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
   const [eventsOpen, setEventsOpen] = useState(false);
   const consoleRef = useRef<HTMLPreElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const previousServer = useRef({ uptime: server.uptime, running: server.running });
+
+  useLayoutEffect(() => {
+    if (panelRef.current) panelRef.current.scrollTop = 0;
+  }, [activeTab]);
 
   useEffect(() => {
     if (autoScroll && consoleRef.current) consoleRef.current.scrollTop = consoleRef.current.scrollHeight;
@@ -153,14 +158,14 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
     <form className="gsd-command" onSubmit={event => { event.preventDefault(); sendCommand(); }}><input ref={inputRef} aria-label="控制台指令" value={command} onChange={event => setCommand(event.target.value)} placeholder="输入指令并发送（如：save、kick 玩家名、ban 玩家名...）" /><button className="gsd-button primary" type="submit"><Send size={17} />发送</button></form>
   </section>;
 
-  return <div className={`gsd-page${activeTab === "overview" ? " gsd-overview-page" : activeTab === "files" ? " gsd-files-active" : ""}`}>
+  return <div className="gsd-page">
     <nav className="gsd-breadcrumb" aria-label="面包屑">{["控制台", "实例", "游戏服务器"].map(label => <span key={label}><button onClick={onBack}>{label}</button><ChevronRight size={13} /></span>)}<strong>实例详情</strong></nav>
-    <header className="gsd-hero"><div className="gsd-identity"><span className="gsd-game-icon">{activeTab === "overview" && server.game === "Minecraft" ? <img src="/console/minecraft/grass-block.png" alt="Minecraft 草方块" /> : <Gamepad2 size={30} />}</span><div><div className="gsd-title"><h1>{server.name}</h1><span className={`gsd-running${server.running ? "" : " stopped"}`}><i />{server.running ? "运行中" : "已停止"}</span></div><p><span>实例 ID：{server.id === "srv-pal-01" ? "ins-8f3a2d1c" : server.id}</span><i /><span>连接地址：{server.ip}:{server.port}</span><button aria-label="复制连接地址" onClick={onCopy}><Copy size={14} /></button></p></div></div><div className="gsd-actions"><button className="gsd-button" onClick={() => setAnnouncementOpen(true)}><Megaphone size={17} />发送公告</button><button className="gsd-button" onClick={onRestart}><RefreshCw size={18} />{server.running ? "重启实例" : "启动实例"}</button><button className="gsd-button" onClick={save}><Archive size={18} />备份数据</button><button className="gsd-button dark" onClick={() => { setActiveTab("logs"); requestAnimationFrame(() => inputRef.current?.focus()); }}><SquareTerminal size={17} />打开终端</button></div></header>
+    <header className="gsd-hero"><div className="gsd-identity"><span className="gsd-game-icon">{server.game === "Minecraft" ? <img src="/console/minecraft/grass-block.png" alt="Minecraft 草方块" /> : <Gamepad2 size={30} />}</span><div><div className="gsd-title"><h1>{server.name}</h1><span className={`gsd-running${server.running ? "" : " stopped"}`}><i />{server.running ? "运行中" : "已停止"}</span></div><p><span>实例 ID：{server.id === "srv-pal-01" ? "ins-8f3a2d1c" : server.id}</span><i /><span>连接地址：{server.ip}:{server.port}</span><button aria-label="复制连接地址" onClick={onCopy}><Copy size={14} /></button></p></div></div><div className="gsd-actions"><button className="gsd-button" onClick={() => setAnnouncementOpen(true)}><Megaphone size={17} />发送公告</button><button className="gsd-button" onClick={onRestart}><RefreshCw size={18} />{server.running ? "重启实例" : "启动实例"}</button><button className="gsd-button" onClick={save}><Archive size={18} />备份数据</button><button className="gsd-button dark" onClick={() => { setActiveTab("logs"); requestAnimationFrame(() => inputRef.current?.focus()); }}><SquareTerminal size={17} />打开终端</button></div></header>
     <nav className="gsd-tabs" role="tablist" aria-label="实例详情导航">{tabs.map((tab, index) => <button key={tab.id} id={`gsd-tab-${tab.id}`} role="tab" aria-selected={activeTab === tab.id} aria-controls="gsd-panel" tabIndex={activeTab === tab.id ? 0 : -1} className={activeTab === tab.id ? "active" : ""} onClick={() => setActiveTab(tab.id)} onKeyDown={event => {
       const next = event.key === "ArrowRight" ? (index + 1) % tabs.length : event.key === "ArrowLeft" ? (index + tabs.length - 1) % tabs.length : event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : -1;
       if (next >= 0) { event.preventDefault(); setActiveTab(tabs[next].id); document.getElementById(`gsd-tab-${tabs[next].id}`)?.focus(); }
     }}><tab.icon size={17} />{tab.label}</button>)}</nav>
-    <div id="gsd-panel" role="tabpanel" aria-labelledby={`gsd-tab-${activeTab}`}>
+    <div ref={panelRef} id="gsd-panel" className="gsd-panel" role="tabpanel" tabIndex={0} aria-labelledby={`gsd-tab-${activeTab}`}>
       <div hidden={activeTab !== "files"}><InstanceDetailFilesView onNotice={onNotice} /></div>
       <div hidden={activeTab !== "overview"}><GameServerOverview server={server} onStart={onStart} onStop={onStop} onRestart={onRestart} onBackup={save} onOpen={setActiveTab} onNotice={onNotice} /></div>
       {activeTab === "files" || activeTab === "overview" ? null : activeTab === "players" ? <div className="gsd-layout">

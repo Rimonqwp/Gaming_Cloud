@@ -1,8 +1,3 @@
-.gsd-overview-page { padding-top: 0; }
-.gsd-overview-page .gsd-breadcrumb { margin-left: 0; margin-right: 0; }
-.gsd-overview-page .gsd-hero { margin-left: 0; margin-bottom: 14px; }
-.gsd-overview-page .gsd-tabs { margin-bottom: 14px; }
-.gsd-overview-page .gsd-game-icon { width: 56px; height: 54px; }
 .gsd-game-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 9px; }
 .gso-overview { color: #657da7; font-size: 12px; }
 .gso-overview button { cursor: pointer; }
@@ -156,7 +151,6 @@
   .gso-world dd { font-size: 10px; }
 }
 @media (max-width: 760px) {
-  .gsd-overview-page { padding-top: 16px; }
   .gso-banner { gap: 10px; padding: 11px; background-size: auto 144px; background-position: right bottom; }
   .gso-cover { width: 65px; height: 65px; }
   .gso-banner-title { gap: 6px; flex-wrap: wrap; }

@@ -3,17 +3,17 @@
 .dash-overview:has(.gsd-page) { padding-bottom: 0; }
 .cloud-shell .dash-overview:has(.gsd-page) > .cloud-page-heading { display: none; }
 .instances-workspace:has(.gsd-page) { padding-top: 0; display: block; }
-.gsd-page { --gsd-blue: #087bff; --gsd-ink: #0b1235; --gsd-muted: #7b8cab; --gsd-line: #e0eaf7; padding-top: 12px; font-size: 12px; color: #60759b; }
+.gsd-page { --gsd-blue: #087bff; --gsd-ink: #0b1235; --gsd-muted: #7b8cab; --gsd-line: #e0eaf7; --gsd-panel-height: clamp(480px, calc(100dvh - 256px), 728px); padding-top: 0; font-size: 12px; color: #60759b; }
 .gsd-page button, .gsd-dialog button { font: inherit; }
 .gsd-page button:disabled { cursor: not-allowed; }
-.gsd-breadcrumb { display: flex; align-items: center; gap: 12px; height: 18px; margin: 0 10px 14px; font-size: 11px; color: #7d8eaa; }
+.gsd-breadcrumb { display: flex; align-items: center; gap: 12px; height: 18px; margin: 0 0 14px; font-size: 11px; color: #7d8eaa; }
 .gsd-breadcrumb > span { display: flex; align-items: center; gap: 15px; }
 .gsd-breadcrumb button { border: 0; background: none; padding: 0; color: inherit; }
 .gsd-breadcrumb button:hover { color: var(--gsd-blue); }
 .gsd-breadcrumb strong { font-weight: 600; color: #4b5c7d; }
-.gsd-hero { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin: 0 0 20px 10px; min-height: 53px; }
+.gsd-hero { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin: 0 0 14px; min-height: 53px; }
 .gsd-identity { display: flex; align-items: center; gap: 15px; min-width: 0; }
-.gsd-game-icon { width: 51px; height: 52px; display: grid; place-items: center; background: #e3f0ff; color: var(--gsd-blue); border-radius: 12px; flex: none; }
+.gsd-game-icon { width: 56px; height: 54px; display: grid; place-items: center; background: #e3f0ff; color: var(--gsd-blue); border-radius: 12px; flex: none; }
 .gsd-title { display: flex; align-items: center; gap: 14px; min-height: 30px; }
 .cloud-shell .gsd-title h1 { color: #090f30; font-size: 25px; letter-spacing: .2px; line-height: 1.3; font-weight: 700; margin: 0; }
 .gsd-running { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 4px 12px; border-radius: 18px; background: #ddf8ef; font-size: 12px; color: #00b783; white-space: nowrap; }
@@ -30,12 +30,19 @@
 .gsd-button.dark { color: #fff; background: #232a3d; border-color: #232a3d; }
 .gsd-button.dark:hover { background: #343e55; }
 .gsd-button:disabled { opacity: .5; }
-.gsd-tabs { display: flex; align-items: stretch; height: 43px; padding: 0 14px; margin-bottom: 16px; background: #fff; border: 1px solid #dde8f8; border-radius: 8px; gap: 16px; overflow-x: auto; scrollbar-width: none; }
+.gsd-tabs { display: flex; align-items: stretch; height: 43px; padding: 0 14px; margin-bottom: 14px; background: #fff; border: 1px solid #dde8f8; border-radius: 8px; gap: 16px; overflow-x: auto; scrollbar-width: none; }
 .gsd-tabs::-webkit-scrollbar { display: none; }
 .gsd-tabs button { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 0 12px; border: 0; background: none; font-size: 12px; font-weight: 500; color: #4f6995; white-space: nowrap; }
 .gsd-tabs button:hover { color: var(--gsd-blue); background: #f7faff; }
 .gsd-tabs button.active { color: var(--gsd-blue); font-weight: 600; }
 .gsd-tabs button.active::after { content: ""; position: absolute; height: 3px; left: 0; right: 0; bottom: 0; background: #087bff; border-radius: 2px 2px 0 0; }
+/* Keep the shared frame stationary; longer tabs scroll inside the same panel. */
+.gsd-panel { height: var(--gsd-panel-height); min-width: 0; overflow-y: auto; overflow-anchor: none; scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: #cdddf3 transparent; }
+.gsd-panel > .gsd-secondary, .gsd-panel > .gsd-layout { min-height: 100%; }
+.gsd-panel > .gsd-full-console { height: 100%; }
+.gsd-full-console .gsd-console { height: 100%; display: flex; flex-direction: column; }
+.gsd-full-console .gsd-console > pre { flex: 1; min-height: 0; }
+.gsd-full-console .gsd-console > header, .gsd-full-console .gsd-command { flex: none; }
 .gsd-layout { display: grid; grid-template-columns: minmax(0, 2.065fr) minmax(0, 1fr); align-items: start; gap: 10px; }
 .gsd-card { border: 1px solid #e0eaf7; border-radius: 8px; background: #fff; min-width: 0; }
 .gsd-main { padding: 12px 13px 13px; }
@@ -186,7 +193,7 @@
 }
 @media (max-width: 760px) {
   .cloud-container:has(.gsd-page) { width: calc(100% - 24px); }
-  .gsd-page { padding-top: 16px; }
+  .gsd-page { --gsd-panel-height: clamp(360px, calc(100dvh - 330px), 728px); padding-top: 16px; }
   .gsd-breadcrumb { margin: 0 0 18px; gap: 8px; }
   .gsd-breadcrumb > span { gap: 7px; }
   .gsd-hero { margin-left: 0; margin-bottom: 18px; }
