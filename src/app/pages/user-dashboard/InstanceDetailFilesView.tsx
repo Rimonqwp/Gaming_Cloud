@@ -1,0 +1,210 @@
+import { useRef, useState } from "react";
+import { unzip, zip } from "fflate";
+import { ArrowDown, ArrowUp, ArrowUpDown, ArchiveRestore, Braces, ChevronDown, ChevronRight, ChevronUp, Clock3, Copy, Database, Download, File as FileIcon, FilePenLine, FileText, Folder, FolderOpen, FolderPlus, House, ListTree, LoaderCircle, PlusCircle, RefreshCw, Search, Settings, Terminal, Trash2, Upload, UserRound } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
+import "../../../styles/cloud-files.css";
+
+type Entry = { path: string; folder: boolean; bytes: number; modified: string; created: string; permission: string; content?: Uint8Array; tags?: string[] };
+type Operation = { time: string; action: string; name: string; path: string; detail: string };
+type FileDialog = { kind: "file" | "folder" | "rename" | "edit" | "delete" | "extract"; target?: Entry; paths?: string[] };
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+const parentPath = (path: string) => path.slice(0, path.lastIndexOf("/")) || "/";
+const baseName = (path: string) => path.split("/").pop() || "/";
+const timestamp = () => new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" }).format(new Date());
+const sizeLabel = (bytes: number) => bytes < 1024 ? `${bytes} B` : bytes < 1024 ** 2 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1024 ** 2).toFixed(1)} MB`;
+const typeLabel = (entry: Entry) => entry.folder ? "文件夹" : ({ cfg: "CFG 文件", ini: "配置文件", sh: "Shell 脚本", json: "JSON 文件", zip: "ZIP 压缩包", log: "日志文件" }[baseName(entry.path).split(".").pop() || ""] || "文件");
+const isEditable = (entry: Entry) => !entry.folder && /\.(cfg|ini|sh|json|log|txt|yml|yaml|xml|properties|md|conf|csv)$/i.test(entry.path) && entry.bytes <= 1024 ** 2;
+function seedFile(name: string, bytes: number, modified: string, text: string, permission = "-rw-r--r--"): Entry {
+  const data = new Uint8Array(bytes); data.fill(32); data.set(encoder.encode(text).subarray(0, bytes));
+  return { path: `/home/server/${name}`, folder: false, bytes, modified: `${modified}:12`, created: "2024-10-20 16:33:45", permission, content: data };
+}
+const seedEntries: Entry[] = [
+  { ...seedFile("server.cfg", 2457, "2024-10-26 14:28", "# Server configuration\nserver_name=Game Server\nmax_players=32\nport=8211\nautosave=true\npvp=true\n"), tags: ["配置文件", "核心配置"] },
+  seedFile("start.sh", 876, "2024-10-25 20:13", "#!/bin/sh\ncd /home/server\n./PalServer.sh -port=8211 -players=32\n", "-rwxr-xr-x"),
+  seedFile("PalWorldSettings.ini", 4198, "2024-10-26 11:20", "[/Script/Pal.PalGameWorldSettings]\nOptionSettings=(ServerName=\"Game Server\",ServerPlayerMaxNum=32,PublicPort=8211)\n"),
+  seedFile("mods.json", 1331, "2024-10-26 13:56", '{\n  "mods": [],\n  "enabled": true\n}\n'),
+  ...["savegame", "worlddata", "logs", "config", "mods", "backups", "plugins"].map((name, index): Entry => ({ path: `/home/server/${name}`, folder: true, bytes: 0, modified: ["2024-10-26 14:05:12", "2024-10-25 18:50:12", "2024-10-26 13:56:12"][index % 3], created: "2024-10-20 16:33:45", permission: "drwxr-xr-x" })),
+  ...["server", "steam", "steamapps", "Palworld", "temp", "scripts"].map((name): Entry => ({ path: `/home/${name}`, folder: true, bytes: 0, modified: "2024-10-26 14:28:12", created: "2024-10-20 16:33:45", permission: "drwxr-xr-x" })),
+];
+const seedOperations: Operation[] = [
+  { time: "2024-10-26 14:29:12", action: "上传", name: "server.cfg", path: "/home/server/", detail: "上传了文件（2.4 KB）" },
+  { time: "2024-10-26 13:56:33", action: "重命名", name: "PalWorldSettings_old.ini → PalWorldSettings.ini", path: "/home/server/", detail: "重命名了文件" },
+  { time: "2024-10-26 11:20:18", action: "删除", name: "old_config.ini", path: "/home/server/", detail: "删除了文件" },
+  { time: "2024-10-25 18:50:02", action: "下载", name: "mods.json", path: "/home/server/", detail: "下载了文件（1.3 KB）" },
+];
+function EntryIcon({ entry, large = false }: { entry: Entry; large?: boolean }) {
+  const ext = entry.path.split(".").pop();
+  const Icon = entry.folder ? Folder : ext === "sh" ? Terminal : ext === "json" ? Braces : ext === "ini" ? Settings : FileText;
+  return <Icon size={large ? 32 : 23} strokeWidth={1.8} className={`ifm-file-icon ${entry.folder ? "folder" : ext === "sh" ? "shell" : ext === "json" ? "json" : ext === "ini" ? "config" : "document"}`} />;
+}
+function OperationType({ action }: { action: string }) {
+  const Icon = action === "上传" ? Upload : action === "删除" ? Trash2 : action === "下载" ? Download : action === "解压缩" ? ArchiveRestore : FilePenLine;
+  return <span className={`ifm-operation-type ${action === "上传" ? "green" : action === "删除" ? "red" : "blue"}`}><Icon size={19} />{action}</span>;
+}
+
+export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: string) => void }) {
+  const [entries, setEntries] = useState<Entry[]>(seedEntries);
+  const [directory, setDirectory] = useState("/home/server");
+  const [expanded, setExpanded] = useState<string[]>(["/home", "/home/server"]);
+  const [treeOpen, setTreeOpen] = useState(true);
+  const [activePath, setActivePath] = useState<string | null>("/home/server/server.cfg");
+  const [checked, setChecked] = useState<string[]>([]);
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<{ key: "name" | "modified"; direction: 1 | -1 } | null>(null);
+  const [operations, setOperations] = useState(seedOperations);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [dialog, setDialog] = useState<FileDialog | null>(null);
+  const [name, setName] = useState("");
+  const [text, setText] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const [trash, setTrash] = useState<Entry[]>([]);
+  const [manualCopyPath, setManualCopyPath] = useState<string | null>(null);
+  const uploadRef = useRef<HTMLInputElement>(null);
+  const dragDepth = useRef(0);
+  const selected = entries.find(entry => entry.path === activePath);
+  const rows = entries.filter(entry => parentPath(entry.path) === directory && baseName(entry.path).toLowerCase().includes(query.trim().toLowerCase()));
+  if (sort) rows.sort((a, b) => sort.direction * (sort.key === "name" ? baseName(a.path).localeCompare(baseName(b.path), "zh-CN") : a.modified.localeCompare(b.modified)));
+  const byteDelta = entries.reduce((sum, entry) => sum + entry.bytes, 0) - seedEntries.reduce((sum, entry) => sum + entry.bytes, 0);
+  const usedGB = 42.6 + byteDelta / 1024 ** 3;
+  const record = (action: string, entry: Entry, detail: string, displayName?: string) => setOperations(previous => [{ time: timestamp(), action, name: displayName || baseName(entry.path), path: `${parentPath(entry.path)}/`, detail }, ...previous]);
+  const navigate = (path: string) => {
+    setDirectory(path); setQuery(""); setChecked([]); setActivePath(null);
+    const ancestors = path.split("/").filter(Boolean).map((_, index, parts) => `/${parts.slice(0, index + 1).join("/")}`);
+    setExpanded(previous => [...new Set([...previous, ...ancestors])]);
+  };
+  const openDialog = (kind: FileDialog["kind"], target?: Entry, paths?: string[]) => {
+    setDialog({ kind, target, paths }); setName(kind === "rename" && target ? baseName(target.path) : "");
+    setText(target?.content ? decoder.decode(target.content).trimEnd() : ""); setError("");
+  };
+  const copy = async (path: string) => {
+    try { await navigator.clipboard.writeText(path); onNotice("路径已复制"); }
+    catch {
+      const field = document.createElement("textarea");
+      field.value = path; field.setAttribute("aria-hidden", "true"); field.style.cssText = "position:fixed;left:-9999px;top:0";
+      document.body.append(field); field.select();
+      let copied = false;
+      try { copied = document.execCommand("copy"); } catch { /* The manual copy dialog remains available. */ }
+      field.remove();
+      if (copied) onNotice("路径已复制"); else setManualCopyPath(path);
+    }
+  };
+  const download = async (entry: Entry) => {
+    setBusy(true);
+    try {
+      let data = entry.content || new Uint8Array();
+      if (entry.folder) {
+        const files: Record<string, Uint8Array> = Object.create(null);
+        for (const child of entries.filter(item => item.path.startsWith(`${entry.path}/`))) files[child.path.slice(entry.path.length + 1) + (child.folder ? "/" : "")] = child.content || new Uint8Array();
+        if (!Object.keys(files).length) files[`${baseName(entry.path)}/`] = new Uint8Array();
+        data = await new Promise<Uint8Array>((resolve, reject) => zip(files, (err, result) => err ? reject(err) : resolve(result)));
+      }
+      const url = URL.createObjectURL(new Blob([data]));
+      const link = document.createElement("a"); link.href = url; link.download = baseName(entry.path) + (entry.folder ? ".zip" : "");
+      document.body.append(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      record("下载", entry, `下载了${entry.folder ? "文件夹压缩包" : "文件"}（${sizeLabel(data.length)}）`); onNotice("下载已开始");
+    } catch { onNotice("下载失败，请重试"); } finally { setBusy(false); }
+  };
+  const upload = async (files: File[]) => {
+    if (!files.length) return;
+    setBusy(true);
+    try {
+      const existing = new Set(entries.map(entry => entry.path)); const additions: Entry[] = [];
+      for (const file of files) {
+        if (file.size > 50 * 1024 ** 2) throw new Error("单个文件不能超过 50 MB");
+        let filename = file.name; let index = 1;
+        while (existing.has(`${directory}/${filename}`)) { const dot = file.name.lastIndexOf("."); filename = dot > 0 ? `${file.name.slice(0, dot)} (${index++})${file.name.slice(dot)}` : `${file.name} (${index++})`; }
+        const entry: Entry = { path: `${directory}/${filename}`, folder: false, bytes: file.size, modified: timestamp(), created: timestamp(), permission: "-rw-r--r--", content: new Uint8Array(await file.arrayBuffer()) };
+        additions.push(entry); existing.add(entry.path);
+      }
+      setEntries(previous => [...previous, ...additions]); setActivePath(additions[0].path);
+      additions.forEach(entry => record("上传", entry, `上传了文件（${sizeLabel(entry.bytes)}）`)); onNotice(`已上传 ${additions.length} 个文件（本地演示）`);
+    } catch (err) { onNotice(err instanceof Error ? err.message : "上传失败，请重试"); } finally { setBusy(false); }
+  };
+  const extract = async (file: File) => {
+    setBusy(true); setError("");
+    try {
+      if (file.size > 50 * 1024 ** 2) throw new Error("压缩包不能超过 50 MB");
+      const data = new Uint8Array(await file.arrayBuffer()); let total = 0; let count = 0; let invalid = false;
+      const result = await new Promise<Record<string, Uint8Array>>((resolve, reject) => unzip(data, { filter: entry => {
+        total += entry.originalSize; count++;
+        const safe = !entry.name.startsWith("/") && !entry.name.includes("\\") && !entry.name.split("/").includes("..") && !/[\x00-\x1f:]/.test(entry.name);
+        if (!safe || total > 100 * 1024 ** 2 || count > 1000) invalid = true;
+        return safe && !invalid;
+      } }, (err, files) => err ? reject(err) : resolve(files)));
+      if (invalid) throw new Error("压缩包包含无效路径，或超过解压上限（100 MB / 1000 项）");
+      const additions: Entry[] = []; const existing = new Map(entries.map(entry => [entry.path, entry]));
+      for (const [relative, content] of Object.entries(result)) {
+        const parts = relative.split("/").filter(Boolean); let path = directory;
+        for (let index = 0; index < parts.length; index++) {
+          path += `/${parts[index]}`; const folder = index < parts.length - 1 || relative.endsWith("/");
+          if (existing.has(path)) { if (!folder || !existing.get(path)?.folder) throw new Error(`同名项目已存在：${path}，请重命名后重试`); continue; }
+          const entry: Entry = { path, folder, bytes: folder ? 0 : content.length, content: folder ? undefined : content, modified: timestamp(), created: timestamp(), permission: folder ? "drwxr-xr-x" : "-rw-r--r--" };
+          additions.push(entry); existing.set(path, entry);
+        }
+      }
+      if (!additions.length) throw new Error("压缩包中没有可解压的项目");
+      setEntries(previous => [...previous, ...additions]);
+      record("解压缩", { ...additions[0], path: `${directory}/${file.name}` }, `解压了 ${additions.length} 个项目`);
+      onNotice(`已解压 ${additions.length} 个项目（本地演示）`); setDialog(null);
+    } catch (err) { setError(err instanceof Error ? err.message : "无法读取 ZIP 压缩包"); } finally { setBusy(false); }
+  };
+  const submit = () => {
+    if (!dialog) return; const target = dialog.target;
+    if (dialog.kind === "delete") {
+      const paths = dialog.paths || (target ? [target.path] : []);
+      const removed = entries.filter(entry => paths.some(path => entry.path === path || entry.path.startsWith(`${path}/`)));
+      setTrash(removed); setEntries(previous => previous.filter(entry => !removed.includes(entry))); setChecked([]);
+      if (removed.some(entry => entry.path === activePath)) setActivePath(null);
+      paths.forEach(path => { const entry = entries.find(item => item.path === path); if (entry) record("删除", entry, "移入了本地回收区"); });
+      onNotice(`已移除 ${paths.length} 项，可通过“撤销删除”恢复`);
+    } else if (dialog.kind === "edit" && target) {
+      const content = encoder.encode(text); const updated = { ...target, content, bytes: content.length, modified: timestamp() };
+      setEntries(previous => previous.map(entry => entry.path === target.path ? updated : entry)); record("编辑", updated, "保存了文件内容"); onNotice("文件已保存（本地演示）");
+    } else {
+      const value = name.trim();
+      if (!value || value === "." || value === ".." || /[\\/\x00-\x1f]/.test(value)) { setError("请输入有效名称，不包含路径分隔符"); return; }
+      const path = `${dialog.kind === "rename" && target ? parentPath(target.path) : directory}/${value}`;
+      if (entries.some(entry => entry.path === path && entry.path !== target?.path)) { setError("此目录已存在同名文件或文件夹"); return; }
+      if (dialog.kind === "rename" && target) {
+        setEntries(previous => previous.map(entry => entry.path === target.path || entry.path.startsWith(`${target.path}/`) ? { ...entry, path: path + entry.path.slice(target.path.length), modified: timestamp() } : entry));
+        setExpanded(previous => previous.map(item => item === target.path || item.startsWith(`${target.path}/`) ? path + item.slice(target.path.length) : item));
+        setActivePath(path); setChecked(previous => previous.map(item => item === target.path ? path : item));
+        record("重命名", target, "重命名了文件", `${baseName(target.path)} → ${value}`);
+      } else {
+        const folder = dialog.kind === "folder"; const content = folder ? undefined : encoder.encode(text);
+        const entry: Entry = { path, folder, content, bytes: content?.length || 0, modified: timestamp(), created: timestamp(), permission: folder ? "drwxr-xr-x" : "-rw-r--r--" };
+        setEntries(previous => [...previous, entry]); setActivePath(path); record("新建", entry, `创建了${folder ? "文件夹" : "文件"}`);
+      }
+      onNotice("操作已完成（本地演示）");
+    }
+    setDialog(null);
+  };
+  const renderTree = (path: string, depth: number) => {
+    // Keep the reference's frequently used directories first; all folders remain accessible in the file list.
+    const children = entries.filter(entry => entry.folder && parentPath(entry.path) === path).sort((a, b) => {
+      const order = ["config", "mods", "logs", "backups", "plugins", "savegame", "worlddata"];
+      return path === "/home/server" ? order.indexOf(baseName(a.path)) - order.indexOf(baseName(b.path)) : 0;
+    });
+    return <div key={path}><div className={`ifm-tree-row${directory === path ? " active" : ""}`} style={{ paddingLeft: 8 + depth * 20 }}><button className="ifm-tree-toggle" aria-label={`${expanded.includes(path) ? "收起" : "展开"} ${path === "/home" ? "根目录" : baseName(path)}`} aria-expanded={expanded.includes(path)} onClick={() => setExpanded(previous => previous.includes(path) ? previous.filter(item => item !== path) : [...previous, path])}>{expanded.includes(path) ? <ChevronDown size={15} /> : <ChevronRight size={15} />}</button><button className="ifm-tree-label" onClick={() => navigate(path)} aria-current={directory === path ? "location" : undefined}>{directory === path ? <FolderOpen size={19} /> : <Folder size={19} />}<span>{path === "/home" ? "/（根目录）" : baseName(path)}</span></button></div>{expanded.includes(path) && <div className={path === "/home/server" ? "ifm-server-children" : undefined}>{children.map(entry => renderTree(entry.path, depth + 1))}</div>}</div>;
+  };
+  const operationTable = (records: Operation[]) => <div className="ifm-history-scroll"><table className="ifm-history-table"><colgroup><col /><col /><col /><col /><col /><col /></colgroup><thead><tr>{["时间", "操作类型", "文件名", "路径", "操作用户", "详情"].map(label => <th key={label}>{label}</th>)}</tr></thead><tbody>{records.map((operation, index) => <tr key={`${operation.time}-${index}`}><td>{operation.time}</td><td><OperationType action={operation.action} /></td><td title={operation.name}>{operation.name}</td><td>{operation.path}</td><td>Rimon12</td><td>{operation.detail}</td></tr>)}</tbody></table></div>;
+  return <div className="ifm-layout">
+    <aside className="gsd-card ifm-tree"><header><h2><ListTree size={20} />目录结构</h2><div><button className="ifm-add-directory" aria-label="新建目录" onClick={() => openDialog("folder")}><PlusCircle size={16} /></button><button aria-label={treeOpen ? "收起目录结构" : "展开目录结构"} aria-expanded={treeOpen} onClick={() => setTreeOpen(!treeOpen)}>{treeOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</button></div></header>{treeOpen && <nav aria-label="文件目录" className="ifm-tree-scroll">{renderTree("/home", 0)}</nav>}</aside>
+    <section className={`gsd-card ifm-browser${dragging ? " dragging" : ""}`} aria-label="文件列表" onDragEnter={event => { event.preventDefault(); dragDepth.current++; setDragging(true); }} onDragOver={event => event.preventDefault()} onDragLeave={() => { if (--dragDepth.current <= 0) setDragging(false); }} onDrop={event => { event.preventDefault(); dragDepth.current = 0; setDragging(false); if (!busy) void upload(Array.from(event.dataTransfer.files)); }}>
+      <nav className="ifm-path" aria-label="当前文件路径"><button aria-label="打开根目录" onClick={() => navigate("/home")}><House size={16} /></button><span>/</span>{directory.split("/").filter(Boolean).map((part, index, parts) => <span key={index}><button onClick={() => navigate(`/${parts.slice(0, index + 1).join("/")}`)}>{part}</button><span>/</span></span>)}<button aria-label="复制当前目录路径" onClick={() => void copy(`${directory}/`)}><Copy size={15} /></button></nav>
+      <div className="ifm-toolbar"><label className="ifm-search"><Search size={18} /><input aria-label="搜索文件或文件夹" placeholder="搜索文件或文件夹（支持名称、扩展名）" value={query} onChange={event => setQuery(event.target.value)} /></label><div className="ifm-tools"><button className="gsd-button primary" disabled={busy} onClick={() => uploadRef.current?.click()}>{busy ? <LoaderCircle className="ifm-spin" size={18} /> : <Upload size={18} />}上传文件</button><button className="gsd-button" onClick={() => openDialog("folder")}><FolderPlus size={18} />新建文件夹</button><button className="gsd-button" onClick={() => openDialog("file")}><FileIcon size={18} />新建文件</button><button className="gsd-button" disabled={busy} onClick={() => openDialog("extract")}><ArchiveRestore size={18} />解压缩</button><button className="gsd-button ifm-refresh" disabled={busy} onClick={() => { setQuery(""); onNotice("文件列表已刷新"); }}><RefreshCw size={18} />刷新</button></div></div>
+      <input ref={uploadRef} type="file" multiple hidden onChange={event => { void upload(Array.from(event.target.files || [])); event.target.value = ""; }} />
+      {checked.length > 0 && <div className="ifm-selection"><span>已选择 {checked.length} 项</span><button onClick={() => openDialog("delete", undefined, checked)}><Trash2 size={14} />删除所选</button><button onClick={() => setChecked([])}>取消选择</button></div>}
+      <div className="ifm-files-scroll"><table className="ifm-files-table"><colgroup><col /><col /><col /><col /><col /><col /><col /></colgroup><thead><tr><th><input type="checkbox" aria-label="选择当前目录全部文件" checked={rows.length > 0 && rows.every(entry => checked.includes(entry.path))} ref={element => { if (element) element.indeterminate = rows.some(entry => checked.includes(entry.path)) && !rows.every(entry => checked.includes(entry.path)); }} onChange={event => setChecked(event.target.checked ? rows.map(entry => entry.path) : [])} /></th><th aria-sort={sort?.key === "name" ? sort.direction === 1 ? "ascending" : "descending" : "none"}><button onClick={() => setSort({ key: "name", direction: sort?.key === "name" && sort.direction === 1 ? -1 : 1 })}>名称<ArrowUpDown size={10} /></button></th><th>类型</th><th>大小</th><th aria-sort={sort?.key === "modified" ? sort.direction === 1 ? "ascending" : "descending" : "none"}><button onClick={() => setSort({ key: "modified", direction: sort?.key === "modified" && sort.direction === -1 ? 1 : -1 })}>修改时间{sort?.key === "modified" && sort.direction === 1 ? <ArrowUp size={14} /> : <ArrowDown size={14} />}</button></th><th>权限</th><th>操作</th></tr></thead><tbody>{rows.map(entry => <tr key={entry.path} className={checked.includes(entry.path) ? "checked" : undefined} onClick={() => setActivePath(entry.path)} onDoubleClick={() => entry.folder ? navigate(entry.path) : isEditable(entry) && openDialog("edit", entry)}><td><input type="checkbox" aria-label={`选择 ${baseName(entry.path)}`} checked={checked.includes(entry.path)} onClick={event => event.stopPropagation()} onChange={event => setChecked(previous => event.target.checked ? [...previous, entry.path] : previous.filter(path => path !== entry.path))} /></td><td><button className="ifm-entry-name" aria-label={`查看 ${baseName(entry.path)} 详情`} onClick={() => setActivePath(entry.path)}><EntryIcon entry={entry} /><span>{baseName(entry.path)}</span></button></td><td>{typeLabel(entry)}</td><td>{entry.folder ? "-" : sizeLabel(entry.bytes)}</td><td>{entry.modified.slice(0, 16)}</td><td className="ifm-permission">{entry.permission}</td><td><div className="ifm-row-actions">{entry.folder ? <button onClick={event => { event.stopPropagation(); navigate(entry.path); }}>打开</button> : <><button disabled={busy} onClick={event => { event.stopPropagation(); void download(entry); }}>下载</button>{isEditable(entry) && <button onClick={() => openDialog("edit", entry)}>编辑</button>}</>}<DropdownMenu><DropdownMenuTrigger asChild><button aria-label={`${baseName(entry.path)} 更多操作`}>更多<ChevronDown size={13} /></button></DropdownMenuTrigger><DropdownMenuContent className="ifm-menu" align="end"><DropdownMenuItem onSelect={() => setActivePath(entry.path)}><FileText size={15} />查看详情</DropdownMenuItem><DropdownMenuItem onSelect={() => openDialog("rename", entry)}><FilePenLine size={15} />重命名</DropdownMenuItem><DropdownMenuItem onSelect={() => void copy(entry.path)}><Copy size={15} />复制路径</DropdownMenuItem>{entry.folder && <DropdownMenuItem onSelect={() => void download(entry)}><Download size={15} />下载压缩包</DropdownMenuItem>}<DropdownMenuItem className="ifm-danger" onSelect={() => openDialog("delete", entry)}><Trash2 size={15} />删除</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></td></tr>)}</tbody></table>{!rows.length && <div className="ifm-empty"><FolderOpen size={32} /><strong>{query ? "没有匹配的文件或文件夹" : "此文件夹为空"}</strong><button onClick={() => query ? setQuery("") : openDialog("file")}>{query ? "清除搜索" : "新建文件"}</button></div>}</div>{dragging && <div className="ifm-drop-hint"><Upload size={28} /><strong>松开以上传到当前目录</strong></div>}
+    </section>
+    <aside className="ifm-sidebar"><section className="gsd-card ifm-details"><h2><FileText size={20} />文件详情</h2>{selected ? <><div className="ifm-detail-heading"><span><EntryIcon entry={selected} large /></span><div><h3>{baseName(selected.path)}</h3><p>{typeLabel(selected)}{!selected.folder && ` · ${sizeLabel(selected.bytes)}`}</p></div></div><dl><div><dt>位置</dt><dd><span title={selected.path}>{selected.path}</span><button aria-label="复制文件位置" onClick={() => void copy(selected.path)}><Copy size={16} /></button></dd></div><div><dt>大小</dt><dd>{selected.folder ? `${entries.filter(entry => parentPath(entry.path) === selected.path).length} 个项目` : `${selected.bytes.toLocaleString("en-US")} 字节（${sizeLabel(selected.bytes)}）`}</dd></div><div><dt>修改时间</dt><dd>{selected.modified}</dd></div><div><dt>创建时间</dt><dd>{selected.created}</dd></div><div><dt>最后修改者</dt><dd><UserRound size={16} />Rimon12</dd></div><div><dt>权限</dt><dd><code>{selected.permission}（{selected.permission === "-rw-r--r--" ? "644" : "755"}）</code></dd></div><div><dt>标签</dt><dd className="ifm-tags">{(selected.tags || [selected.folder ? "目录" : typeLabel(selected)]).map((tag, index) => <span key={tag} className={index === 1 ? "green" : ""}>{tag}</span>)}</dd></div></dl><div className="ifm-detail-actions"><button className="gsd-button primary" disabled={busy} onClick={() => void download(selected)}><Download size={19} />{selected.folder ? "下载文件夹" : "下载文件"}</button><button className="gsd-button" onClick={() => void copy(selected.path)}><Copy size={18} />复制路径</button></div></> : <div className="ifm-detail-empty"><FileText size={35} /><p>选择文件或文件夹查看详情</p></div>}</section><section className="gsd-card ifm-storage"><h2><Database size={20} />存储空间</h2><div className="ifm-storage-heading"><span>已使用 <strong>{usedGB.toFixed(1)} GB</strong> / 100 GB</span><b>{Math.round(usedGB)}%</b></div><progress aria-label="存储空间使用率" max={100} value={usedGB} /><div className="ifm-storage-legend"><span><i />已使用 {usedGB.toFixed(1)} GB</span><span><i />可用 {(100 - usedGB).toFixed(1)} GB</span></div></section></aside>
+    <section className="gsd-card ifm-history"><header><h2><Clock3 size={20} />最近文件操作记录</h2><div>{trash.length > 0 && <button onClick={() => { if (trash.some(entry => entries.some(item => item.path === entry.path))) { onNotice("原路径已有同名项目，请先重命名后恢复"); return; } setEntries(previous => [...previous, ...trash]); setTrash([]); onNotice("已恢复最近删除的项目"); }}>撤销删除</button>}<button onClick={() => setHistoryOpen(true)}>查看更多<ChevronRight size={14} /></button></div></header>{operationTable(operations.slice(0, 4))}</section>
+    <Dialog open={!!dialog} onOpenChange={open => { if (!open && !busy) setDialog(null); }}><DialogContent className="cloud-modal ifm-dialog"><DialogTitle>{{ file: "新建文件", folder: "新建文件夹", rename: "重命名", edit: `编辑 ${dialog?.target ? baseName(dialog.target.path) : "文件"}`, delete: "删除所选项目", extract: "解压缩 ZIP 文件" }[dialog?.kind || "file"]}</DialogTitle><DialogDescription>当前目录：{directory}/。操作仅保存在本地演示会话中，不会修改真实服务器。</DialogDescription>{dialog?.kind === "delete" ? <p>确认将 {dialog.target ? baseName(dialog.target.path) : `${dialog.paths?.length} 个项目`} 移入本地回收区？文件夹内的内容也会一起移除。</p> : dialog?.kind === "extract" ? <><p>选择 ZIP 压缩包，解压到当前目录。同名文件不会被覆盖。</p><input type="file" accept=".zip,application/zip" aria-label="选择 ZIP 压缩包" disabled={busy} onChange={event => { const file = event.target.files?.[0]; if (file) void extract(file); event.target.value = ""; }} /></> : <>{dialog?.kind !== "edit" && <label className="ifm-field">{dialog?.kind === "folder" ? "文件夹名称" : "文件名称"}<input autoFocus aria-label="名称" value={name} onChange={event => setName(event.target.value)} placeholder={dialog?.kind === "folder" ? "例如：new-folder" : "例如：config.txt"} onKeyDown={event => { if (event.key === "Enter") submit(); }} /></label>}{(dialog?.kind === "file" || dialog?.kind === "edit") && <label className="ifm-field">文件内容<textarea aria-label="文件内容" spellCheck={false} value={text} onChange={event => setText(event.target.value)} /></label>}</>}{error && <p className="ifm-error" role="alert">{error}</p>}<footer><button className="gsd-button" disabled={busy} onClick={() => setDialog(null)}>取消</button>{dialog?.kind !== "extract" && <button className={`gsd-button ${dialog?.kind === "delete" ? "ifm-delete-button" : "primary"}`} onClick={submit}>{dialog?.kind === "edit" ? "保存文件" : dialog?.kind === "delete" ? "确认删除" : "确认"}</button>}{busy && <span role="status"><LoaderCircle size={16} className="ifm-spin" />正在处理...</span>}</footer></DialogContent></Dialog>
+    <Dialog open={historyOpen} onOpenChange={setHistoryOpen}><DialogContent className="cloud-modal ifm-dialog ifm-history-dialog"><DialogTitle>文件操作记录</DialogTitle><DialogDescription>当前本地演示会话的全部文件操作，共 {operations.length} 条。</DialogDescription>{operationTable(operations)}</DialogContent></Dialog>
+    <Dialog open={manualCopyPath !== null} onOpenChange={open => { if (!open) setManualCopyPath(null); }}><DialogContent className="cloud-modal ifm-dialog"><DialogTitle>复制路径</DialogTitle><DialogDescription>浏览器未允许自动复制，请按 Ctrl+C 或 Command+C 复制已选中的路径。</DialogDescription><label className="ifm-field">路径<input aria-label="待复制路径" readOnly value={manualCopyPath || ""} autoFocus onFocus={event => event.currentTarget.select()} /></label><footer><button className="gsd-button primary" onClick={() => setManualCopyPath(null)}>完成</button></footer></DialogContent></Dialog>
+  </div>;
+}

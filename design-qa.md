@@ -148,3 +148,9 @@ final result: passed
 - P3：原图被遮挡的横幅背景无法逐像素恢复，生成的村庄排列略有差异；少量标准图标轮廓、字体抗锯齿、趋势采样存在细微差异。
 
 final result: passed
+
+## 实例文件管理新增验收（2026-10-06）
+
+final result: passed
+
+本次文件管理页的同尺寸视觉对照、交互检查、响应式截图与环境限制见 [完整验收记录](output/design/files/design-qa.md)。最终对照为 `output/design/files/comparison-final.jpg`，桌面实现为 `output/design/files/desktop-final.jpg`。此记录补充既有页面验收记录。
