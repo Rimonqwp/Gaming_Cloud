@@ -3,8 +3,8 @@ body:has(.cloud-shell) {
   --console-display-scale: 1;
 }
 
-/* 桌面端（含 1080p）固定 80%，不受窗口高度或当前标签页影响。 */
-@media (min-width: 1101px) {
+/* 1080p 桌面视口固定 80%；超过 1920px 的 2K / 4K 视口保持 100%。 */
+@media (min-width: 1101px) and (max-width: 1920px) {
   body:has(.cloud-shell) {
     --console-display-scale: 0.8;
   }
