@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useSearchParams } from "react-router";
 import { AnimatePresence, motion, useIsPresent, useReducedMotion } from "motion/react";
 import { Archive, ArrowDown, ArrowUp, ArrowUpDown, Ban, Check, ChevronLeft, ChevronRight, ClipboardList, Clock3, Copy, Eye, FileText, FolderClosed, Gamepad2, House, Megaphone, Power, RefreshCw, Save, Search, Send, Settings, ShieldCheck, SquareTerminal, Swords, Timer, Trash2, Users, Wrench, X, Zap } from "lucide-react";
 import { MetricTrend } from "./MetricTrend";
@@ -152,7 +153,11 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
   notice: string; onNotice: (message: string) => void; onStart: () => void; onStop: () => void; onForceStop: () => void;
 }) {
   const { user } = useUserAuth();
-  const [activeTab, setActiveTab] = useState<DetailTab>("overview");
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<DetailTab>(() => server.game === "Minecraft" && (searchParams.has("plugin") || searchParams.get("view") === "plugins") ? "plugins" : "overview");
+  useEffect(() => {
+    if (server.game === "Minecraft" && (searchParams.has("plugin") || searchParams.get("view") === "plugins")) setActiveTab("plugins");
+  }, [searchParams, server.game]);
   const minecraft = server.game === "Minecraft";
   const displayPlayerId = (player: Player) => minecraft ? player.gameId : player.name;
   const playerAvatar = (player: Player) => minecraft ? player.skinAvatar : `/console/players/${player.avatar}.png`;

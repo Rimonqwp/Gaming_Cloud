@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
+import { Link as RouterLink, useSearchParams } from 'react-router';
 import { ArrowUp, ArrowUpDown, Box, Check, ChevronRight, Compass, Download, FileText, Flame, Gamepad2, HardDrive, Layers, LayoutGrid, Link, List, Map, MessageCircle, Package, Puzzle, Search, Shield, Sparkles, Star, Tag, Trash2, Upload, Wrench } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../../components/ui/dialog';
 import { Switch } from '../../components/ui/switch';
 import type { ConsoleInstance } from './cloudDashboardData';
-import { initialInstalledPlugins, marketplacePlugins, type InstalledPlugin, type MarketplacePlugin } from './gameServerPluginsData';
+import { initialInstalledPlugins, marketplacePlugins, pluginVersions, type InstalledPlugin, type MarketplacePlugin } from './gameServerPluginsData';
 import '../../../styles/cloud-plugins.css';
 import { PluginBannerCarousel } from './PluginBannerCarousel';
+import { GameServerPluginDetails } from './GameServerPluginDetails';
 
 const categories = [
   { name: '全部', icon: Box, tone: 'blue' }, { name: '必备推荐', icon: Flame, tone: 'orange' },
@@ -24,6 +26,7 @@ function readInstalled(key: string): InstalledPlugin[] {
 }
 const versions = ['1.21', '1.20.4', '1.19.4', '1.16.5', '1.8.8'];
 const versionNumber = (v: string) => Number(v.split('.')[1]);
+const needsUpdate = (p: InstalledPlugin) => p.update || !!pluginVersions[p.id] && p.version !== pluginVersions[p.id];
 const tagTones: Record<string, string[]> = {
   essentials: ['purple', 'purple', 'purple'], luckperms: ['orange', 'purple', 'purple'],
   vault: ['green', 'purple', 'purple'], worldedit: ['blue', 'orange', 'orange'],
@@ -34,6 +37,11 @@ const tagTones: Record<string, string[]> = {
 };
 
 export function GameServerPlugins({ server, onNotice }: { server: ConsoleInstance; onNotice: (message: string) => void }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selected = marketplacePlugins.find(p => p.id === searchParams.get('plugin'));
+  const pluginUrl = (id: string) => { const next = new URLSearchParams(searchParams); next.set('plugin', id); return `?${next}`; };
+  const openPlugin = (id: string) => { const next = new URLSearchParams(searchParams); next.set('plugin', id); setSearchParams(next); };
+  const backToCatalog = () => { const next = new URLSearchParams(searchParams); next.delete('plugin'); next.set('view', 'plugins'); setSearchParams(next); };
   const storageKey = `cloud-plugins-demo-v1:${server.id}`;
   const [installed, setInstalled] = useState(() => readInstalled(storageKey));
   const [query, setQuery] = useState('');
@@ -46,7 +54,7 @@ export function GameServerPlugins({ server, onNotice }: { server: ConsoleInstanc
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState('');
   useEffect(() => { try { localStorage.setItem(storageKey, JSON.stringify(installed)); } catch { /* 存储失败不影响会话内交互。 */ } }, [installed, storageKey]);
-  const updates = installed.filter(p => p.update).length;
+  const updates = installed.filter(needsUpdate).length;
   const size = installed.reduce((sum, p) => sum + p.size, 0);
   const ranking = [...marketplacePlugins].sort((a, b) => b.downloads - a.downloads);
   const filtered = marketplacePlugins.filter(p => `${p.name} ${p.description} ${p.tags.join(' ')} ${p.author}`.toLowerCase().includes(query.trim().toLowerCase()) && (category === '全部' || p.categories.includes(category)) && (platform === 'all' || p.platforms.includes(platform)) && (version === 'all' || versionNumber(version) >= versionNumber(p.minVersion)));
@@ -54,12 +62,18 @@ export function GameServerPlugins({ server, onNotice }: { server: ConsoleInstanc
   if (sort === 'rating') filtered.sort((a, b) => b.rating - a.rating);
   if (sort === 'price') filtered.sort((a, b) => a.price - b.price);
   const install = (p: MarketplacePlugin) => {
-    setInstalled(previous => previous.some(row => row.id === p.id) ? previous : [...previous, { id: p.id, name: p.name, version: '1.2.0', size: p.size, enabled: true, update: false }]);
+    setInstalled(previous => previous.some(row => row.id === p.id) ? previous : [...previous, { id: p.id, name: p.name, version: pluginVersions[p.id], size: p.size, enabled: true, update: false }]);
     setPurchase(null); onNotice(`${p.name} 已安装（演示操作）`);
   };
-  const updateAll = () => { setInstalled(previous => previous.map(p => p.update ? { ...p, version: '1.2.0', update: false } : p)); onNotice(`已更新 ${updates} 个插件（演示操作）`); };
+  const updatePlugin = (id: string) => { setInstalled(rows => rows.map(p => p.id === id ? { ...p, version: pluginVersions[id] || '1.2.0', update: false } : p)); onNotice('插件已更新（演示操作）'); };
+  const updateAll = () => { setInstalled(previous => previous.map(p => needsUpdate(p) ? { ...p, version: pluginVersions[p.id] || '1.2.0', update: false } : p)); onNotice(`已更新 ${updates} 个插件（演示操作）`); };
   const reset = () => { setQuery(''); setCategory('全部'); setPlatform('all'); setVersion('all'); setSort('default'); };
-  return <div className="gsp-layout">
+  return <div className={selected ? 'gsp-detail-root' : 'gsp-layout'}>
+    {selected ? <GameServerPluginDetails key={selected.id} plugin={selected} plugins={filtered} installed={installed} categories={categories}
+      query={query} category={category} platform={platform} onQuery={setQuery} onCategory={setCategory} onPlatform={setPlatform}
+      onSelect={openPlugin} onBack={backToCatalog} onReset={reset} onInstall={p => p.price ? setPurchase(p) : install(p)} onUpdate={updatePlugin}
+      onManage={() => setModal('manage')} onToggle={id => setInstalled(rows => rows.map(p => p.id === id ? { ...p, enabled: !p.enabled } : p))}
+      onUninstall={id => { setInstalled(rows => rows.filter(p => p.id !== id)); onNotice('插件已卸载（演示操作）'); }} /> : <>
     <div className="gsp-main">
       <PluginBannerCarousel />
       <section className="gsp-catalog" aria-label="插件目录">
@@ -74,7 +88,7 @@ export function GameServerPlugins({ server, onNotice }: { server: ConsoleInstanc
         <div className="gsp-grid">{filtered.map(p => {
           const exists = installed.some(row => row.id === p.id);
           return <article className="gsp-plugin" key={p.id} aria-label={p.name}>
-            <div className="gsp-plugin-top"><img src={`/console/plugins/${p.id}.png`} alt={`${p.name} 图标`} /><div><h3>{p.name}{p.badge && <span className={`gsp-badge ${p.badge === '推荐' ? 'green' : 'orange'}`}>{p.badge === '推荐' ? <Puzzle size={13} /> : <Flame size={13} />}{p.badge}</span>}</h3><p>{p.description}</p><div className="gsp-tags">{p.tags.map((t, i) => <span key={t} className={`tag-${tagTones[p.id]?.[i] || 'purple'}`}>{t}</span>)}</div></div></div>
+            <div className="gsp-plugin-top"><img src={`/console/plugins/${p.id}.png`} alt={`${p.name} 图标`} /><div><h3><RouterLink className="gsp-detail-link" to={pluginUrl(p.id)} aria-label={`查看 ${p.name} 插件详情`}>{p.name}</RouterLink>{p.badge && <span className={`gsp-badge ${p.badge === '推荐' ? 'green' : 'orange'}`}>{p.badge === '推荐' ? <Puzzle size={13} /> : <Flame size={13} />}{p.badge}</span>}</h3><p>{p.description}</p><div className="gsp-tags">{p.tags.map((t, i) => <span key={t} className={`tag-${tagTones[p.id]?.[i] || 'purple'}`}>{t}</span>)}</div></div></div>
             <div className="gsp-meta"><span><Compass size={13} />{p.minVersion} - 1.21</span><span><Star size={14} />{p.rating} ({p.reviews})</span><span><Download size={15} />{p.downloads}万+</span></div>
             <footer><strong className={p.price ? 'paid' : ''}>{p.price ? `￥${p.price.toFixed(2)}` : '免费'}</strong><button className={`gsp-install${p.price && !exists ? ' paid' : ''}`} disabled={exists} onClick={() => p.price ? setPurchase(p) : install(p)} aria-label={`${exists ? '已安装' : p.price ? '购买' : '安装'} ${p.name}`}>{exists ? <><Check size={14} />已安装</> : p.price ? '立即购买' : '一键安装'}</button></footer>
           </article>;
@@ -87,8 +101,9 @@ export function GameServerPlugins({ server, onNotice }: { server: ConsoleInstanc
       <section className="gsd-card gsp-actions"><h2><Box size={20} />快捷操作</h2><button className="gsd-button primary" disabled={!updates} onClick={updateAll}><ArrowUp size={18} />批量更新插件{updates > 0 && <span className="gsp-update-count">{updates}</span>}</button><button className="gsd-button" onClick={() => { setFile(null); setFileError(''); setModal('upload'); }}><Upload size={18} />上传插件文件</button><button className="gsd-button" onClick={() => setModal('manage')}><List size={18} />插件管理</button></section>
       <section className="gsd-card gsp-ranking"><header><h2><Flame size={20} />热门插件排行</h2><button onClick={() => setModal('ranking')}>查看全部<ChevronRight size={14} /></button></header><ol>{ranking.slice(0, 5).map((p, i) => <li key={p.id}><span className={`gsp-rank rank-${i}`}>{i + 1}</span><button onClick={() => { reset(); setQuery(p.name); }}>{p.name}</button><span>{p.downloads}万+</span></li>)}</ol></section>
     </aside>
+    </>}
     <Dialog open={modal !== null} onOpenChange={open => { if (!open) setModal(null); }}><DialogContent className="cloud-modal gsd-dialog gsp-dialog"><DialogTitle>{modal === 'manage' ? '插件管理' : modal === 'upload' ? '上传插件文件' : '热门插件排行榜'}</DialogTitle><DialogDescription>{modal === 'manage' ? `${server.name} · ${installed.length} 个已安装插件。启停、更新与卸载均为本地演示。` : modal === 'upload' ? '选择 .jar 插件文件（最大 50 MB）。此演示仅保存文件信息，不会上传到服务器。' : '按下载量排序，发现热门插件（演示数据）。'}</DialogDescription>
-      {modal === 'manage' && <div className="gsp-manage-list">{installed.map(p => <div className="gsp-manage-row" key={p.id}><div><strong>{p.name}</strong><small>v{p.version} · {p.size.toFixed(1)} MB{p.update ? ' · 可更新' : ''}</small></div><Switch className="gsd-switch" aria-label={`${p.name} 启用状态`} checked={p.enabled} onCheckedChange={enabled => setInstalled(rows => rows.map(row => row.id === p.id ? { ...row, enabled } : row))} />{p.update && <button className="gsd-button" aria-label={`更新 ${p.name}`} onClick={() => { setInstalled(rows => rows.map(row => row.id === p.id ? { ...row, update: false, version: '1.2.0' } : row)); onNotice(`${p.name} 已更新（演示操作）`); }}><ArrowUp size={16} /></button>}<button className="gsd-button danger" aria-label={`卸载 ${p.name}`} onClick={() => { setInstalled(rows => rows.filter(row => row.id !== p.id)); onNotice(`${p.name} 已卸载（演示操作）`); }}><Trash2 size={16} /></button></div>)}{!installed.length && <p>暂无已安装插件，可以前往广场安装。</p>}</div>}
+      {modal === 'manage' && <div className="gsp-manage-list">{installed.map(p => <div className="gsp-manage-row" key={p.id}><div><strong>{p.name}</strong><small>v{p.version} · {p.size.toFixed(1)} MB{needsUpdate(p) ? ' · 可更新' : ''}</small></div><Switch className="gsd-switch" aria-label={`${p.name} 启用状态`} checked={p.enabled} onCheckedChange={enabled => setInstalled(rows => rows.map(row => row.id === p.id ? { ...row, enabled } : row))} />{needsUpdate(p) && <button className="gsd-button" aria-label={`更新 ${p.name}`} onClick={() => updatePlugin(p.id)}><ArrowUp size={16} /></button>}<button className="gsd-button danger" aria-label={`卸载 ${p.name}`} onClick={() => { setInstalled(rows => rows.filter(row => row.id !== p.id)); onNotice(`${p.name} 已卸载（演示操作）`); }}><Trash2 size={16} /></button></div>)}{!installed.length && <p>暂无已安装插件，可以前往广场安装。</p>}</div>}
       {modal === 'upload' && <form className="gsp-upload" onSubmit={e => { e.preventDefault(); if (!file || fileError) return; const name = file.name.replace(/\.jar$/i, ''); if (installed.some(p => p.name.toLowerCase() === name.toLowerCase())) { setFileError('已安装同名插件，请先在插件管理中卸载。'); return; } setInstalled(rows => [...rows, { id: `upload-${crypto.randomUUID()}`, name, size: file.size / 1048576, version: '本地文件', enabled: true, update: false }]); setModal(null); onNotice(`${file.name} 已加入插件列表（演示操作）`); }}><label>插件文件<input type="file" accept=".jar" aria-label="选择插件文件" onChange={e => { const selected = e.target.files?.[0] || null; setFile(selected); setFileError(selected && !/\.jar$/i.test(selected.name) ? '请选择 .jar 格式的插件文件。' : selected && selected.size > 50 * 1048576 ? '文件不能超过 50 MB。' : selected && selected.size === 0 ? '插件文件不能为空。' : ''); }} /></label>{file && <p>{file.name} · {(file.size / 1048576).toFixed(2)} MB</p>}{fileError && <p className="gsp-error" role="alert">{fileError}</p>}<button className="gsd-button primary" disabled={!file || !!fileError}><Upload size={17} />添加插件</button></form>}
       {modal === 'ranking' && <ol className="gsp-all-ranking">{ranking.map((p, i) => <li key={p.id}><span>{i + 1}</span><img src={`/console/plugins/${p.id}.png`} alt="" /><button onClick={() => { reset(); setQuery(p.name); setModal(null); }}>{p.name}</button><small>{p.downloads}万+ 下载</small></li>)}</ol>}
     </DialogContent></Dialog>

@@ -21,5 +21,26 @@ export const marketplacePlugins = [
   plugin('homes', 'AdvancedHomes', '更强大的家系统，支持多世界、多家设置和传送冷却。', ['传送', '家', '实用工具'], ['实用工具', '生存增强'], '1.8', 4.6, '4,208', 90),
 ];
 
+export const pluginVersions: Record<string, string> = {
+  essentials: '2.21.0', luckperms: '5.4.102', vault: '1.7.3', worldedit: '7.3.4',
+  worldguard: '7.0.9', coreprotect: '22.4', itemsadder: '3.6.3', bossshop: '2.0.9',
+  mcmmo: '2.2.0', jobs: '5.2.2', citizens: '2.0.35', homes: '1.2.0',
+};
+
+export const pluginFeatures: Record<string, string[]> = {
+  essentials: ['/tpa 传送请求', '/home 家系统', '/warp 传送点', '/spawn 出生点', '基础经济系统', '/back 返回位置', '/msg 私聊', '/kit 工具箱', '/repair 修复工具', '多语言支持', '高度可配置', '轻量稳定', '长期维护更新'],
+  luckperms: ['精细权限管理', '用户组与继承', '网页权限编辑器', '临时权限', '权限上下文', '多服务器同步', '数据库存储', '权限查询与审计', '前缀与后缀', '多语言支持', '轻量高效', '实时权限生效'],
+  vault: ['统一经济接口', '权限接口', '聊天接口', '插件兼容', '轻量基础库'],
+  worldedit: ['区域选择', '批量方块编辑', '复制与粘贴', '地形生成', '笔刷工具', '操作撤销'],
+  worldguard: ['领地保护', '区域权限', '防爆设置', '玩家访问控制', '区域标记', '多世界支持'],
+  coreprotect: ['方块记录', '容器记录', '精准回滚', '操作查询', '数据恢复', '管理审计'],
+};
+
+export const pluginIntroduction = (p: MarketplacePlugin) => p.id === 'essentials'
+  ? 'EssentialsX 是目前最受欢迎的 Minecraft 服务器基础插件，提供一系列实用的基础功能，包括传送、家、经济系统、传送请求、服务器公告、玩家管理等。它功能强大且配置简单，适用于几乎所有类型的服务器，从生存服到大型社区服都不可或缺。'
+  : p.id === 'luckperms'
+    ? 'LuckPerms 是一款功能强大的 Minecraft 权限管理插件，帮助管理员轻松管理玩家权限、用户组和继承关系。通过直观的网页编辑器配置权限，支持临时权限、上下文与多服务器同步，适用于从小型生存服到大型服务器网络的各类场景。'
+    : `${p.name} 是一款实用的 Minecraft 服务器插件。${p.description}通过灵活的配置与 ${p.tags.join('、')}功能，为管理员和玩家提供更便捷的服务器体验。`;
+
 export type InstalledPlugin = { id: string; name: string; version: string; size: number; enabled: boolean; update: boolean };
 export const initialInstalledPlugins: InstalledPlugin[] = ['ProtocolLib', 'PlaceholderAPI', 'Geyser', 'Floodgate', 'ViaVersion', 'ViaBackwards', 'TAB', 'SkinsRestorer', 'DiscordSRV', 'spark', 'Chunky', 'BlueMap'].map((name, index) => ({ id: `installed-${index}`, name, version: index < 3 ? '1.0.0' : '1.2.0', size: index === 11 ? 4.1 : 3.5, enabled: true, update: index < 3 }));

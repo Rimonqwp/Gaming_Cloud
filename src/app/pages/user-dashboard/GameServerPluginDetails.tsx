@@ -1,0 +1,77 @@
+import { useEffect, useRef, useState } from 'react';
+import { ArrowLeft, BadgeCheck, Box, Check, ChevronDown, ChevronLeft, ChevronRight, Clock3, Download, Flame, Layers, MoreVertical, Package, Puzzle, RefreshCw, Search, ShieldCheck, ShoppingBag, Star, Tag, Timer, Trash2, Upload, type LucideIcon } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
+import { pluginFeatures, pluginIntroduction, pluginVersions, marketplacePlugins, type InstalledPlugin, type MarketplacePlugin } from './gameServerPluginsData';
+import '../../../styles/cloud-plugin-details.css';
+
+type Props = {
+  plugin: MarketplacePlugin; plugins: MarketplacePlugin[]; installed: InstalledPlugin[];
+  categories: { name: string; icon: LucideIcon; tone: string }[];
+  query: string; category: string; platform: string;
+  onQuery: (value: string) => void; onCategory: (value: string) => void; onPlatform: (value: string) => void;
+  onSelect: (id: string) => void; onBack: () => void; onReset: () => void;
+  onInstall: (plugin: MarketplacePlugin) => void; onUpdate: (id: string) => void;
+  onManage: () => void; onToggle: (id: string) => void; onUninstall: (id: string) => void;
+};
+const gallery = [
+  { file: 'village', alt: 'Minecraft 日落河畔村庄' },
+  { file: 'commands', alt: 'Minecraft 插件指令界面' },
+  { file: 'interior', alt: 'Minecraft 木屋内景' },
+  { file: 'garden', alt: 'Minecraft 村庄花园' },
+  { file: 'town', alt: 'Minecraft 村庄与传送点' },
+];
+const detailTabs = ['详情', '版本', '更新日志', '评论'];
+
+function PluginBadge({ plugin }: { plugin: MarketplacePlugin }) {
+  return plugin.badge ? <span className={`gsp-badge ${plugin.badge === '推荐' ? 'green' : 'orange'}`}>{plugin.badge === '推荐' ? <Puzzle size={13} /> : <Flame size={13} />}{plugin.badge}</span> : null;
+}
+function PluginIcon({ id, name, large = false }: { id: string; name?: string; large?: boolean }) {
+  const match = marketplacePlugins.find(p => p.id === id || p.name === name);
+  return match ? <img src={large && id === 'essentials' ? '/console/plugins/details/essentials-icon.png' : `/console/plugins/${match.id}.png`} alt="" /> : <span className="gpd-icon-fallback"><Package size={23} /></span>;
+}
+
+export function GameServerPluginDetails(props: Props) {
+  const { plugin: p, plugins, installed, onSelect, onInstall, onUpdate } = props;
+  const [tab, setTab] = useState('详情');
+  const [activeImage, setActiveImage] = useState(0);
+  const [relatedOffset, setRelatedOffset] = useState(0);
+  const [showAllUpdates, setShowAllUpdates] = useState(false);
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { heading.current?.focus({ preventScroll: true }); }, []);
+  const current = installed.find(row => row.id === p.id);
+  const canUpdate = current && (current.update || current.version !== pluginVersions[p.id]);
+  const features = pluginFeatures[p.id] || [...p.tags, '灵活配置', '多语言支持', '稳定运行', '持续维护'];
+  const related = marketplacePlugins.filter(row => row.id !== p.id).sort((a, b) => Number(b.categories.some(c => p.categories.includes(c))) - Number(a.categories.some(c => p.categories.includes(c))));
+  const recent = ['essentials', 'coreprotect', 'worldedit', 'luckperms', 'worldguard'].map(id => marketplacePlugins.find(row => row.id === id)!);
+  const installedPreview = [...installed].sort((a, b) => Number(marketplacePlugins.some(row => row.id === b.id)) - Number(marketplacePlugins.some(row => row.id === a.id))).slice(0, 5);
+  const installButton = (row: MarketplacePlugin) => {
+    const exists = installed.some(item => item.id === row.id);
+    return <button className="gsp-install" disabled={exists} onClick={() => onInstall(row)} aria-label={`${exists ? '已安装' : row.price ? '购买' : '安装'} ${row.name}`}>{exists ? <><BadgeCheck size={14} />已安装</> : row.price ? `￥${row.price.toFixed(2)} 购买` : '一键安装'}</button>;
+  };
+  return <div className="gpd-layout">
+    <section className="gsd-card gpd-browser" aria-label="插件列表">
+      <div className="gpd-search-row"><button className="gpd-back" onClick={props.onBack} aria-label="返回插件广场" title="返回插件广场"><ArrowLeft size={17} /></button><label className="gsp-search"><Search size={17} /><input aria-label="搜索插件" placeholder="搜索插件名称、功能或作者，如：Essentials、经济、传送..." value={props.query} onChange={e => props.onQuery(e.target.value)} /></label></div>
+      <nav className="gsp-categories gpd-categories" aria-label="详情页插件分类">{props.categories.slice(0, 5).map(c => <button key={c.name} className={`${c.tone}${props.category === c.name ? ' active' : ''}`} aria-pressed={props.category === c.name} onClick={() => props.onCategory(c.name)}><c.icon size={15} />{c.name}</button>)}<label className="gsp-select"><select aria-label="详情页插件服务端" value={props.platform} onChange={e => props.onPlatform(e.target.value)}><option value="all">全部服务端</option><option>Paper</option><option>Spigot</option></select></label></nav>
+      <div className="gpd-plugin-list">{plugins.map(row => <article key={row.id} className={`gpd-list-plugin${row.id === p.id ? ' selected' : ''}`}>
+        <PluginIcon id={row.id} /><div className="gpd-list-copy"><h3><button className="gpd-select-plugin" onClick={() => onSelect(row.id)} aria-label={`查看 ${row.name} 插件详情`} aria-current={row.id === p.id ? 'page' : undefined}>{row.name}</button><PluginBadge plugin={row} />{installed.some(item => item.id === row.id) && <span className="gsp-badge green">已安装</span>}</h3><p>{row.description}</p><div className="gpd-list-bottom"><div className="gsp-meta"><span><Tag size={13} />{row.minVersion} - 1.21</span><span><Star size={15} />{row.rating} ({row.reviews})</span><span><Download size={15} />{row.downloads}万+</span><span className="gpd-free">{row.price ? `￥${row.price}` : '免费'}</span></div>{installButton(row)}</div></div>
+      </article>)}</div>
+      {!plugins.length && <div className="gsp-empty"><Search size={26} /><h3>未找到匹配的插件</h3><p>试试其他关键词或分类。</p><button className="gsd-button" onClick={props.onReset}>重置筛选</button></div>}
+    </section>
+    <section className="gsd-card gpd-detail" aria-label={`${p.name} 插件详情`}>
+      <header className="gpd-summary"><div className="gpd-identity"><PluginIcon id={p.id} large /><div><h2 ref={heading} tabIndex={-1}>{p.name}<PluginBadge plugin={p} />{current && <span className="gsp-badge green">已安装</span>}</h2><p className="gpd-author">作者：{p.author}<BadgeCheck size={14} /></p><p>{p.id === 'essentials' ? '最受欢迎的基础功能插件，提供传送、家、经济、商店、TPA 等服务器核心功能，是大多数 Minecraft 服务器的必备插件。' : p.description}</p></div></div><div className="gpd-primary-actions"><button className="gsd-button primary" disabled={!!current && !canUpdate} onClick={() => current ? onUpdate(p.id) : onInstall(p)}>{current ? <Upload size={17} /> : <Download size={17} />}{current ? canUpdate ? '升级插件' : '已是最新版本' : p.price ? `￥${p.price.toFixed(2)} 购买` : '一键安装'}</button><DropdownMenu><DropdownMenuTrigger asChild><button className="gsd-button">更多操作<ChevronDown size={15} /></button></DropdownMenuTrigger><DropdownMenuContent align="end">{current && <><DropdownMenuItem onSelect={() => props.onToggle(p.id)}><ShieldCheck size={15} />{current.enabled ? '停用插件' : '启用插件'}</DropdownMenuItem><DropdownMenuItem onSelect={() => props.onUninstall(p.id)}><Trash2 size={15} />卸载插件</DropdownMenuItem></>}<DropdownMenuItem onSelect={props.onManage}><Box size={15} />管理已安装插件</DropdownMenuItem><DropdownMenuItem onSelect={props.onBack}><ArrowLeft size={15} />返回插件广场</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></header>
+      <dl className="gpd-facts"><div><Star className="gpd-star" size={24} /><div><dt>{p.rating}</dt><dd>({p.reviews}条评论)</dd></div></div><div><Download size={23} /><div><dt>{p.downloads}万+</dt><dd>下载</dd></div></div><div><Timer size={23} /><div><dd>最新版本</dd><dt>{pluginVersions[p.id]}</dt></div></div><div><ShieldCheck size={22} /><div><dd>支持版本</dd><dt>{p.minVersion} - 1.21</dt></div></div><div><Layers size={22} /><div><dd>支持服务端</dd><dt>{p.platforms.join(' / ')} / Purpur</dt></div></div></dl>
+      <nav className="gpd-tabs" role="tablist" aria-label="插件详情标签">{detailTabs.map((name, index) => <button key={name} id={`gpd-tab-${index}`} role="tab" aria-selected={tab === name} aria-controls="gpd-content" tabIndex={tab === name ? 0 : -1} className={tab === name ? 'active' : ''} onClick={() => setTab(name)} onKeyDown={e => { const next = e.key === 'ArrowRight' ? (index + 1) % 4 : e.key === 'ArrowLeft' ? (index + 3) % 4 : e.key === 'Home' ? 0 : e.key === 'End' ? 3 : -1; if (next >= 0) { e.preventDefault(); setTab(detailTabs[next]); document.getElementById(`gpd-tab-${next}`)?.focus(); } }}>{name}{name === '评论' ? `（${p.reviews}）` : ''}</button>)}</nav>
+      <div className="gpd-content" id="gpd-content" role="tabpanel" aria-labelledby={`gpd-tab-${detailTabs.indexOf(tab)}`}>
+        {tab === '详情' && <><div className="gpd-gallery" aria-label="插件图片预览"><div className="gpd-hero-image"><img src={`/console/plugins/details/${gallery[activeImage].file}.webp`} alt={gallery[activeImage].alt} /><button className="previous" aria-label="上一张插件图片" onClick={() => setActiveImage(index => (index + gallery.length - 1) % gallery.length)}><ChevronLeft size={21} /></button><button className="next" aria-label="下一张插件图片" onClick={() => setActiveImage(index => (index + 1) % gallery.length)}><ChevronRight size={21} /></button></div><div className="gpd-thumbnails">{gallery.map((item, index) => <button key={item.file} className={activeImage === index ? 'active' : ''} aria-label={`预览图片 ${index + 1}：${item.alt}`} aria-pressed={activeImage === index} onClick={() => setActiveImage(index)}><img src={`/console/plugins/details/${item.file}.webp`} alt="" /></button>)}</div></div><h3>插件介绍</h3><p className="gpd-introduction">{pluginIntroduction(p)}</p><h3>主要功能</h3><ul className="gpd-features">{features.map(feature => <li key={feature}><Check size={15} />{feature}</li>)}</ul><div className="gpd-install-guide"><h3>安装与使用</h3><p>选择“一键安装”将插件加入当前服务器，随后在插件管理中查看版本与启用状态。插件配置可在文件管理的 plugins 目录中调整。</p><span>当前页面为本地演示，安装与管理操作不会连接真实服务器。</span></div></>}
+        {tab === '版本' && <div className="gpd-version-panel"><h3>可用版本</h3><p>选择适配当前服务器的插件版本。</p><article><div><strong>{p.name} {pluginVersions[p.id]}</strong><span className="gsp-badge green">最新版本</span><p>Minecraft {p.minVersion} - 1.21 · {p.platforms.join(' / ')} · {p.size.toFixed(1)} MB</p><small>{current ? `当前已安装：v${current.version}` : '当前服务器尚未安装此插件'}</small></div><button className="gsd-button primary" disabled={!!current && !canUpdate} onClick={() => current ? onUpdate(p.id) : onInstall(p)}>{current ? canUpdate ? '升级至此版本' : '已安装此版本' : '安装此版本'}</button></article></div>}
+        {tab === '更新日志' && <div className="gpd-changelog"><h3>{p.name} {pluginVersions[p.id]}</h3><span className="gsp-badge green">最新版本</span><ul><li>优化 {p.tags[0]} 的配置与使用体验。</li><li>改善服务端兼容性与运行稳定性。</li><li>完善多语言提示和管理操作。</li></ul><p>以上为插件广场的演示更新说明。</p></div>}
+        {tab === '评论' && <div className="gpd-reviews"><div className="gpd-review-summary"><strong>{p.rating}</strong><span><span className="gpd-rating-stars">{Array.from({ length: 5 }, (_, i) => <Star size={19} fill="currentColor" key={i} />)}</span>{p.reviews} 条评论</span></div>{['方块世界管理员', '生存服服主', 'Minecraft 玩家'].map((name, index) => <article key={name}><div><ShieldCheck size={20} /><strong>{name}</strong><span className="gpd-rating-stars">{Array.from({ length: 5 }, (_, i) => <Star size={12} fill="currentColor" key={i} />)}</span></div><p>{[`${p.name} 的配置清晰，${p.tags[0]}功能很实用。`, '安装方便，在生存服务器上运行稳定，推荐使用。', '管理体验很好，和现有插件配合起来也很方便。'][index]}</p><small>演示评论</small></article>)}</div>}
+      </div>
+    </section>
+    <aside className="gpd-sidebar">
+      <section className="gsd-card"><header><h2><Box size={21} />已安装插件</h2><button className="gpd-text-button" onClick={props.onManage}>管理</button></header><div className="gpd-installed">{installedPreview.map(row => <div className="gpd-installed-row" key={row.id}><PluginIcon id={row.id} name={row.name} /><div><strong>{row.name}</strong><small>v{row.version}</small></div><span className={`gsp-badge ${row.enabled ? 'green' : 'orange'}`}>{row.enabled ? '已启用' : '已停用'}</span><DropdownMenu><DropdownMenuTrigger asChild><button className="gpd-more" aria-label={`管理 ${row.name}`}><MoreVertical size={18} /></button></DropdownMenuTrigger><DropdownMenuContent align="end">{marketplacePlugins.some(item => item.id === row.id) && <DropdownMenuItem onSelect={() => onSelect(row.id)}>查看插件详情</DropdownMenuItem>}<DropdownMenuItem onSelect={() => props.onToggle(row.id)}>{row.enabled ? '停用插件' : '启用插件'}</DropdownMenuItem>{row.update && <DropdownMenuItem onSelect={() => onUpdate(row.id)}>更新插件</DropdownMenuItem>}<DropdownMenuItem onSelect={() => props.onUninstall(row.id)}>卸载插件</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div>)}{!installed.length && <p>暂无已安装插件，选择插件开始安装。</p>}</div></section>
+      <section className="gsd-card"><header><h2><Clock3 size={20} />最近更新的插件</h2><button className="gpd-text-button" onClick={() => setShowAllUpdates(!showAllUpdates)}>{showAllUpdates ? '收起' : '查看更多'}<ChevronRight size={14} /></button></header>{recent.slice(0, showAllUpdates ? 5 : 3).map((row, index) => <div className="gpd-recent-row" key={row.id}><PluginIcon id={row.id} /><div><button className="gpd-text-button ink" onClick={() => { onSelect(row.id); if (p.id === row.id) setTab('版本'); }}>{row.name}</button><small>{pluginVersions[row.id]}</small></div>{installed.some(item => item.id === row.id && (item.update || item.version !== pluginVersions[row.id])) && <span className="gpd-new-version">有新版本</span>}<time>2024-01-{15 - index * 2}</time></div>)}</section>
+      <section className="gsd-card"><header><h2><ShoppingBag size={20} />相关插件推荐</h2><button className="gpd-text-button" onClick={() => setRelatedOffset(index => (index + 2) % related.length)}><RefreshCw size={14} />换一批</button></header>{[related[relatedOffset], related[(relatedOffset + 1) % related.length]].map(row => <article className="gpd-related" key={row.id}><PluginIcon id={row.id} /><div><h3><button className="gpd-text-button ink" onClick={() => onSelect(row.id)}>{row.name}</button></h3><p>{row.description}</p><footer><span><Star size={14} />{row.rating} ({row.reviews})</span><span><Download size={14} />{row.downloads}万+</span>{installButton(row)}</footer></div></article>)}</section>
+    </aside>
+  </div>;
+}
