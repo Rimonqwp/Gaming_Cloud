@@ -65,7 +65,8 @@ html:has(.gsd-page) { scrollbar-gutter: stable; }
 .gsd-metric strong { display: block; font-size: 23px; color: #0b1235; font-weight: 700; line-height: 29px; }
 .gsd-metric strong small { font-size: 12px; margin-left: 7px; font-weight: 500; }
 .gsd-metric p { margin: 0; color: #8190ac; font-size: 11px; line-height: 17px; white-space: nowrap; }
-.gsd-trend { width: 100%; height: 28px; margin-top: 4px; }
+.gsd-trend { position: relative; width: 100%; height: 28px; margin-top: 4px; cursor: crosshair; }
+.gsd-trend-range { position: absolute; z-index: 1; right: 0; top: -14px; padding: 1px 3px; border-radius: 3px; background: #ffffffd9; color: #8a9bbb; font-size: 9px; line-height: 12px; pointer-events: none; }
 .gsd-filters { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr) minmax(0, 1.3fr) 85px; gap: 6px; margin-bottom: 10px; }
 .gsd-search { display: flex; align-items: center; gap: 10px; height: 35px; padding: 0 12px; border: 1px solid #dbe5f4; border-radius: 6px; color: #6b80a5; }
 .gsd-search:focus-within { border-color: #1683ff; }

@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Archive, ArrowDown, ArrowDownUp, ArrowUp, BadgeCheck, Check, ChevronRight, ClipboardCheck, Clock3, Copy, Cpu, Crown, Database, FileText, Folder, Gamepad2, Globe2, HardDrive, MapPin, Megaphone, ChartColumnBig, Pin, PlayCircle, RefreshCw, Save, Settings, ShieldCheck, Square, Target, Timer, Users, Waypoints } from "lucide-react";
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
+import { MetricTrend } from "./MetricTrend";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
 import type { ConsoleInstance } from "./cloudDashboardData";
@@ -16,54 +16,6 @@ const announcements = [
   { type: "活动", tone: "green", title: "10月21日 周末建筑大赛开启", text: "10月28日前，服务器将开启周末建筑大赛活动，…", time: "2024-10-21 18:30" },
 ];
 const dateFormat = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" });
-
-const trendTimeFormat = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
-const trendHourMs = 3600000;
-const maxTrendHours = 7 * 24;
-
-function Spark({ points, tone, label, unit }: { points: number[]; tone: keyof typeof tones; label: string; unit: string }) {
-  const chartRef = useRef<HTMLDivElement>(null);
-  const [endTime] = useState(() => Math.floor(Date.now() / trendHourMs) * trendHourMs);
-  const [rangeHours, setRangeHours] = useState(24);
-
-  useEffect(() => {
-    const chart = chartRef.current;
-    if (!chart) return;
-    let wheelDelta = 0;
-    const adjustRange = (event: WheelEvent) => {
-      if (event.ctrlKey || event.deltaY === 0) return;
-      event.preventDefault();
-      event.stopPropagation();
-      wheelDelta += event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 100 : 1);
-      const steps = Math.trunc(wheelDelta / 100);
-      if (!steps) return;
-      wheelDelta -= steps * 100;
-      setRangeHours(previous => Math.max(24, Math.min(maxTrendHours, previous + steps * 24)));
-    };
-    chart.addEventListener("wheel", adjustRange, { passive: false });
-    return () => chart.removeEventListener("wheel", adjustRange);
-  }, []);
-
-  const history = Array.from({ length: maxTrendHours + 1 }, (_, index) => {
-    const hoursAgo = maxTrendHours - index;
-    const position = ((24 - hoursAgo % 24) % 24) / 24 * (points.length - 1);
-    const left = Math.floor(position);
-    const right = Math.min(left + 1, points.length - 1);
-    const value = Math.round((points[left] + (points[right] - points[left]) * (position - left)) * 10) / 10;
-    return { time: endTime - hoursAgo * trendHourMs, value: hoursAgo === 0 ? points[points.length - 1] : value };
-  });
-  const data = history.slice(-(rangeHours + 1));
-  const rangeLabel = rangeHours === 24 ? "近 24 小时" : `近 ${rangeHours / 24} 天`;
-
-  return <div ref={chartRef} className="gso-spark" title="滚动调整显示范围（24 小时至 7 天）" role="img" aria-label={`${label}${rangeLabel}演示趋势，滚轮调整范围，最多7天，时间为北京时间`}>
-    <span className="gso-spark-range">{rangeLabel}</span>
-    <ResponsiveContainer width="100%" height="100%"><AreaChart data={data}>
-      <XAxis dataKey="time" hide />
-      <Tooltip allowEscapeViewBox={{ y: true }} isAnimationActive={false} labelFormatter={value => `时间：${trendTimeFormat.format(new Date(Number(value)))}`} formatter={(value: number) => [`${value} ${unit}`, label]} cursor={{ stroke: "var(--gso-tone)", strokeOpacity: 0.3, strokeDasharray: "3 3" }} wrapperStyle={{ zIndex: 10 }} contentStyle={{ fontSize: 11, padding: "8px 10px", borderRadius: 8, borderColor: "#e0eaf7", boxShadow: "0 4px 16px #28375614" }} labelStyle={{ color: "#697793", marginBottom: 4 }} />
-      <Area dataKey="value" type="linear" stroke={tones[tone]} fill={tones[tone]} fillOpacity={0.06} strokeWidth={1.5} activeDot={{ r: 3, stroke: "#fff", strokeWidth: 1.5 }} isAnimationActive={false} />
-    </AreaChart></ResponsiveContainer>
-  </div>;
-}
 
 export function GameServerOverview({ server, onStart, onStop, onRestart, onBackup, onOpen, onNotice, terminal }: {
   server: ConsoleInstance; onStart: () => void; onStop: () => void; onRestart: () => void; onBackup: () => void;
@@ -135,7 +87,7 @@ export function GameServerOverview({ server, onStart, onStop, onRestart, onBacku
       <div className="gso-banner-content"><div className="gso-banner-title"><h2>{server.name}</h2><span className={`gsd-running${server.running ? "" : " stopped"}`}><i />{server.running ? "运行中" : "已停止"}</span></div><p>和小伙伴一起，探索无限可能的方块世界！</p><dl className="gso-summary">{info.map(item => <div key={item.label}><dt><item.icon size={14} />{item.label}</dt><dd>{item.value}</dd></div>)}</dl></div>
       <button className="gso-online-preview" onClick={() => onOpen("players")}><span>当前在线玩家</span><div>{[1,2,3,4].map(index => <img key={index} src={`/console/minecraft/avatar-${index}.png`} alt="" />)}<b>+{Math.max(0, server.players - 4)}</b></div></button>
     </section>
-    <section className="gso-metrics" aria-label="服务器运行指标">{metrics.map(metric => <article key={metric.label} className={`gso-metric ${metric.tone}`}><span className="gso-icon"><metric.icon size={25} /></span><div className="gso-metric-content"><h3>{metric.label}</h3><strong className={"compact" in metric ? "gso-metric-compact" : undefined} title={metric.label === "本月流量" ? "本实例本月已用流量 / 随心配套餐共享月流量总额" : undefined}>{metric.value}<small>{metric.unit}</small></strong></div><span className={`gso-change${"danger" in metric ? " danger" : ""}`}>{metric.direction === "down" ? <ArrowDown size={14} /> : <ArrowUp size={14} />}{metric.change}</span><Spark points={server.running || metric.label === "存储空间" || metric.label === "本月流量" ? [...metric.points] : metric.points.map(() => 0)} tone={metric.tone} label={metric.label} unit={metric.label === "在线玩家" ? " 人" : ("trendUnit" in metric ? metric.trendUnit : metric.unit)} /></article>)}</section>
+    <section className="gso-metrics" aria-label="服务器运行指标">{metrics.map(metric => <article key={metric.label} className={`gso-metric ${metric.tone}`}><span className="gso-icon"><metric.icon size={25} /></span><div className="gso-metric-content"><h3>{metric.label}</h3><strong className={"compact" in metric ? "gso-metric-compact" : undefined} title={metric.label === "本月流量" ? "本实例本月已用流量 / 随心配套餐共享月流量总额" : undefined}>{metric.value}<small>{metric.unit}</small></strong></div><span className={`gso-change${"danger" in metric ? " danger" : ""}`}>{metric.direction === "down" ? <ArrowDown size={14} /> : <ArrowUp size={14} />}{metric.change}</span><MetricTrend className="gso-spark" points={server.running || metric.label === "存储空间" || metric.label === "本月流量" ? [...metric.points] : metric.points.map(() => 0)} color={tones[metric.tone]} label={metric.label} unit={metric.label === "在线玩家" ? " 人" : ("trendUnit" in metric ? metric.trendUnit : metric.unit)} /></article>)}</section>
     <div className="gso-middle-grid">
       <div className="gso-terminal">{terminal}</div>
       <section className="gso-panel gso-billing"><header><h2><Crown size={20} />到期与计费提醒</h2></header><div className="gso-plan"><HardDrive size={15} /><div><small>当前套餐</small><strong>{plan} {server.cores}核 {server.ram}GB</strong></div><button onClick={() => { setPlanDraft(plan); setModal("upgrade"); }}>升级套餐</button></div><dl className="gso-instance-info"><div><dt>实例 ID</dt><dd>{server.id}</dd></div><div><dt>连接地址</dt><dd>{server.ip}:{server.port}</dd></div><div><dt>托管节点</dt><dd>{hostingNode}</dd></div><div><dt>托管区域</dt><dd>{hostingArea}</dd></div><div><dt>创建日期</dt><dd>{createdAt}</dd></div><div><dt>运行状态</dt><dd className={server.running ? "running" : "stopped"}>{server.running ? "运行中" : "已停止"}</dd></div><div><dt>在线玩家</dt><dd>{server.players} / {server.slots} 人</dd></div></dl><dl><div><dt><ClipboardCheck size={15} />到期时间</dt><dd className="expiry">{dateFormat.format(new Date(expiresAt))}<span>（剩余 {remainingDays} 天）</span></dd></div><div><dt><ShieldCheck size={15} />自动续费</dt><dd><button className="gso-autorenew" aria-pressed={autoRenew} onClick={() => { setAutoRenew(value => !value); onNotice(`自动续费已${autoRenew ? "关闭" : "开启"}（演示设置）`); }}><Check size={14} />{autoRenew ? "已开启" : "已关闭"}</button></dd></div><div><dt><MapPin size={15} />月付价格</dt><dd>¥ 120.00 / 月</dd></div></dl><button className="gsd-button gso-renew" onClick={() => setModal("renew")}>立即续费</button></section>

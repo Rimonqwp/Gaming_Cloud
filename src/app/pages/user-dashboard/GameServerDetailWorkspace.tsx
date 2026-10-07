@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Archive, ArrowDown, ArrowUp, ArrowUpDown, Ban, Check, ChevronLeft, ChevronRight, ClipboardList, Clock3, Copy, Crown, Eye, FileText, FolderClosed, Gamepad2, House, Megaphone, Power, RefreshCw, Save, Search, Send, Settings, ShieldCheck, SquareTerminal, Swords, Timer, Trash2, Users, Wrench, X, Zap } from "lucide-react";
-import { Area, AreaChart, ResponsiveContainer } from "recharts";
+import { MetricTrend } from "./MetricTrend";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
@@ -119,11 +119,11 @@ function initialLogs(server: ConsoleInstance) {
   ];
 }
 
-function Metric({ title, value, unit = "人", description, tone, icon: Icon, points }: { title: string; value: number; unit?: string; description: string; tone: string; icon: typeof Users; points: number[] }) {
+function Metric({ title, value, unit = "人", description, tone, icon: Icon, points }: { title: string; value: number; unit?: string; description: string; tone: "green" | "blue" | "red" | "orange"; icon: typeof Users; points: number[] }) {
   const color = { green: "#00bf89", blue: "#087bff", red: "#ff4351", orange: "#f18a1c" }[tone];
   return <article className={`gsd-metric ${tone}`}>
     <div className="gsd-metric-heading"><span className="gsd-icon-tile"><Icon size={22} /></span><div><h2>{title}</h2><strong>{value}<small>{unit}</small></strong><p>{description}</p></div></div>
-    <div className="gsd-trend" aria-hidden="true"><ResponsiveContainer width="100%" height="100%"><AreaChart data={points.map(value => ({ value }))} margin={{ top: 3, bottom: 0, left: 0, right: 0 }}><Area type="linear" dataKey="value" stroke={color} strokeWidth={1.5} fill={color} fillOpacity={0.06} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div>
+    <MetricTrend className="gsd-trend" points={[...points.slice(0, -1), value]} color={color} label={title} unit={unit} precision={unit === "人" ? 0 : 1} />
   </article>;
 }
 
