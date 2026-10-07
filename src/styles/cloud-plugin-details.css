@@ -17,7 +17,8 @@
 .gpd-categories { margin: 14px 10px 20px; flex-wrap: nowrap; gap: 5px; }
 .gpd-categories button { font-size: 12px; padding: 0 9px; gap: 5px; height: 36px; }
 .gpd-categories .gsp-select { flex: 1; min-width: 90px; height: 36px; padding: 0 6px; }
-.gpd-plugin-list { min-height: 0; }
+.gpd-plugin-list { --console-scroll-track: transparent; min-height: 0; }
+.cloud-shell .gpd-plugin-list::-webkit-scrollbar-thumb { background-clip: padding-box; }
 .gpd-plugin-list:focus-visible { outline: 2px solid #087bff; outline-offset: -2px; }
 .gpd-plugin-list-content { display: grid; gap: 7px; padding: 0 10px 10px; }
 @media (min-width: 701px) {
