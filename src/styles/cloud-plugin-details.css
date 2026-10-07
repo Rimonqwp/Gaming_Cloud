@@ -4,7 +4,7 @@
 .gsp-detail-link:focus-visible { outline: none; }
 .gsp-detail-link:focus-visible::after { outline: 2px solid #087bff; outline-offset: 2px; }
 .gsp-plugin .gsp-install { position: relative; z-index: 1; }
-.cloud-container:has(.gpd-layout) { max-width: none; width: calc(100% - 160px); }
+/* 详情与插件广场共用外层宽度和缩放，切换时只改变内部布局。 */
 .gpd-layout { display: grid; grid-template-columns: minmax(0, 1.62fr) minmax(0, 2.46fr) minmax(0, 1fr); gap: 8px; align-items: start; }
 .gsp-detail-root { padding-top: 6px; }
 .gpd-layout > .gsd-card { padding: 0; overflow: hidden; }
@@ -148,7 +148,6 @@
   .gpd-new-version { font-size: 10px; padding: 3px 5px; }
 }
 @media (max-width: 1350px) {
-  .cloud-container:has(.gpd-layout) { width: calc(100% - 48px); }
   .gpd-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr); }
   .gpd-sidebar { grid-column: 1 / -1; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .gpd-identity > img { width: 70px; height: 70px; }
@@ -160,7 +159,6 @@
   .gpd-facts > div > svg { display: none; }
 }
 @media (max-width: 700px) {
-  .cloud-container:has(.gpd-layout) { width: calc(100% - 24px); }
   .gpd-layout { display: flex; flex-direction: column; gap: 12px; }
   .gpd-browser, .gpd-detail, .gpd-sidebar { width: 100%; }
   .gpd-browser { order: 1; }
