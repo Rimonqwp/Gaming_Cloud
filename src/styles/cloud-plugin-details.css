@@ -6,6 +6,8 @@
 .gsp-plugin .gsp-install { position: relative; z-index: 1; }
 /* 详情与插件广场共用外层宽度和缩放，切换时只改变内部布局。 */
 .gpd-layout { display: grid; grid-template-columns: minmax(0, 1.62fr) minmax(0, 2.46fr) minmax(0, 1fr); gap: 8px; align-items: start; }
+/* 收起时保留左栏在三栏布局中的宽度，仅将右栏空间让给详情区。 */
+.gpd-layout.sidebar-collapsed { grid-template-columns: minmax(0, calc((100% - 16px) * 1.62 / 5.08)) minmax(0, 1fr) 36px; }
 .gsp-detail-root { padding-top: 6px; }
 .gpd-layout > .gsd-card { padding: 0; overflow: hidden; }
 .gpd-browser { min-width: 0; }
@@ -24,7 +26,8 @@
 .gpd-plugin-list:focus-visible { outline: 2px solid #087bff; outline-offset: -2px; }
 .gpd-plugin-list-content { display: grid; gap: 7px; padding: 0 10px 10px; }
 @media (min-width: 701px) {
-  .gpd-browser { position: sticky; top: var(--gpd-browser-top, calc(12px / var(--console-display-scale, 1))); display: flex; flex-direction: column; max-height: var(--gpd-browser-height, calc((100dvh - 24px) / var(--console-display-scale, 1))); }
+  .gpd-browser, .gpd-sidebar-shell { position: sticky; top: var(--gpd-sticky-top, calc(12px / var(--console-display-scale, 1))); max-height: var(--gpd-panel-height, calc((100dvh - 24px) / var(--console-display-scale, 1))); }
+  .gpd-browser { display: flex; flex-direction: column; }
   .gpd-plugin-list { overflow-y: auto; overscroll-behavior-y: contain; scrollbar-gutter: stable; }
 }
 .gpd-list-plugin { position: relative; display: flex; align-items: center; gap: 16px; padding: 12px 10px; min-height: 112px; min-width: 0; border: 1px solid #e0eaf7; border-radius: 9px; background: #fff; }
@@ -96,7 +99,11 @@
 .gpd-features svg { color: #087bff; }
 .gpd-install-guide { margin-top: 22px; padding-top: 16px; border-top: 1px solid #e2ecf8; }
 .gpd-install-guide span { font-size: 11px; color: #8295b3; }
-.gpd-sidebar { display: grid; gap: 12px; min-width: 0; }
+.gpd-sidebar-shell { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.gpd-sidebar-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; flex: none; width: 100%; height: 36px; padding: 0 6px; border: 1px solid #dbe6f5; border-radius: 7px; background: #fff; color: #637da7; font-size: 12px; }
+.gpd-sidebar-toggle:hover { color: #087bff; background: #edf5ff; border-color: #97beff; }
+.gpd-sidebar { display: grid; gap: 12px; min-width: 0; min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: thin; scrollbar-color: #9cbeef transparent; }
+.gpd-sidebar[hidden] { display: none; }
 .gpd-sidebar > section { padding: 14px 18px; }
 .gpd-sidebar header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 17px; }
 .cloud-shell .gpd-sidebar h2 { margin: 0; font-size: 16px; gap: 7px; color: #111a3b; white-space: nowrap; }
@@ -144,6 +151,7 @@
 .gpd-reviews small { color: #91a1ba; }
 @media (max-width: 1550px) {
   .gpd-layout { grid-template-columns: minmax(0, 1.5fr) minmax(0, 2.35fr) minmax(0, 1fr); }
+  .gpd-layout.sidebar-collapsed { grid-template-columns: minmax(0, calc((100% - 16px) * 1.5 / 4.85)) minmax(0, 1fr) 36px; }
   .gpd-list-plugin { gap: 10px; }
   .gpd-list-plugin > img { width: 57px; height: 57px; }
   .gpd-list-bottom .gsp-meta { gap: 4px 8px; font-size: 11px; flex-wrap: wrap; }
@@ -167,8 +175,8 @@
   .gpd-new-version { font-size: 10px; padding: 3px 5px; }
 }
 @media (max-width: 1350px) {
-  .gpd-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr); }
-  .gpd-sidebar { display: none; }
+  .gpd-layout, .gpd-layout.sidebar-collapsed { grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr); }
+  .gpd-sidebar-shell { display: none; }
   .gpd-identity > img { width: 70px; height: 70px; }
   .gpd-primary-actions { width: 118px; }
   .gpd-tabs { gap: 5px; padding: 0 12px; }

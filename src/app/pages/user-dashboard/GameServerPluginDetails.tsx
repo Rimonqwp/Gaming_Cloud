@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type MutableRefObject } from 'react';
-import { ArrowLeft, BadgeCheck, Box, Check, ChevronDown, ChevronLeft, ChevronRight, Clock3, Coins, Download, Flame, Gift, Layers, MoreVertical, Package, Puzzle, RefreshCw, Search, ShieldCheck, ShoppingBag, Star, Tag, Timer, Trash2, Upload, type LucideIcon } from 'lucide-react';
+import { ArrowLeft, BadgeCheck, Box, Check, ChevronDown, ChevronLeft, ChevronRight, Clock3, Coins, Download, Flame, Gift, Layers, MoreVertical, Package, PanelRightClose, PanelRightOpen, Puzzle, RefreshCw, Search, ShieldCheck, ShoppingBag, Star, Tag, Timer, Trash2, Upload, type LucideIcon } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
 import { pluginFeatures, pluginIntroduction, pluginVersions, marketplacePlugins, type InstalledPlugin, type MarketplacePlugin } from './gameServerPluginsData';
 import { PluginImagePreview } from './PluginImagePreview';
@@ -10,6 +10,7 @@ type Props = {
   categories: { name: string; icon: LucideIcon; tone: string }[];
   query: string; category: string; platform: string; transitioning: boolean;
   listScrollMemory: MutableRefObject<{ filters: string; top: number }>;
+  sidebarCollapsed: boolean; onSidebarToggle: () => void;
   onQuery: (value: string) => void; onCategory: (value: string) => void; onPlatform: (value: string) => void;
   onSelect: (id: string) => void; onBack: () => void; onReset: () => void;
   onInstall: (plugin: MarketplacePlugin) => void; onUpdate: (id: string) => void;
@@ -95,19 +96,20 @@ export function GameServerPluginDetails(props: Props) {
   }, [props.categories, props.category, props.platform]);
   useLayoutEffect(() => {
     const panel = browser.current!;
+    const root = layout.current!;
     const chrome = panel.closest('.cloud-shell')?.querySelector<HTMLElement>('.cloud-console-chrome');
     const updateHeight = () => {
       if (window.matchMedia('(max-width: 700px)').matches) {
-        panel.style.removeProperty('--gpd-browser-height');
-        panel.style.removeProperty('--gpd-browser-top');
+        root.style.removeProperty('--gpd-panel-height');
+        root.style.removeProperty('--gpd-sticky-top');
         return;
       }
       const scale = Number.parseFloat(getComputedStyle(panel).getPropertyValue('--console-display-scale')) || 1;
       const toolbarBottom = chrome && getComputedStyle(chrome).position === 'sticky' ? chrome.getBoundingClientRect().bottom : 0;
       const stickyTop = Math.max(12, toolbarBottom + 12);
-      const top = Math.max(stickyTop, layout.current!.getBoundingClientRect().top);
-      panel.style.setProperty('--gpd-browser-top', `${stickyTop / scale}px`);
-      panel.style.setProperty('--gpd-browser-height', `${Math.max(0, window.innerHeight - top - 12) / scale}px`);
+      const top = Math.max(stickyTop, root.getBoundingClientRect().top);
+      root.style.setProperty('--gpd-sticky-top', `${stickyTop / scale}px`);
+      root.style.setProperty('--gpd-panel-height', `${Math.max(0, window.innerHeight - top - 12) / scale}px`);
     };
     let frame = 0;
     const schedule = () => {
@@ -145,7 +147,7 @@ export function GameServerPluginDetails(props: Props) {
     const exists = installed.some(item => item.id === row.id);
     return <button className="gsp-install" disabled={exists} onClick={() => onInstall(row)} aria-label={`${exists ? '已安装' : row.price ? '购买' : '安装'} ${row.name}`}>{exists ? <><BadgeCheck size={14} />已安装</> : row.price ? `￥${row.price.toFixed(2)} 购买` : '一键安装'}</button>;
   };
-  return <div className="gpd-layout" ref={layout}>
+  return <div className={`gpd-layout${props.sidebarCollapsed ? ' sidebar-collapsed' : ''}`} ref={layout}>
     <section className="gsd-card gpd-browser" aria-label="插件列表" ref={browser}>
       <div className="gpd-browser-controls" ref={browserControls}>
       <div className="gpd-search-row"><button className="gpd-back" onClick={props.onBack} aria-label="返回插件广场" title="返回插件广场"><ArrowLeft size={17} /></button><label className="gsp-search"><Search size={17} /><input aria-label="搜索插件" placeholder="搜索插件名称、功能或作者，如：Essentials、经济、传送..." value={props.query} onChange={e => props.onQuery(e.target.value)} /></label></div>
@@ -169,10 +171,16 @@ export function GameServerPluginDetails(props: Props) {
         {tab === '评论' && <div className="gpd-reviews"><div className="gpd-review-summary"><strong>{p.rating}</strong><span><span className="gpd-rating-stars">{Array.from({ length: 5 }, (_, i) => <Star size={19} fill="currentColor" key={i} />)}</span>{p.reviews} 条评论</span></div>{['方块世界管理员', '生存服服主', 'Minecraft 玩家'].map((name, index) => <article key={name}><div><ShieldCheck size={20} /><strong>{name}</strong><span className="gpd-rating-stars">{Array.from({ length: 5 }, (_, i) => <Star size={12} fill="currentColor" key={i} />)}</span></div><p>{[`${p.name} 的配置清晰，${p.tags[0]}功能很实用。`, '安装方便，在生存服务器上运行稳定，推荐使用。', '管理体验很好，和现有插件配合起来也很方便。'][index]}</p><small>演示评论</small></article>)}</div>}
       </div>
     </section>
-    <aside className="gpd-sidebar">
+    <aside className="gpd-sidebar-shell" aria-label="插件侧栏">
+      <button type="button" className="gpd-sidebar-toggle" onClick={props.onSidebarToggle} aria-expanded={!props.sidebarCollapsed} aria-controls="gpd-sidebar-content" aria-label={props.sidebarCollapsed ? '展开插件侧栏' : '收起插件侧栏'} title={props.sidebarCollapsed ? '展开插件侧栏' : '收起插件侧栏'}>
+        {props.sidebarCollapsed ? <PanelRightOpen size={18} /> : <PanelRightClose size={18} />}
+        {!props.sidebarCollapsed && <span>收起侧栏</span>}
+      </button>
+      <div className="gpd-sidebar" id="gpd-sidebar-content" hidden={props.sidebarCollapsed}>
       <section className="gsd-card"><header><h2><Box size={21} />已安装插件</h2><button className="gpd-text-button" onClick={props.onManage}>管理</button></header><div className="gpd-installed">{installedPreview.map(row => <div className="gpd-installed-row" key={row.id}><PluginIcon id={row.id} name={row.name} /><div><strong>{row.name}</strong><small>v{row.version}</small></div><span className={`gsp-badge ${row.enabled ? 'green' : 'orange'}`}>{row.enabled ? '已启用' : '已停用'}</span><DropdownMenu><DropdownMenuTrigger asChild><button className="gpd-more" aria-label={`管理 ${row.name}`}><MoreVertical size={18} /></button></DropdownMenuTrigger><DropdownMenuContent align="end">{marketplacePlugins.some(item => item.id === row.id) && <DropdownMenuItem onSelect={() => onSelect(row.id)}>查看插件详情</DropdownMenuItem>}<DropdownMenuItem onSelect={() => props.onToggle(row.id)}>{row.enabled ? '停用插件' : '启用插件'}</DropdownMenuItem>{row.update && <DropdownMenuItem onSelect={() => onUpdate(row.id)}>更新插件</DropdownMenuItem>}<DropdownMenuItem onSelect={() => props.onUninstall(row.id)}>卸载插件</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div>)}{!installed.length && <p>暂无已安装插件，选择插件开始安装。</p>}</div></section>
       <section className="gsd-card"><header><h2><Clock3 size={20} />最近更新的插件</h2><button className="gpd-text-button" onClick={() => setShowAllUpdates(!showAllUpdates)}>{showAllUpdates ? '收起' : '查看更多'}<ChevronRight size={14} /></button></header>{recent.slice(0, showAllUpdates ? 5 : 3).map((row, index) => <div className="gpd-recent-row" key={row.id}><PluginIcon id={row.id} /><div><button className="gpd-text-button ink" onClick={() => { onSelect(row.id); if (p.id === row.id) setTab('版本'); }}>{row.name}</button><small>{pluginVersions[row.id]}</small></div>{installed.some(item => item.id === row.id && (item.update || item.version !== pluginVersions[row.id])) && <span className="gpd-new-version">有新版本</span>}<time>2024-01-{15 - index * 2}</time></div>)}</section>
       <section className="gsd-card"><header><h2><ShoppingBag size={20} />相关插件推荐</h2><button className="gpd-text-button" onClick={() => setRelatedOffset(index => (index + 2) % related.length)}><RefreshCw size={14} />换一批</button></header>{[related[relatedOffset], related[(relatedOffset + 1) % related.length]].map(row => <article className="gpd-related" key={row.id}><PluginIcon id={row.id} /><div><h3><button className="gpd-text-button ink" onClick={() => onSelect(row.id)}>{row.name}</button></h3><p>{row.description}</p><footer><span><Star size={14} />{row.rating} ({row.reviews})</span><span><Download size={14} />{row.downloads}万+</span>{installButton(row)}</footer></div></article>)}</section>
+      </div>
     </aside>
   </div>;
 }
