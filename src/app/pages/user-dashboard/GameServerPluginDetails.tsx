@@ -32,7 +32,7 @@ const platformIcons: Record<string, string> = {
 function PlatformIcons({ platforms }: { platforms: string[] }) {
   return <dt className="gpd-platform-icons">{Array.from(new Set([...platforms, 'Purpur'])).map(name => (
     <span key={name} className={`gpd-platform-icon${name === 'Paper' ? ' paper' : ''}`} title={name}>
-      {platformIcons[name] ? <img src={platformIcons[name]} alt={name} width={28} height={24} /> : name}
+      {platformIcons[name] ? <img src={platformIcons[name]} alt={name} width={28} height={28} /> : name}
     </span>
   ))}</dt>;
 }
