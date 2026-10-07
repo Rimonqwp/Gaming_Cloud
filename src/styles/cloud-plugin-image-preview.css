@@ -24,7 +24,14 @@
 .gpv-body.details-open { grid-template-columns: minmax(0, 1fr) 300px; }
 .gpv-gallery { display: flex; flex-direction: column; gap: 14px; min-width: 0; min-height: 0; padding: 18px 22px; }
 .gpv-stage { position: relative; display: grid; place-items: center; height: min(56dvh, 560px); min-height: 160px; overflow: hidden; border-radius: 9px; background: #f1f5fb; }
-.gpv-stage > img { width: 100%; height: 100%; min-height: 0; object-fit: contain; animation: gpv-fade-in 180ms ease-out; }
+.gpv-stage > img { width: 100%; height: 100%; min-height: 0; object-fit: contain; transform-origin: 0 0; user-select: none; animation: gpv-fade-in 180ms ease-out; }
+.gpv-stage.is-zoomed { cursor: grab; touch-action: none; }
+.gpv-stage.is-dragging { cursor: grabbing; }
+.gpv-zoom-hint { position: absolute; top: 12px; left: 12px; padding: 5px 9px; border-radius: 5px; background: #14244580; color: #fff; font-size: 11px; pointer-events: none; }
+.gpv-zoom-controls { position: absolute; bottom: 12px; right: 12px; display: flex; align-items: center; gap: 9px; padding: 4px 9px; border-radius: 6px; background: #142445a6; color: #fff; font-size: 12px; cursor: default; }
+.gpv-zoom-controls output { min-width: 36px; text-align: center; font-variant-numeric: tabular-nums; }
+.gpv-zoom-controls button { border: 0; border-left: 1px solid #ffffff55; padding: 0 0 0 9px; background: transparent; color: #fff; font-size: 12px; cursor: pointer; }
+.gpv-zoom-controls button:disabled { opacity: .5; cursor: default; }
 .gpv-arrow { position: absolute; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 39px; height: 39px; border: 1px solid #ffffffa6; border-radius: 50%; background: #fffffff0; color: #39567d; box-shadow: 0 2px 10px #18355326; cursor: pointer; }
 .gpv-arrow:hover { background: #fff; color: #087bff; }
 .gpv-arrow.previous { left: 12px; }
