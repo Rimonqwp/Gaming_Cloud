@@ -1178,7 +1178,7 @@ body:has(.cloud-shell),
   --console-scroll-hover: #5797ef;
   --console-scroll-active: #0866ff;
 }
-:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .dash-period-menu)::-webkit-scrollbar {
+:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .dash-period-menu, .gpd-plugin-list)::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
@@ -1186,26 +1186,26 @@ body:has(.cloud-shell),
   width: 6px;
   height: 6px;
 }
-:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .dash-period-menu)::-webkit-scrollbar-track {
+:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .dash-period-menu, .gpd-plugin-list)::-webkit-scrollbar-track {
   background: var(--console-scroll-track);
   border-radius: 10px;
 }
-:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .dash-period-menu)::-webkit-scrollbar-thumb {
+:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .dash-period-menu, .gpd-plugin-list)::-webkit-scrollbar-thumb {
   background: var(--console-scroll-thumb);
   border: 2px solid var(--console-scroll-track);
   border-radius: 10px;
 }
-:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .dash-period-menu)::-webkit-scrollbar-thumb:hover {
+:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .dash-period-menu, .gpd-plugin-list)::-webkit-scrollbar-thumb:hover {
   background: var(--console-scroll-hover);
 }
-:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .dash-period-menu)::-webkit-scrollbar-thumb:active {
+:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .dash-period-menu, .gpd-plugin-list)::-webkit-scrollbar-thumb:active {
   background: var(--console-scroll-active);
 }
-:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .dash-period-menu)::-webkit-scrollbar-corner {
+:is(html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .dash-period-menu, .gpd-plugin-list)::-webkit-scrollbar-corner {
   background: var(--console-scroll-track);
 }
 @supports not selector(::-webkit-scrollbar) {
-  html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .dash-period-menu {
+  html:has(.cloud-shell), body:has(.cloud-shell), .cloud-shell, .dash-period-menu, .gpd-plugin-list {
     scrollbar-width: thin;
     scrollbar-color: var(--console-scroll-thumb) var(--console-scroll-track);
   }
