@@ -8,7 +8,8 @@
 .ifm-tree > header { padding: 0 8px; margin-bottom: 9px; height: 28px; }
 .ifm-tree header > div { display: flex; align-items: center; gap: 5px; }
 .ifm-tree header button { padding: 3px; display: flex; color: #738ab0; border: 0; background: none; }
-.ifm-tree header .ifm-add-directory { color: #087bff; border: 1px solid #dce9ff; border-radius: 5px; height: 27px; width: 27px; align-items: center; justify-content: center; }
+.ifm-show-files { display: inline-flex; align-items: center; gap: 5px; color: #536c98; font-size: 12px; white-space: nowrap; cursor: pointer; }
+.ifm-show-files input { width: 14px; height: 14px; margin: 0; accent-color: #087bff; cursor: pointer; }
 .ifm-tree-scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #dce7f8 transparent; }
 .ifm-tree-row { height: 32px; display: flex; align-items: center; gap: 9px; border-radius: 6px; margin-bottom: 0; }
 .ifm-tree-row.active { color: #0068ff; background: #e9f3ff; }

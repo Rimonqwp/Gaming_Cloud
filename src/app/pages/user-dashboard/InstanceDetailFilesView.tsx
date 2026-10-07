@@ -1,9 +1,10 @@
 import { lazy, Suspense, useRef, useState, type ReactNode } from "react";
 import { unzip, zip } from "fflate";
-import { ArrowDown, ArrowUp, ArrowUpDown, Archive, ArchiveRestore, Braces, ChevronDown, ChevronRight, ChevronUp, Copy, Download, File as FileIcon, FilePenLine, FileText, Folder, FolderOpen, FolderPlus, House, ListTree, LoaderCircle, PlusCircle, RefreshCw, Search, Settings, Terminal, Trash2, Upload, UserRound, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Archive, ArchiveRestore, Braces, ChevronDown, ChevronRight, ChevronUp, Copy, Download, File as FileIcon, FilePenLine, FileText, Folder, FolderOpen, FolderPlus, House, ListTree, LoaderCircle, RefreshCw, Search, Settings, Terminal, Trash2, Upload, UserRound, X } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "../../components/ui/context-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../../components/ui/tooltip";
 import "../../../styles/cloud-files.css";
 
 const InstanceFileCodeEditor = lazy(() => import("./InstanceFileCodeEditor"));
@@ -45,6 +46,7 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
   const [directory, setDirectory] = useState(rootDirectory);
   const [expanded, setExpanded] = useState<string[]>([rootDirectory]);
   const [treeOpen, setTreeOpen] = useState(true);
+  const [showTreeFiles, setShowTreeFiles] = useState(false);
   const [activePath, setActivePath] = useState<string | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [editorMode, setEditorMode] = useState(false);
@@ -337,8 +339,8 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
   </ContextMenu>;
   const renderTree = (path: string, depth: number) => {
     // Keep the reference's frequently used directories first; all folders remain accessible in the file list.
-    const children = entries.filter(entry => (editorMode || entry.folder) && parentPath(entry.path) === path).sort((a, b) => {
-      if (editorMode) return Number(b.folder) - Number(a.folder) || baseName(a.path).localeCompare(baseName(b.path), "zh-CN", { sensitivity: "base" });
+    const children = entries.filter(entry => (showTreeFiles || entry.folder) && parentPath(entry.path) === path).sort((a, b) => {
+      if (editorMode || !a.folder || !b.folder) return Number(b.folder) - Number(a.folder) || baseName(a.path).localeCompare(baseName(b.path), "zh-CN", { sensitivity: "base" });
       const order = ["config", "mods", "logs", "backups", "plugins", "savegame", "worlddata"];
       return path === rootDirectory ? order.indexOf(baseName(a.path)) - order.indexOf(baseName(b.path)) : 0;
     });
@@ -355,7 +357,7 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
     return <div key={path}>{treeContextMenu(folderEntry, folderRow)}{expanded.includes(path) && <div className={path === rootDirectory ? "ifm-server-children" : undefined}>{childRows}</div>}</div>;
   };
   return <div className={`ifm-layout${detailsVisible ? " has-details" : ""}${editorMode ? " editor-mode" : ""}`}>
-    <aside className="gsd-card ifm-tree"><header><h2><ListTree size={20} />目录结构</h2><div><button className="ifm-add-directory" aria-label="新建目录" onClick={() => openDialog("folder")}><PlusCircle size={16} /></button><button aria-label={treeOpen ? "收起目录结构" : "展开目录结构"} aria-expanded={treeOpen} onClick={() => setTreeOpen(!treeOpen)}>{treeOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</button></div></header>{treeOpen && <ContextMenu modal={false}><ContextMenuTrigger asChild><nav aria-label="文件目录" className="ifm-tree-scroll">{renderTree(rootDirectory, 0)}</nav></ContextMenuTrigger><ContextMenuContent className="ifm-menu" aria-label="目录树空白区域操作">{directoryMenuItems}</ContextMenuContent></ContextMenu>}</aside>
+    <aside className="gsd-card ifm-tree"><header><h2><ListTree size={20} />目录结构</h2><div><label className="ifm-show-files"><Tooltip><TooltipTrigger asChild><input type="checkbox" aria-label="显示文件" checked={showTreeFiles} onChange={event => setShowTreeFiles(event.target.checked)} /></TooltipTrigger><TooltipContent side="right" sideOffset={8}>开启后显示文件和文件夹，关闭后仅显示文件夹。</TooltipContent></Tooltip><span>显示文件</span></label><button aria-label={treeOpen ? "收起目录结构" : "展开目录结构"} aria-expanded={treeOpen} onClick={() => setTreeOpen(!treeOpen)}>{treeOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</button></div></header>{treeOpen && <ContextMenu modal={false}><ContextMenuTrigger asChild><nav aria-label="文件目录" className="ifm-tree-scroll">{renderTree(rootDirectory, 0)}</nav></ContextMenuTrigger><ContextMenuContent className="ifm-menu" aria-label="目录树空白区域操作">{directoryMenuItems}</ContextMenuContent></ContextMenu>}</aside>
     {editorMode ? <Suspense fallback={<section className="gsd-card ifm-code-workspace ifm-code-loading" role="status">正在加载代码编辑器…</section>}><InstanceFileCodeEditor
       tabs={editorTabs.map(path => ({ path, dirty: isDraftDirty(drafts[path]) }))}
       path={editorPath} value={editorDraft?.value || ""} dirty={editorDirty}
