@@ -1,6 +1,6 @@
 import { lazy, Suspense, useRef, useState, type ReactNode } from "react";
 import { unzip, zip } from "fflate";
-import { ArrowDown, ArrowUp, ArrowUpDown, ArchiveRestore, Braces, ChevronDown, ChevronRight, ChevronUp, Copy, Download, File as FileIcon, FilePenLine, FileText, Folder, FolderOpen, FolderPlus, House, ListTree, LoaderCircle, PlusCircle, RefreshCw, Search, Settings, Terminal, Trash2, Upload, UserRound, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Archive, ArchiveRestore, Braces, ChevronDown, ChevronRight, ChevronUp, Copy, Download, File as FileIcon, FilePenLine, FileText, Folder, FolderOpen, FolderPlus, House, ListTree, LoaderCircle, PlusCircle, RefreshCw, Search, Settings, Terminal, Trash2, Upload, UserRound, X } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "../../components/ui/context-menu";
@@ -19,6 +19,7 @@ const baseName = (path: string) => path.split("/").pop() || "/";
 const timestamp = () => new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" }).format(new Date());
 const sizeLabel = (bytes: number) => bytes < 1024 ? `${bytes} B` : bytes < 1024 ** 2 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / 1024 ** 2).toFixed(1)} MB`;
 const typeLabel = (entry: Entry) => entry.folder ? "文件夹" : ({ cfg: "CFG 文件", ini: "配置文件", sh: "Shell 脚本", json: "JSON 文件", zip: "ZIP 压缩包", log: "日志文件" }[baseName(entry.path).split(".").pop() || ""] || "文件");
+const isZip = (entry: Entry) => !entry.folder && /\.zip$/i.test(entry.path);
 const isEditable = (entry: Entry) => !entry.folder && /\.(cfg|ini|sh|json|log|txt|yml|yaml|xml|properties|md|conf|csv)$/i.test(entry.path) && entry.bytes <= 1024 ** 2;
 function seedFile(name: string, bytes: number, modified: string, text: string, permission = "-rw-r--r--"): Entry {
   const data = encoder.encode(text);
@@ -165,16 +166,29 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
       if (copied) onNotice("路径已复制"); else setManualCopyPath(path);
     }
   };
+  const packFolder = async (entry: Entry) => {
+    const files: Record<string, Uint8Array> = Object.create(null);
+    for (const child of entries.filter(item => item.path.startsWith(entry.path + "/"))) files[child.path.slice(entry.path.length + 1) + (child.folder ? "/" : "")] = child.content || new Uint8Array();
+    return new Promise<Uint8Array>((resolve, reject) => zip(files, (err, result) => err ? reject(err) : resolve(result)));
+  };
+  const compressFolder = async (entry: Entry) => {
+    setBusy(true);
+    try {
+      const content = await packFolder(entry);
+      const directoryPath = parentPath(entry.path);
+      const stem = baseName(entry.path);
+      let filename = stem + ".zip"; let index = 1;
+      while (entries.some(item => item.path === directoryPath + "/" + filename)) filename = stem + " (" + index++ + ").zip";
+      const path = directoryPath + "/" + filename; const now = timestamp();
+      const archive: Entry = { path, folder: false, bytes: content.length, content, modified: now, created: now, permission: "-rw-r--r--" };
+      setEntries(previous => [...previous, archive]); setActivePath(path);
+      onNotice("已生成压缩包：" + path + "（本地演示）");
+    } catch (err) { onNotice(err instanceof Error ? err.message : "压缩失败，请重试"); } finally { setBusy(false); }
+  };
   const download = async (entry: Entry) => {
     setBusy(true);
     try {
-      let data = entry.content || new Uint8Array();
-      if (entry.folder) {
-        const files: Record<string, Uint8Array> = Object.create(null);
-        for (const child of entries.filter(item => item.path.startsWith(`${entry.path}/`))) files[child.path.slice(entry.path.length + 1) + (child.folder ? "/" : "")] = child.content || new Uint8Array();
-        if (!Object.keys(files).length) files[`${baseName(entry.path)}/`] = new Uint8Array();
-        data = await new Promise<Uint8Array>((resolve, reject) => zip(files, (err, result) => err ? reject(err) : resolve(result)));
-      }
+      const data = entry.folder ? await packFolder(entry) : entry.content || new Uint8Array();
       const url = URL.createObjectURL(new Blob([data]));
       const link = document.createElement("a"); link.href = url; link.download = baseName(entry.path) + (entry.folder ? ".zip" : "");
       document.body.append(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -197,11 +211,21 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
       onNotice(`已上传 ${additions.length} 个文件（本地演示）`);
     } catch (err) { onNotice(err instanceof Error ? err.message : "上传失败，请重试"); } finally { setBusy(false); }
   };
-  const extract = async (file: File) => {
+  const extract = async (file: File | Entry) => {
     setBusy(true); setError("");
+    const localFile = file instanceof File;
     try {
-      if (file.size > 50 * 1024 ** 2) throw new Error("压缩包不能超过 50 MB");
-      const data = new Uint8Array(await file.arrayBuffer()); let total = 0; let count = 0; let invalid = false;
+      if ((localFile ? file.size : file.bytes) > 50 * 1024 ** 2) throw new Error("压缩包不能超过 50 MB");
+      const data = localFile ? new Uint8Array(await file.arrayBuffer()) : file.content;
+      if (!data) throw new Error("无法读取 ZIP 压缩包内容");
+      let destination = directory;
+      if (!localFile) {
+        const stem = baseName(file.path).replace(/\.zip$/i, "");
+        const parent = parentPath(file.path); let index = 1;
+        destination = parent + "/" + stem;
+        while (entries.some(entry => entry.path === destination)) destination = parent + "/" + stem + " (" + index++ + ")";
+      }
+      let total = 0; let count = 0; let invalid = false;
       const result = await new Promise<Record<string, Uint8Array>>((resolve, reject) => unzip(data, { filter: entry => {
         total += entry.originalSize; count++;
         const safe = !entry.name.startsWith("/") && !entry.name.includes("\\") && !entry.name.split("/").includes("..") && !/[\x00-\x1f:]/.test(entry.name);
@@ -210,8 +234,12 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
       } }, (err, files) => err ? reject(err) : resolve(files)));
       if (invalid) throw new Error("压缩包包含无效路径，或超过解压上限（100 MB / 1000 项）");
       const additions: Entry[] = []; const existing = new Map(entries.map(entry => [entry.path, entry]));
+      if (!localFile) {
+        const folder: Entry = { path: destination, folder: true, bytes: 0, modified: timestamp(), created: timestamp(), permission: "drwxr-xr-x" };
+        additions.push(folder); existing.set(destination, folder);
+      }
       for (const [relative, content] of Object.entries(result)) {
-        const parts = relative.split("/").filter(Boolean); let path = directory;
+        const parts = relative.split("/").filter(Boolean); let path = destination;
         for (let index = 0; index < parts.length; index++) {
           path += `/${parts[index]}`; const folder = index < parts.length - 1 || relative.endsWith("/");
           if (existing.has(path)) { if (!folder || !existing.get(path)?.folder) throw new Error(`同名项目已存在：${path}，请重命名后重试`); continue; }
@@ -221,8 +249,11 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
       }
       if (!additions.length) throw new Error("压缩包中没有可解压的项目");
       setEntries(previous => [...previous, ...additions]);
-      onNotice(`已解压 ${additions.length} 个项目（本地演示）`); setDialog(null);
-    } catch (err) { setError(err instanceof Error ? err.message : "无法读取 ZIP 压缩包"); } finally { setBusy(false); }
+      onNotice(`已解压到 ${destination}（本地演示）`); setDialog(null);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "无法读取 ZIP 压缩包";
+      setError(message); if (!localFile) onNotice(message);
+    } finally { setBusy(false); }
   };
   const submit = () => {
     if (!dialog) return; const target = dialog.target;
@@ -266,6 +297,9 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
     <ContextMenuItem disabled={busy} onSelect={() => { setQuery(""); onNotice("文件列表已刷新"); }}><RefreshCw size={15} />刷新</ContextMenuItem>
     <ContextMenuItem onSelect={() => void copy(`${directory}/`)}><Copy size={15} />复制当前目录路径</ContextMenuItem>
   </>;
+  const archiveContextMenuItem = (entry: Entry) => entry.folder
+    ? <ContextMenuItem disabled={busy} onSelect={() => void compressFolder(entry)}><Archive size={15} />压缩为 ZIP</ContextMenuItem>
+    : isZip(entry) ? <ContextMenuItem disabled={busy} onSelect={() => void extract(entry)}><ArchiveRestore size={15} />解压到新文件夹</ContextMenuItem> : null;
   const treeContextMenu = (entry: Entry, content: ReactNode) => <ContextMenu key={entry.path} modal={false}>
     <ContextMenuTrigger asChild onContextMenu={event => event.stopPropagation()}>{content}</ContextMenuTrigger>
     <ContextMenuContent className="ifm-menu">
@@ -277,7 +311,8 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
         <ContextMenuItem onSelect={() => { setActivePath(entry.path); setDetailsOpen(true); }}><FileText size={15} />查看详情</ContextMenuItem>
         <ContextMenuItem onSelect={() => openDialog("rename", entry)}><FilePenLine size={15} />重命名</ContextMenuItem>
         <ContextMenuItem onSelect={() => void copy(entry.path)}><Copy size={15} />复制路径</ContextMenuItem>
-        <ContextMenuItem onSelect={() => void download(entry)}><Download size={15} />{entry.folder ? "下载压缩包" : "下载文件"}</ContextMenuItem>
+        {archiveContextMenuItem(entry)}
+        <ContextMenuItem disabled={busy} onSelect={() => void download(entry)}><Download size={15} />{entry.folder ? "下载压缩包" : "下载文件"}</ContextMenuItem>
         <ContextMenuItem className="ifm-danger" onSelect={() => openDialog("delete", entry)}><Trash2 size={15} />删除</ContextMenuItem>
       </>}
     </ContextMenuContent>
@@ -288,6 +323,7 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
       {entry.folder ? <ContextMenuItem onSelect={() => navigate(entry.path)}><FolderOpen size={15} />打开文件夹</ContextMenuItem> : isEditable(entry) && <ContextMenuItem onSelect={() => openEditor(entry)}><FilePenLine size={15} />编辑文件</ContextMenuItem>}
       <ContextMenuItem onSelect={() => { setActivePath(entry.path); setDetailsOpen(true); }}><FileText size={15} />查看详情</ContextMenuItem>
       <ContextMenuItem disabled={busy} onSelect={() => void download(entry)}><Download size={15} />{entry.folder ? "下载压缩包" : "下载文件"}</ContextMenuItem>
+      {archiveContextMenuItem(entry)}
       <ContextMenuSeparator />
       <ContextMenuItem onSelect={() => openDialog("rename", entry)}><FilePenLine size={15} />重命名</ContextMenuItem>
       <ContextMenuItem onSelect={() => void copy(entry.path)}><Copy size={15} />复制路径</ContextMenuItem>
@@ -331,7 +367,7 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
       <div className="ifm-toolbar"><label className="ifm-search"><Search size={18} /><input aria-label="搜索文件或文件夹" placeholder="搜索文件或文件夹（支持名称、扩展名）" value={query} onChange={event => setQuery(event.target.value)} /></label><div className="ifm-tools"><button className="gsd-button primary" disabled={busy} onClick={() => uploadRef.current?.click()}>{busy ? <LoaderCircle className="ifm-spin" size={18} /> : <Upload size={18} />}上传文件</button><button className="gsd-button" onClick={() => openDialog("folder")}><FolderPlus size={18} />新建文件夹</button><button className="gsd-button" onClick={() => openDialog("file")}><FileIcon size={18} />新建文件</button><button className="gsd-button" disabled={busy} onClick={() => openDialog("extract")}><ArchiveRestore size={18} />解压缩</button><button className="gsd-button ifm-refresh" disabled={busy} onClick={() => { setQuery(""); onNotice("文件列表已刷新"); }}><RefreshCw size={18} />刷新</button></div></div>
       <input ref={uploadRef} type="file" multiple hidden onChange={event => { void upload(Array.from(event.target.files || [])); event.target.value = ""; }} />
       {trash.length > 0 && <div className="ifm-selection"><button onClick={() => { if (trash.some(entry => entries.some(item => item.path === entry.path))) { onNotice("原路径已有同名项目，请先重命名后恢复"); return; } setEntries(previous => [...previous, ...trash]); setTrash([]); onNotice("已恢复最近删除的项目"); }}>撤销删除</button></div>}
-      <ContextMenu modal={false}><ContextMenuTrigger asChild><div className="ifm-files-scroll"><table className="ifm-files-table"><colgroup><col /><col /><col /><col /><col /><col /><col /></colgroup><thead><tr><th><input type="checkbox" aria-label="选择当前目录全部文件" checked={rows.length > 0 && rows.every(entry => checked.includes(entry.path))} ref={element => { if (element) element.indeterminate = rows.some(entry => checked.includes(entry.path)) && !rows.every(entry => checked.includes(entry.path)); }} onChange={event => setChecked(event.target.checked ? rows.map(entry => entry.path) : [])} /></th><th aria-sort={sort?.key === "name" ? sort.direction === 1 ? "ascending" : "descending" : "none"}><button onClick={() => setSort({ key: "name", direction: sort?.key === "name" && sort.direction === 1 ? -1 : 1 })}>名称{sort.key === "name" ? sort.direction === 1 ? <ArrowUp size={10} /> : <ArrowDown size={10} /> : <ArrowUpDown size={10} />}</button></th><th>类型</th><th>大小</th><th aria-sort={sort?.key === "modified" ? sort.direction === 1 ? "ascending" : "descending" : "none"}><button onClick={() => setSort({ key: "modified", direction: sort?.key === "modified" && sort.direction === -1 ? 1 : -1 })}>修改时间{sort.key === "modified" ? sort.direction === 1 ? <ArrowUp size={14} /> : <ArrowDown size={14} /> : <ArrowUpDown size={14} />}</button></th><th>权限</th><th>操作</th></tr></thead><tbody>{rows.map(entry => fileRowContextMenu(entry, <tr className={checked.includes(entry.path) ? "checked" : undefined} onDoubleClick={() => entry.folder ? navigate(entry.path) : isEditable(entry) && openEditor(entry)}><td><input type="checkbox" aria-label={`选择 ${baseName(entry.path)}`} checked={checked.includes(entry.path)} onClick={event => event.stopPropagation()} onChange={event => setChecked(previous => event.target.checked ? [...previous, entry.path] : previous.filter(path => path !== entry.path))} /></td><td><span className="ifm-entry-name"><EntryIcon entry={entry} /><span>{baseName(entry.path)}</span></span></td><td>{typeLabel(entry)}</td><td>{entry.folder ? "-" : sizeLabel(entry.bytes)}</td><td>{entry.modified.slice(0, 16)}</td><td className="ifm-permission">{entry.permission}</td><td><div className="ifm-row-actions">{entry.folder ? <button onClick={event => { event.stopPropagation(); navigate(entry.path); }}>打开</button> : <><button disabled={busy} onClick={event => { event.stopPropagation(); void download(entry); }}>下载</button>{isEditable(entry) && <button onClick={() => openEditor(entry)}>编辑</button>}</>}<DropdownMenu><DropdownMenuTrigger asChild><button aria-label={`${baseName(entry.path)} 更多操作`} onClick={event => { detailsTriggerRef.current = event.currentTarget; }}>更多<ChevronDown size={13} /></button></DropdownMenuTrigger><DropdownMenuContent className="ifm-menu" align="end"><DropdownMenuItem onSelect={() => { setActivePath(entry.path); setDetailsOpen(true); }}><FileText size={15} />查看详情</DropdownMenuItem><DropdownMenuItem onSelect={() => openDialog("rename", entry)}><FilePenLine size={15} />重命名</DropdownMenuItem><DropdownMenuItem onSelect={() => void copy(entry.path)}><Copy size={15} />复制路径</DropdownMenuItem>{entry.folder && <DropdownMenuItem onSelect={() => void download(entry)}><Download size={15} />下载压缩包</DropdownMenuItem>}<DropdownMenuItem className="ifm-danger" onSelect={() => openDialog("delete", entry)}><Trash2 size={15} />删除</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></td></tr>))}</tbody></table>{!rows.length && <div className="ifm-empty"><FolderOpen size={32} /><strong>{query ? "没有匹配的文件或文件夹" : "此文件夹为空"}</strong><button onClick={() => query ? setQuery("") : openDialog("file")}>{query ? "清除搜索" : "新建文件"}</button></div>}</div></ContextMenuTrigger>
+      <ContextMenu modal={false}><ContextMenuTrigger asChild><div className="ifm-files-scroll"><table className="ifm-files-table"><colgroup><col /><col /><col /><col /><col /><col /><col /></colgroup><thead><tr><th><input type="checkbox" aria-label="选择当前目录全部文件" checked={rows.length > 0 && rows.every(entry => checked.includes(entry.path))} ref={element => { if (element) element.indeterminate = rows.some(entry => checked.includes(entry.path)) && !rows.every(entry => checked.includes(entry.path)); }} onChange={event => setChecked(event.target.checked ? rows.map(entry => entry.path) : [])} /></th><th aria-sort={sort?.key === "name" ? sort.direction === 1 ? "ascending" : "descending" : "none"}><button onClick={() => setSort({ key: "name", direction: sort?.key === "name" && sort.direction === 1 ? -1 : 1 })}>名称{sort.key === "name" ? sort.direction === 1 ? <ArrowUp size={10} /> : <ArrowDown size={10} /> : <ArrowUpDown size={10} />}</button></th><th>类型</th><th>大小</th><th aria-sort={sort?.key === "modified" ? sort.direction === 1 ? "ascending" : "descending" : "none"}><button onClick={() => setSort({ key: "modified", direction: sort?.key === "modified" && sort.direction === -1 ? 1 : -1 })}>修改时间{sort.key === "modified" ? sort.direction === 1 ? <ArrowUp size={14} /> : <ArrowDown size={14} /> : <ArrowUpDown size={14} />}</button></th><th>权限</th><th>操作</th></tr></thead><tbody>{rows.map(entry => fileRowContextMenu(entry, <tr className={checked.includes(entry.path) ? "checked" : undefined} onDoubleClick={() => entry.folder ? navigate(entry.path) : isEditable(entry) && openEditor(entry)}><td><input type="checkbox" aria-label={`选择 ${baseName(entry.path)}`} checked={checked.includes(entry.path)} onClick={event => event.stopPropagation()} onChange={event => setChecked(previous => event.target.checked ? [...previous, entry.path] : previous.filter(path => path !== entry.path))} /></td><td><span className="ifm-entry-name"><EntryIcon entry={entry} /><span>{baseName(entry.path)}</span></span></td><td>{typeLabel(entry)}</td><td>{entry.folder ? "-" : sizeLabel(entry.bytes)}</td><td>{entry.modified.slice(0, 16)}</td><td className="ifm-permission">{entry.permission}</td><td><div className="ifm-row-actions">{entry.folder ? <button onClick={event => { event.stopPropagation(); navigate(entry.path); }}>打开</button> : <><button disabled={busy} onClick={event => { event.stopPropagation(); void download(entry); }}>下载</button>{isEditable(entry) && <button onClick={() => openEditor(entry)}>编辑</button>}</>}<DropdownMenu><DropdownMenuTrigger asChild><button aria-label={`${baseName(entry.path)} 更多操作`} onClick={event => { detailsTriggerRef.current = event.currentTarget; }}>更多<ChevronDown size={13} /></button></DropdownMenuTrigger><DropdownMenuContent className="ifm-menu" align="end"><DropdownMenuItem onSelect={() => { setActivePath(entry.path); setDetailsOpen(true); }}><FileText size={15} />查看详情</DropdownMenuItem><DropdownMenuItem onSelect={() => openDialog("rename", entry)}><FilePenLine size={15} />重命名</DropdownMenuItem><DropdownMenuItem onSelect={() => void copy(entry.path)}><Copy size={15} />复制路径</DropdownMenuItem>{entry.folder ? <DropdownMenuItem disabled={busy} onSelect={() => void compressFolder(entry)}><Archive size={15} />压缩为 ZIP</DropdownMenuItem> : isZip(entry) && <DropdownMenuItem disabled={busy} onSelect={() => void extract(entry)}><ArchiveRestore size={15} />解压到新文件夹</DropdownMenuItem>}{entry.folder && <DropdownMenuItem onSelect={() => void download(entry)}><Download size={15} />下载压缩包</DropdownMenuItem>}<DropdownMenuItem className="ifm-danger" onSelect={() => openDialog("delete", entry)}><Trash2 size={15} />删除</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></td></tr>))}</tbody></table>{!rows.length && <div className="ifm-empty"><FolderOpen size={32} /><strong>{query ? "没有匹配的文件或文件夹" : "此文件夹为空"}</strong><button onClick={() => query ? setQuery("") : openDialog("file")}>{query ? "清除搜索" : "新建文件"}</button></div>}</div></ContextMenuTrigger>
       <ContextMenuContent className="ifm-menu" aria-label="当前目录操作">{directoryMenuItems}</ContextMenuContent>
       </ContextMenu>{dragging && <div className="ifm-drop-hint"><Upload size={28} /><strong>松开以上传到当前目录</strong></div>}
     </section>}
