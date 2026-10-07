@@ -48,6 +48,7 @@ html:has(.gsd-page) { scrollbar-gutter: stable; }
 .gsd-full-console .gsd-console > pre { flex: none; min-height: 0; }
 .gsd-full-console .gsd-console > header, .gsd-full-console .gsd-command { flex: none; }
 .gsd-layout { display: grid; grid-template-columns: minmax(0, 1fr) calc(220px / var(--console-display-scale, 1)); align-items: start; gap: 10px; }
+.gsd-layout.gsd-players-layout { grid-template-columns: minmax(0, 1fr) calc(280px / var(--console-display-scale, 1)); }
 .gsd-card { border: 1px solid #e0eaf7; border-radius: 8px; background: #fff; min-width: 0; }
 .gsd-main { padding: 12px 13px 13px; }
 .gsd-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
@@ -175,6 +176,27 @@ html:has(.gsd-page) { scrollbar-gutter: stable; }
 .gsd-quick-item p, .gsd-quick-item small { font-size: 10px; line-height: 16px; color: #8191ad; margin: 0; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .gsd-quick-item small { margin-top: 5px; }
 .gsd-quick-item > .gsd-switch { flex: none; margin-left: auto; }
+.cloud-shell .gsd-management-records h2 { font-size: 13px; gap: 6px; }
+.gsd-management-records h2 svg { color: #354d79; flex: none; }
+.gsd-management-records > header { margin-bottom: 5px; }
+.gsd-management-more { display: inline-flex; align-items: center; gap: 2px; padding: 0; border: 0; background: none; color: #087bff; font-size: 10px !important; white-space: nowrap; }
+.gsd-management-more:hover, .gsd-management-content button:hover { text-decoration: underline; }
+.gsd-management-list { list-style: none; padding: 0; margin: 0; }
+.gsd-management-list li { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 7px 0; }
+.gsd-management-list img { width: 30px; height: 30px; object-fit: cover; border-radius: 4px; }
+.gsd-management-list.minecraft img { image-rendering: pixelated; }
+.gsd-management-content { min-width: 0; }
+.gsd-management-content p { margin: 0 0 2px; font-size: 11px; line-height: 17px; color: #455d87; overflow-wrap: anywhere; }
+.gsd-management-content button { padding: 0; border: 0; background: none; color: #087bff; font: inherit; font-weight: 600; }
+.gsd-management-meta { font-size: 9px; line-height: 14px; color: #8191ad; overflow-wrap: anywhere; }
+.gsd-management-meta time { white-space: nowrap; }
+.gsd-management-badge { display: inline-flex; align-items: center; justify-content: center; padding: 3px 7px; border-radius: 5px; font-size: 10px; line-height: 17px; font-weight: 600; white-space: nowrap; }
+.gsd-management-badge.red { color: #ff4351; background: #ffe9ec; }
+.gsd-management-badge.green { color: #00b987; background: #dff9f0; }
+.gsd-management-badge.blue { color: #087bff; background: #e8f3ff; }
+.gsd-management-badge.orange { color: #ee891b; background: #fff1e2; }
+.gsd-management-badge.muted { color: #8295b5; background: #f0f3f8; }
+.gsd-management-history { max-height: min(440px, 60dvh); overflow-y: auto; }
 .gsd-sidebar .gsd-events { padding-top: 10px; padding-bottom: 10px; }
 .gsd-events > header { margin-bottom: 4px; }
 .gsd-events > header button { border: 0; padding: 0; color: #087bff; background: none; font-size: 11px; font-weight: 500; }
@@ -219,7 +241,7 @@ html:has(.gsd-page) { scrollbar-gutter: stable; }
   .cloud-container:has(.gsd-page) { width: calc(100% - 48px); }
   .gsd-hero { flex-wrap: wrap; gap: 15px; }
   .gsd-actions { padding: 0; }
-  .gsd-layout { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .gsd-layout, .gsd-layout.gsd-players-layout { grid-template-columns: minmax(0, 1fr); gap: 14px; }
   .gsd-sidebar { display: flex; gap: 12px; }
   .gsd-console { grid-row: span 2; }
   .gsd-metric-heading { gap: 19px; }
