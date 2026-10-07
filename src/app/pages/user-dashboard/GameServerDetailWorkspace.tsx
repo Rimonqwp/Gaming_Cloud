@@ -108,10 +108,10 @@ function initialLogs(server: ConsoleInstance) {
   ];
 }
 
-function Metric({ title, value, description, tone, icon: Icon, points }: { title: string; value: number; description: string; tone: string; icon: typeof Users; points: number[] }) {
+function Metric({ title, value, unit = "人", description, tone, icon: Icon, points }: { title: string; value: number; unit?: string; description: string; tone: string; icon: typeof Users; points: number[] }) {
   const color = { green: "#00bf89", blue: "#087bff", red: "#ff4351", orange: "#f18a1c" }[tone];
   return <article className={`gsd-metric ${tone}`}>
-    <div className="gsd-metric-heading"><span className="gsd-icon-tile"><Icon size={22} /></span><div><h2>{title}</h2><strong>{value}<small>人</small></strong><p>{description}</p></div></div>
+    <div className="gsd-metric-heading"><span className="gsd-icon-tile"><Icon size={22} /></span><div><h2>{title}</h2><strong>{value}<small>{unit}</small></strong><p>{description}</p></div></div>
     <div className="gsd-trend" aria-hidden="true"><ResponsiveContainer width="100%" height="100%"><AreaChart data={points.map(value => ({ value }))} margin={{ top: 3, bottom: 0, left: 0, right: 0 }}><Area type="linear" dataKey="value" stroke={color} strokeWidth={1.5} fill={color} fillOpacity={0.06} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div>
   </article>;
 }
@@ -199,6 +199,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
   };
   const onlineCount = players.filter(player => player.status === "在线").length;
   const onlineDelta = onlineCount - initialPlayers.filter(player => player.status === "在线").length;
+  const averagePlayHours = players.length ? Math.round(players.reduce((total, player) => total + player.hours, 0) / players.length * 10) / 10 : 0;
   const log = (text: string) => setLogs(previous => [...previous, `[${clockFormat.format(new Date())}] ${text}`]);
   const copyPlayerUuid = async (uuid: string) => {
     try { await navigator.clipboard.writeText(uuid); onNotice("玩家 UUID 已复制"); }
@@ -252,7 +253,12 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
       <div hidden={activeTab !== "backups"}><GameServerBackups server={server} backupRequest={backupRequest} onBackup={save} onNotice={onNotice} /></div>
       {activeTab === "plugins" && <GameServerPlugins server={server} onNotice={onNotice} />}
       {activeTab === "files" || activeTab === "overview" || activeTab === "tasks" || activeTab === "plugins" || activeTab === "backups" || activeTab === "machine" ? null : activeTab === "players" ? <div className="gsd-layout">
-        <div className="gsd-metrics gsd-player-metrics" role="region" aria-label="玩家统计"><Metric title="在线玩家" value={Math.max(0, server.running ? server.players + onlineDelta : 0)} description="当前服务器在线人数" tone="green" icon={Users} points={[7, 9, 9, 9, 15, 15, 13, 14, 24, 24, 24, 22, 29, 29, 30, 31, 32]} /><Metric title="白名单" value={40} description="已加入白名单的玩家" tone="blue" icon={ClipboardList} points={[5, 12, 16, 18, 17, 15, 16, 21, 27, 32, 36, 38, 40]} /><Metric title="黑名单" value={3 + players.filter(player => player.role === "黑名单").length - 1} description="已加入黑名单的玩家" tone="red" icon={Ban} points={[1, 2, 3, 3, 3, 3, 5, 8, 11, 14, 16, 18]} /><Metric title="管理员" value={2 + players.filter(player => player.role === "管理员").length - 1} description="拥有管理员权限的玩家" tone="orange" icon={Crown} points={[4, 12, 15, 17, 20, 23, 26, 28, 30, 32, 35, 37]} /></div>
+        <div className="gsd-metrics gsd-player-metrics" role="region" aria-label="玩家统计">
+          <Metric title="在线玩家" value={Math.max(0, server.running ? server.players + onlineDelta : 0)} description="当前服务器在线人数" tone="green" icon={Users} points={[7, 9, 9, 9, 15, 15, 13, 14, 24, 24, 24, 22, 29, 29, 30, 31, 32]} />
+          <Metric title="白名单" value={40} description="已加入白名单的玩家" tone="blue" icon={ClipboardList} points={[5, 12, 16, 18, 17, 15, 16, 21, 27, 32, 36, 38, 40]} />
+          <Metric title="黑名单" value={3 + players.filter(player => player.role === "黑名单").length - 1} description="已加入黑名单的玩家" tone="red" icon={Ban} points={[1, 2, 3, 3, 3, 3, 5, 8, 11, 14, 16, 18]} />
+          <Metric title="平均在线时长" value={averagePlayHours} unit="小时" description="所有玩家游戏时长均值" tone="orange" icon={Clock3} points={[8, 9, 10, 11, 11.4, 12.2, 13, 13.6, 14.2, 14.8, averagePlayHours]} />
+        </div>
         <section className="gsd-main gsd-card" aria-label="玩家管理">
           <div className="gsd-filters"><label className="gsd-search"><Search size={17} /><input aria-label="搜索玩家" placeholder={minecraft ? "搜索玩家 ID、UUID 或昵称..." : "搜索玩家昵称或 Steam ID..."} value={query} onChange={event => { setQuery(event.target.value); setPage(1); }} /></label><PlayerSelect label="玩家状态筛选" value={status} onValueChange={value => { setStatus(value); setPage(1); }} options={[{ value: "all", label: "全部状态" }, ...["在线", "离线", "已封禁"].map(value => ({ value, label: value }))]} /><PlayerSelect label="权限组筛选" value={group} onValueChange={value => { setGroup(value); setPage(1); }} options={[{ value: "all", label: "全部权限组" }, ...["管理员", "成员", "白名单", "黑名单"].map(value => ({ value, label: value }))]} /><button className="gsd-button" onClick={() => { setPlayers(previous => [...previous]); onNotice("玩家列表已刷新"); }}><RefreshCw size={17} />刷新</button></div>
           <div className="gsd-player-list-heading"><h2>玩家列表</h2><span>{server.game} · {filtered.length} 名玩家 · 演示数据</span></div>
