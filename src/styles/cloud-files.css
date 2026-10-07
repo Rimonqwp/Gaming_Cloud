@@ -19,6 +19,7 @@
 .ifm-tree-label svg { color: #5c9cff; fill: #e3efff; flex: none; }
 .ifm-tree-row.active .ifm-tree-label svg { color: #087bff; fill: #b4d8ff; }
 .ifm-tree-row:hover { background: #f0f6ff; }
+.ifm-tree-row.checked, .ifm-tree-row.checked:hover { color: #0068ff; background: #dcecff; box-shadow: inset 0 0 0 1px #9bc5ff; }
 .ifm-tree-toggle-space { width: 15px; flex: none; }
 .ifm-tree-file .ifm-file-icon { width: 18px; height: 18px; }
 .ifm-tree-row.ifm-tree-file .ifm-tree-label svg { fill: none; }
@@ -79,7 +80,13 @@
 .ifm-files-table td:first-child, .ifm-files-table th:first-child { padding-left: 14px; }
 .ifm-files-table input { appearance: auto; accent-color: #0866ff; height: 14px; width: 14px; display: block; cursor: pointer; }
 .ifm-files-table tr:hover { background: #f5faff; }
-.ifm-files-table tr.checked { background: #edf5ff; }
+.ifm-files-table tr.checked, .ifm-files-table tr.checked:hover { background: #dcecff; }
+.ifm-files-table tr.checked td { border-bottom-color: #bed9ff; }
+.ifm-tree-scroll, .ifm-files-scroll { user-select: none; touch-action: none; }
+.ifm-tree-row.ifm-move-target, .ifm-files-table tr.ifm-move-target { background: #c9e3ff; outline: 2px solid #087bff; outline-offset: -2px; }
+.ifm-marquee { position: fixed; z-index: 100; pointer-events: none; border: 1px solid #087bff; background: #087bff20; }
+.ifm-move-preview { position: fixed; z-index: 100; pointer-events: none; padding: 7px 11px; border: 1px solid #a6cdff; border-radius: 6px; box-shadow: 0 3px 12px #1b4a811f; color: #0866ff; background: #f4f9ff; font-size: 12px; white-space: nowrap; }
+.ifm-move-preview.invalid { color: #7b889d; border-color: #d7e1ee; background: #fff; }
 .ifm-entry-name { display: flex; gap: 14px; align-items: center; min-width: 0; max-width: 100%; height: 100%; border: 0; background: none; color: #354d7b; padding: 0; text-align: left; font-size: 13px; }
 .ifm-entry-name span { overflow: hidden; text-overflow: ellipsis; }
 .ifm-file-icon { flex: none; }
