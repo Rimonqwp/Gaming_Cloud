@@ -51,7 +51,11 @@
 .gpd-facts > div + div { padding-left: 18px; }
 .gpd-facts > div + div::before { content: ''; position: absolute; left: 0; top: 3px; bottom: 3px; border-left: 1px solid #e4edf9; }
 .gpd-facts svg { color: #405c8c; flex: none; }
-.gpd-facts .gpd-star { color: #ffad00; fill: #ffad00; }
+.gpd-favorite { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 24px; height: 32px; padding: 0; border: 0; border-radius: 5px; background: transparent; cursor: pointer; }
+.gpd-favorite:hover { background: #fff6df; }
+.gpd-favorite:focus-visible { outline: 2px solid #087bff; outline-offset: 3px; }
+.gpd-facts .gpd-star { color: #ffad00; fill: none; }
+.gpd-favorite.active .gpd-star { fill: #ffad00; }
 .gpd-facts dt { color: #10183c; font-size: 14px; line-height: 21px; font-weight: 550; }
 .gpd-facts dd { margin: 0; color: #7c91b3; font-size: 12px; line-height: 21px; }
 .gpd-facts > div:last-child dt { font-size: 12px; white-space: nowrap; }
