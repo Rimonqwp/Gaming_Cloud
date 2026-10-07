@@ -16,10 +16,8 @@ import { GameServerBackups } from "./GameServerBackups";
 import { Box } from "lucide-react";
 import { GameServerPlugins } from "./GameServerPlugins";
 import { minecraftPlayerProfiles, type MinecraftPlayerProfile } from "./minecraftPlayerProfiles";
+import { GameServerPlayerDetails, type ServerPlayer as Player, type PlayerStatus, type PlayerRole } from "./GameServerPlayerDetails";
 
-type PlayerStatus = "在线" | "离线" | "已封禁";
-type PlayerRole = "管理员" | "成员" | "白名单" | "黑名单";
-type Player = { name: string; id: string; status: PlayerStatus; lastLogin: string; hours: number; role: PlayerRole; avatar: string } & MinecraftPlayerProfile;
 type PlayerSortKey = "name" | "status" | "lastLogin" | "hours" | "connection" | "location" | "role";
 type PlayerSort = { key: PlayerSortKey; direction: "ascending" | "descending" };
 const playerCollator = new Intl.Collator("zh-CN", { numeric: true, sensitivity: "base" });
@@ -75,9 +73,9 @@ const basePlayers: Omit<Player, keyof MinecraftPlayerProfile>[] = [
   { name: "月下独吟", id: "76561198000000008", status: "在线", lastLogin: "2024-10-26 14:28", hours: 15, role: "成员", avatar: "player-8" },
 ];
 const initialPlayers: Player[] = basePlayers.map(player => ({ ...player, ...minecraftPlayerProfiles[player.id] }));
-type ManagementAction = "封禁" | "解封" | "白名单" | "权限变更" | "移除" | "踢出";
+type ManagementAction = "封禁" | "解封" | "白名单" | "权限变更" | "移除" | "踢出" | "召回";
 type ManagementRecord = { id: string; playerId: string; text: string; action: ManagementAction; actor: string; time: string };
-const managementActionTone: Record<ManagementAction, string> = { 封禁: "red", 解封: "green", 白名单: "blue", 权限变更: "orange", 移除: "muted", 踢出: "muted" };
+const managementActionTone: Record<ManagementAction, string> = { 封禁: "red", 解封: "green", 白名单: "blue", 权限变更: "orange", 移除: "muted", 踢出: "muted", 召回: "blue" };
 const initialManagementRecords: ManagementRecord[] = [
   { id: "management-1", playerId: "76561198000000006", text: "被加入黑名单", action: "封禁", actor: "Rimon12", time: "2024-10-25 20:13" },
   { id: "management-2", playerId: "76561198000000007", text: "被移出黑名单", action: "解封", actor: "Rimon12", time: "2024-10-25 18:50" },
@@ -165,7 +163,9 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
   const [command, setCommand] = useState("");
   const [autoScroll, setAutoScroll] = useState(true);
   const [modes, setModes] = useState<Record<Mode, boolean>>({ whitelist: true, pvp: true, autosave: true, maintenance: false });
-  const [playerDetail, setPlayerDetail] = useState<Player | null>(null);
+  const [playerDetailId, setPlayerDetailId] = useState<string | null>(null);
+  const playerDetail = players.find(player => player.id === playerDetailId) ?? null;
+  const detailTriggerRef = useRef<HTMLElement | null>(null);
   const [announcementOpen, setAnnouncementOpen] = useState(false);
   const [announcement, setAnnouncement] = useState("");
   const [shutdownMode, setShutdownMode] = useState<"graceful" | "force" | null>(null);
@@ -215,9 +215,15 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
   const onlineDelta = onlineCount - initialPlayers.filter(player => player.status === "在线").length;
   const averagePlayHours = players.length ? Math.round(players.reduce((total, player) => total + player.hours, 0) / players.length * 10) / 10 : 0;
   const log = (text: string) => setLogs(previous => [...previous, `[${clockFormat.format(new Date())}] ${text}`]);
-  const copyPlayerUuid = async (uuid: string) => {
-    try { await navigator.clipboard.writeText(uuid); onNotice("玩家 UUID 已复制"); }
-    catch { onNotice(`玩家 UUID：${uuid}，请手动复制`); }
+  const openPlayerDetail = (player: Player) => {
+    detailTriggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setPlayerDetailId(player.id);
+    setActiveTab("players");
+  };
+  const closePlayerDetail = () => {
+    setPlayerDetailId(null);
+    if (detailTriggerRef.current?.isConnected) detailTriggerRef.current.focus({ preventScroll: true });
+    else document.getElementById("gsd-tab-players")?.focus({ preventScroll: true });
   };
   const addEvent = (text: string, danger = false) => setEvents(previous => [{ text, time: timeFormat.format(new Date()), danger }, ...previous]);
   const actOnPlayer = (player: Player, action: "kick" | "ban" | "unban") => {
@@ -232,6 +238,17 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
     };
     setManagementRecords(previous => [record, ...previous]);
     log(`Player: ${text}`); addEvent(text, action === "ban"); onNotice(`${text}（演示操作）`);
+  };
+  const recallPlayer = (player: Player) => {
+    const text = `${displayPlayerId(player)} 已召回到服务器出生点`;
+    setManagementRecords(previous => [{ id: crypto.randomUUID(), playerId: player.id, text: "被召回到服务器出生点", action: "召回", actor: user?.displayName || user?.username || "本地管理员", time: timeFormat.format(new Date()) }, ...previous]);
+    log(`Player: ${text}（演示操作）`); addEvent(text); onNotice(`${text}（演示操作）`);
+  };
+  const changePlayerRole = (player: Player, role: PlayerRole) => {
+    setPlayers(previous => previous.map(row => row.id === player.id ? { ...row, role, status: role === "黑名单" ? "已封禁" : row.status === "已封禁" ? "离线" : row.status } : row));
+    const text = `${displayPlayerId(player)} 的权限组已设为${role}`;
+    setManagementRecords(previous => [{ id: crypto.randomUUID(), playerId: player.id, text: `权限组被设为${role}`, action: "权限变更", actor: user?.displayName || user?.username || "本地管理员", time: timeFormat.format(new Date()) }, ...previous]);
+    log(`Player: ${text}（演示操作）`); addEvent(text, role === "黑名单"); onNotice(`${text}（演示操作）`);
   };
   const save = () => { onBackup(); setBackupRequest(previous => previous + 1); log("Save: 世界存档备份已完成（演示操作）"); addEvent("已创建世界存档备份"); };
   const sendCommand = () => {
@@ -259,7 +276,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
       return <li key={record.id}>
         <img src={playerAvatar(player)} alt="" width={30} height={30} />
         <div className="gsd-management-content">
-          <p><button type="button" onClick={() => { setManagementRecordsOpen(false); setPlayerDetail(player); }}>{displayPlayerId(player)}</button> {record.text}</p>
+          <p><button type="button" onClick={() => { setManagementRecordsOpen(false); openPlayerDetail(player); }}>{displayPlayerId(player)}</button> {record.text}</p>
           <div className="gsd-management-meta"><span>管理员 {record.actor}</span><span aria-hidden="true"> · </span><time dateTime={`${record.time.replace(" ", "T")}+08:00`}>{record.time}</time></div>
         </div>
         <span className={`gsd-management-badge ${managementActionTone[record.action]}`}>{record.action}</span>
@@ -287,7 +304,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
       <div hidden={activeTab !== "tasks"}><GameServerTasks server={server} autosaveEnabled={modes.autosave} onAutosaveChange={checked => toggleMode("autosave", checked)} onNotice={onNotice} onLog={log} /></div>
       <div hidden={activeTab !== "backups"}><GameServerBackups server={server} backupRequest={backupRequest} onBackup={save} onNotice={onNotice} /></div>
       {activeTab === "plugins" && <GameServerPlugins server={server} onNotice={onNotice} />}
-      {activeTab === "files" || activeTab === "overview" || activeTab === "tasks" || activeTab === "plugins" || activeTab === "backups" || activeTab === "machine" ? null : activeTab === "players" ? <div className="gsd-layout gsd-players-layout">
+      {activeTab === "files" || activeTab === "overview" || activeTab === "tasks" || activeTab === "plugins" || activeTab === "backups" || activeTab === "machine" ? null : activeTab === "players" ? <div className={`gsd-layout gsd-players-layout${playerDetail ? " gsd-player-selected" : ""}`}>
         <div className="gsd-metrics gsd-player-metrics" role="region" aria-label="玩家统计">
           <Metric title="在线玩家" value={Math.max(0, server.running ? server.players + onlineDelta : 0)} description="当前服务器在线人数" tone="green" icon={Users} points={[7, 9, 9, 9, 15, 15, 13, 14, 24, 24, 24, 22, 29, 29, 30, 31, 32]} />
           <Metric title="白名单" value={40} description="已加入白名单的玩家" tone="blue" icon={ClipboardList} points={[5, 12, 16, 18, 17, 15, 16, 21, 27, 32, 36, 38, 40]} />
@@ -305,32 +322,29 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
             </tr></thead>
             <tbody>{rows.map(player => <tr key={player.id} className={selected.includes(player.id) ? "selected" : undefined}>
               <td><input type="checkbox" aria-label={`选择 ${displayPlayerId(player)}`} checked={selected.includes(player.id)} onChange={event => setSelected(previous => event.target.checked ? [...previous, player.id] : previous.filter(id => id !== player.id))} /></td>
-              <td><div className={`gsd-player${minecraft ? " minecraft" : ""}`}><img src={playerAvatar(player)} alt={`${displayPlayerId(player)} 的玩家头像`} width={36} height={36} /><div><button title={player.name} onClick={() => setPlayerDetail(player)}>{displayPlayerId(player)}</button><small title={minecraft ? player.uuid : player.id}>{minecraft ? player.uuid : player.id}</small></div></div></td>
+              <td><div className={`gsd-player${minecraft ? " minecraft" : ""}`}><img src={playerAvatar(player)} alt={`${displayPlayerId(player)} 的玩家头像`} width={36} height={36} /><div><button title={player.name} onClick={() => openPlayerDetail(player)}>{displayPlayerId(player)}</button><small title={minecraft ? player.uuid : player.id}>{minecraft ? player.uuid : player.id}</small></div></div></td>
               <td><span className={`gsd-player-status ${statusClass(player.status)}`}><i />{player.status}</span></td>
               <td><time>{player.lastLogin}</time></td><td>{player.hours} 小时</td>
               {minecraft && <><td><span>{player.status === "在线" ? `${player.ping} ms` : "—"}</span><small className="gsd-cell-secondary">客户端 {player.clientVersion}</small></td><td><span>{player.world}</span><small className="gsd-cell-secondary">{player.position}</small></td></>}
               <td><span className={`gsd-role ${roleClass(player.role)}`}>{player.role === "管理员" && <Crown size={14} fill="currentColor" />}{player.role}</span></td>
-              <td className="gsd-row-actions"><button onClick={() => setPlayerDetail(player)}>查看</button>{player.status === "已封禁" ? <button onClick={() => actOnPlayer(player, "unban")}>解除封禁</button> : <><button onClick={() => actOnPlayer(player, "kick")}>踢出</button><button className="danger" onClick={() => actOnPlayer(player, "ban")}>封禁</button></>}</td>
+              <td className="gsd-row-actions"><button onClick={() => openPlayerDetail(player)}>查看</button>{player.status === "已封禁" ? <button onClick={() => actOnPlayer(player, "unban")}>解除封禁</button> : <><button onClick={() => actOnPlayer(player, "kick")}>踢出</button><button className="danger" onClick={() => actOnPlayer(player, "ban")}>封禁</button></>}</td>
             </tr>)}{!rows.length && <tr><td colSpan={minecraft ? 9 : 7}><div className="gsd-empty"><Search size={25} /><strong>没有符合条件的玩家</strong><button onClick={() => { setQuery(""); setStatus("all"); setGroup("all"); }}>清除筛选</button></div></td></tr>}</tbody>
           </table></div>
           <footer className="gsd-pagination"><span>{selected.length ? `已选择 ${selected.length} 名玩家 · ` : ""}共 {filtered.length} 名玩家，当前在线 {onlineCount} 人</span><nav aria-label="玩家分页"><button aria-label="上一页玩家" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}><ChevronLeft size={15} /></button><button className="current" aria-current="page">{currentPage}</button><button aria-label="下一页玩家" disabled={currentPage === pageCount} onClick={() => setPage(currentPage + 1)}><ChevronRight size={15} /></button><PlayerSelect label="每页玩家数量" value={String(pageSize)} onValueChange={value => { setPageSize(Number(value)); setPage(1); }} options={[{ value: "10", label: "10 条/页" }, { value: "5", label: "5 条/页" }]} /></nav></footer>
         </section>
         <aside className="gsd-sidebar">
+          {playerDetail && <GameServerPlayerDetails key={playerDetail.id} player={playerDetail} minecraft={minecraft} averageHours={averagePlayHours} records={managementRecords.filter(record => record.playerId === playerDetail.id)} onClose={closePlayerDetail} onAction={action => action === "recall" ? recallPlayer(playerDetail) : actOnPlayer(playerDetail, action)} onRoleChange={role => changePlayerRole(playerDetail, role)} onNotice={onNotice} />}
           <section className="gsd-card gsd-quick"><h2><Settings size={20} />快捷管理</h2><div className="gsd-quick-grid">{modeDefinitions.filter(mode => mode.key === "whitelist" || mode.key === "maintenance").map(mode => <div className={`gsd-quick-item ${mode.tone}`} key={mode.key} title={mode.description}><span className="gsd-icon-tile"><mode.icon size={21} /></span><div><h3>{mode.title}</h3><p>{mode.description}</p></div><Switch className="gsd-switch" aria-label={mode.title} checked={modes[mode.key]} onCheckedChange={checked => toggleMode(mode.key, checked)} /></div>)}</div></section>
-          <section className="gsd-card gsd-management-records" aria-label="最近管理记录">
+          {!playerDetail && <section className="gsd-card gsd-management-records" aria-label="最近管理记录">
             <header><h2><ShieldCheck size={18} />最近管理记录</h2><button className="gsd-management-more" type="button" aria-label="查看更多管理记录" onClick={() => setManagementRecordsOpen(true)}>查看更多<ChevronRight size={13} /></button></header>
             {renderManagementRecords(managementRecords.slice(0, 5))}
-          </section>
+          </section>}
         </aside>
       </div> : null}
     </div>
     {notice && <div className="gsd-toast" role="status"><Check size={17} /><span>{notice}</span><button aria-label="关闭提示" onClick={() => onNotice("")}><X size={16} /></button></div>}
     <Dialog open={managementRecordsOpen} onOpenChange={setManagementRecordsOpen}><DialogContent className="cloud-modal gsd-dialog"><DialogTitle>全部管理记录</DialogTitle><DialogDescription>玩家管理操作记录，时间为北京时间；当前为演示数据，新操作仅保存在本次页面会话中。</DialogDescription><div className="gsd-management-history">{renderManagementRecords(managementRecords)}</div></DialogContent></Dialog>
     <Dialog open={terminalOpen} onOpenChange={setTerminalOpen}><DialogContent className="cloud-modal gsd-dialog ial-terminal-dialog" onOpenAutoFocus={event => { event.preventDefault(); inputRef.current?.focus(); }}><DialogTitle>服务器终端</DialogTitle><DialogDescription>{server.name} · 实时输出与指令操作（演示）</DialogDescription>{consolePanel}</DialogContent></Dialog>
-    <Dialog open={!!playerDetail} onOpenChange={open => { if (!open) setPlayerDetail(null); }}><DialogContent className="cloud-modal gsd-dialog"><DialogTitle>玩家详情</DialogTitle><DialogDescription>玩家身份与活动信息（演示数据）。</DialogDescription>{playerDetail && <><div className={`gsd-player gsd-dialog-player${minecraft ? " minecraft" : ""}`}><img src={playerAvatar(playerDetail)} alt={`${displayPlayerId(playerDetail)} 的玩家头像`} /><strong>{displayPlayerId(playerDetail)}</strong></div><dl className="gsd-server-info">{[
-      ...(minecraft ? [["玩家 ID", playerDetail.gameId], ["UUID", playerDetail.uuid], ["显示昵称", playerDetail.name], ["客户端版本", playerDetail.clientVersion], ["在线延迟", playerDetail.status === "在线" ? `${playerDetail.ping} ms` : "—"], ["最近所在世界", playerDetail.world], ["最近坐标", playerDetail.position], ["首次加入", playerDetail.firstJoined]] : [["Steam ID", playerDetail.id]]),
-      ["状态", playerDetail.status], ["权限组", playerDetail.role], ["最后登录", playerDetail.lastLogin], ["游戏时长", `${playerDetail.hours} 小时`]
-    ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}{label === "UUID" && <button className="gsd-copy-uuid" aria-label="复制玩家 UUID" onClick={() => void copyPlayerUuid(playerDetail.uuid)}><Copy size={14} /></button>}</dd></div>)}</dl></>}</DialogContent></Dialog>
     <Dialog open={shutdownMode !== null} onOpenChange={open => { if (!open) setShutdownMode(null); }}><DialogContent className="cloud-modal gsd-dialog"><DialogTitle>{shutdownMode === "force" ? "硬关机实例" : "关机实例"}</DialogTitle><DialogDescription>{shutdownMode === "force" ? "硬关机会立即终止服务器进程，可能导致未保存的数据丢失。确定继续吗？" : "关机会先通知服务器保存数据并断开当前玩家连接。确定继续吗？"}</DialogDescription><button className={`gsd-button ${shutdownMode === "force" ? "danger" : "primary"}`} onClick={() => { if (shutdownMode === "force") onForceStop(); else onStop(); setShutdownMode(null); }}>{shutdownMode === "force" ? "确认硬关机" : "确认关机"}</button></DialogContent></Dialog>
     <Dialog open={announcementOpen} onOpenChange={setAnnouncementOpen}><DialogContent className="cloud-modal gsd-dialog"><DialogTitle>发送服务器公告</DialogTitle><DialogDescription>向当前服务器玩家发送公告（演示操作）。</DialogDescription><textarea aria-label="公告内容" placeholder="输入公告内容..." value={announcement} onChange={event => setAnnouncement(event.target.value)} maxLength={500} /><button className="gsd-button primary" disabled={!announcement.trim()} onClick={() => { log(`Announcement: ${announcement.trim()}`); addEvent("管理员发送了服务器公告"); onNotice("公告已发送（演示操作）"); setAnnouncement(""); setAnnouncementOpen(false); }}><Megaphone size={17} />发送公告</button></DialogContent></Dialog>
     <Dialog open={eventsOpen} onOpenChange={setEventsOpen}><DialogContent className="cloud-modal gsd-dialog"><DialogTitle>全部服务器事件</DialogTitle><DialogDescription>服务器最近活动记录（演示数据）。</DialogDescription><div className="gsd-all-events">{events.map((event, index) => <div className={`gsd-event${event.danger ? " danger" : ""}`} key={index}><i /><span>{event.text}</span><time>{event.time}</time></div>)}</div></DialogContent></Dialog>
