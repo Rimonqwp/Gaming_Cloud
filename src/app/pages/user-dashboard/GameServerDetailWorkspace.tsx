@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { AnimatePresence, motion, useIsPresent, useReducedMotion } from "motion/react";
 import { Archive, ArrowDown, ArrowUp, ArrowUpDown, Ban, Check, ChevronLeft, ChevronRight, ClipboardList, Clock3, Copy, Eye, FileText, FolderClosed, Gamepad2, House, Megaphone, Power, RefreshCw, Save, Search, Send, Settings, ShieldCheck, SquareTerminal, Swords, Timer, Trash2, Users, Wrench, X, Zap } from "lucide-react";
 import { MetricTrend } from "./MetricTrend";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
@@ -128,6 +129,23 @@ function PlayerSelect({ label, value, onValueChange, options }: {
   </Select>;
 }
 
+function PlayerSidebarReveal({ children, placement }: { children: ReactNode; placement: "before" | "after" }) {
+  const present = useIsPresent();
+  const reducedMotion = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    if (ref.current) ref.current.inert = !present;
+  }, [present]);
+  return <motion.div ref={ref} className={`gsd-player-sidebar-reveal ${placement}`} aria-hidden={!present}
+    initial={{ height: 0, opacity: 0, y: reducedMotion ? 0 : -8 }}
+    animate={{ height: "auto", opacity: 1, y: 0 }}
+    exit={{ height: 0, opacity: 0, y: reducedMotion ? 0 : -8 }}
+    transition={{ duration: reducedMotion ? 0 : 0.32, ease: [0.22, 1, 0.36, 1] }}
+    style={{ overflow: "hidden", pointerEvents: present ? "auto" : "none" }}>
+    <div className="gsd-player-sidebar-reveal-content">{children}</div>
+  </motion.div>;
+}
+
 export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, onBackup, notice, onNotice, onStart, onStop, onForceStop }: {
   server: ConsoleInstance; onBack: () => void; onCopy: () => void; onRestart: () => void; onBackup: () => void;
   notice: string; onNotice: (message: string) => void; onStart: () => void; onStop: () => void; onForceStop: () => void;
@@ -155,6 +173,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
   const [autoScroll, setAutoScroll] = useState(true);
   const [modes, setModes] = useState<Record<Mode, boolean>>({ whitelist: true, pvp: true, autosave: true, maintenance: false });
   const [playerDetailId, setPlayerDetailId] = useState<string | null>(null);
+  const [playerDetailClosing, setPlayerDetailClosing] = useState(false);
   const playerDetail = players.find(player => player.id === playerDetailId) ?? null;
   const detailTriggerRef = useRef<HTMLElement | null>(null);
   const [announcementOpen, setAnnouncementOpen] = useState(false);
@@ -168,6 +187,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
   const previousServer = useRef({ uptime: server.uptime, running: server.running });
 
   useLayoutEffect(() => {
+    if (activeTab !== "players") setPlayerDetailClosing(false);
     if (panelRef.current) panelRef.current.scrollTop = 0;
   }, [activeTab]);
 
@@ -209,9 +229,11 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
   const openPlayerDetail = (player: Player) => {
     detailTriggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setPlayerDetailId(player.id);
+    setPlayerDetailClosing(false);
     setActiveTab("players");
   };
   const closePlayerDetail = () => {
+    setPlayerDetailClosing(true);
     setPlayerDetailId(null);
     if (detailTriggerRef.current?.isConnected) detailTriggerRef.current.focus({ preventScroll: true });
     else document.getElementById("gsd-tab-players")?.focus({ preventScroll: true });
@@ -292,7 +314,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
       <div hidden={activeTab !== "tasks"}><GameServerTasks server={server} autosaveEnabled={modes.autosave} onAutosaveChange={checked => toggleMode("autosave", checked)} onNotice={onNotice} onLog={log} /></div>
       <div hidden={activeTab !== "backups"}><GameServerBackups server={server} backupRequest={backupRequest} onBackup={save} onNotice={onNotice} /></div>
       {activeTab === "plugins" && <GameServerPlugins server={server} onNotice={onNotice} />}
-      {activeTab === "files" || activeTab === "overview" || activeTab === "tasks" || activeTab === "plugins" || activeTab === "backups" || activeTab === "machine" ? null : activeTab === "players" ? <div className={`gsd-layout gsd-players-layout${playerDetail ? " gsd-player-selected" : ""}`}>
+      {activeTab === "files" || activeTab === "overview" || activeTab === "tasks" || activeTab === "plugins" || activeTab === "backups" || activeTab === "machine" ? null : activeTab === "players" ? <div className={`gsd-layout gsd-players-layout${playerDetail || playerDetailClosing ? " gsd-player-selected" : ""}`}>
         <div className="gsd-metrics gsd-player-metrics" role="region" aria-label="玩家统计">
           <Metric title="在线玩家" value={Math.max(0, server.running ? server.players + onlineDelta : 0)} description="当前服务器在线人数" tone="green" icon={Users} points={[7, 9, 9, 9, 15, 15, 13, 14, 24, 24, 24, 22, 29, 29, 30, 31, 32]} />
           <Metric title="白名单" value={40 + players.filter(player => player.roles.includes("白名单")).length - initialPlayers.filter(player => player.roles.includes("白名单")).length} description="已加入白名单的玩家" tone="blue" icon={ClipboardList} points={[5, 12, 16, 18, 17, 15, 16, 21, 27, 32, 36, 38, 40]} />
@@ -319,13 +341,15 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
           </table></div>
           <footer className="gsd-pagination"><span>{selected.length ? `已选择 ${selected.length} 名玩家 · ` : ""}共 {filtered.length} 名玩家，当前在线 {onlineCount} 人</span><nav aria-label="玩家分页"><button aria-label="上一页玩家" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}><ChevronLeft size={15} /></button><button className="current" aria-current="page">{currentPage}</button><button aria-label="下一页玩家" disabled={currentPage === pageCount} onClick={() => setPage(currentPage + 1)}><ChevronRight size={15} /></button><PlayerSelect label="每页玩家数量" value={String(pageSize)} onValueChange={value => { setPageSize(Number(value)); setPage(1); }} options={[{ value: "10", label: "10 条/页" }, { value: "5", label: "5 条/页" }]} /></nav></footer>
         </section>
-        <aside className="gsd-sidebar">
-          {playerDetail && <GameServerPlayerDetails key={playerDetail.id} player={playerDetail} minecraft={minecraft} averageHours={averagePlayHours} records={managementRecords.filter(record => record.playerId === playerDetail.id)} onClose={closePlayerDetail} onAction={action => actOnPlayer(playerDetail, action)} onRoleChange={role => changePlayerRole(playerDetail, role)} onNotice={onNotice} />}
+        <aside className="gsd-sidebar gsd-player-sidebar">
+          <AnimatePresence initial={false} onExitComplete={() => setPlayerDetailClosing(false)}>
+            {playerDetail && <PlayerSidebarReveal key="player-details" placement="before"><GameServerPlayerDetails key={playerDetail.id} player={playerDetail} minecraft={minecraft} averageHours={averagePlayHours} records={managementRecords.filter(record => record.playerId === playerDetail.id)} onClose={closePlayerDetail} onAction={action => actOnPlayer(playerDetail, action)} onRoleChange={role => changePlayerRole(playerDetail, role)} onNotice={onNotice} /></PlayerSidebarReveal>}
+          </AnimatePresence>
           <section className="gsd-card gsd-quick"><h2><Settings size={20} />快捷管理</h2><div className="gsd-quick-grid">{modeDefinitions.filter(mode => mode.key === "whitelist" || mode.key === "maintenance").map(mode => <div className={`gsd-quick-item ${mode.tone}`} key={mode.key} title={mode.description}><span className="gsd-icon-tile"><mode.icon size={21} /></span><div><h3>{mode.title}</h3><p>{mode.description}</p></div><Switch className="gsd-switch" aria-label={mode.title} checked={modes[mode.key]} onCheckedChange={checked => toggleMode(mode.key, checked)} /></div>)}</div></section>
-          {!playerDetail && <section className="gsd-card gsd-management-records" aria-label="最近管理记录">
+          <AnimatePresence initial={false}>{!playerDetail && <PlayerSidebarReveal key="management-records" placement="after"><section className="gsd-card gsd-management-records" aria-label="最近管理记录">
             <header><h2><ShieldCheck size={18} />最近管理记录</h2><button className="gsd-management-more" type="button" aria-label="查看更多管理记录" onClick={() => setManagementRecordsOpen(true)}>查看更多<ChevronRight size={13} /></button></header>
             {renderManagementRecords(managementRecords.slice(0, 5))}
-          </section>}
+          </section></PlayerSidebarReveal>}</AnimatePresence>
         </aside>
       </div> : null}
     </div>
