@@ -222,7 +222,7 @@ html:has(.gsd-page) { scrollbar-gutter: stable; }
 .gsd-detail-tabs > button[aria-selected="true"] { color: #087bff; font-weight: 600; }
 .gsd-detail-tabs > button[aria-selected="true"]::after { content: ""; position: absolute; height: 2px; left: 0; right: 0; bottom: -1px; background: #087bff; border-radius: 2px; }
 .gsd-detail-panel { min-height: 260px; margin-bottom: 12px; }
-.gsd-detail-fields { border: 1px solid #e5edf9; border-radius: 5px; padding: 3px 10px; margin: 0; font-size: 11px; }
+.gsd-detail-fields { padding: 3px 10px; margin: 0; font-size: 11px; }
 .gsd-detail-fields > div { display: grid; grid-template-columns: 90px minmax(0, 1fr); align-items: center; min-height: 25px; gap: 8px; border-bottom: 1px solid #edf2fa; padding: 3px 0; }
 .gsd-detail-fields > div:last-child { border: 0; }
 .gsd-detail-fields dt { color: #7c91b4; }
