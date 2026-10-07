@@ -52,7 +52,7 @@
 .gpd-facts > div + div::before { content: ''; position: absolute; left: 0; top: 3px; bottom: 3px; border-left: 1px solid #e4edf9; }
 .gpd-facts svg { color: #405c8c; flex: none; }
 .gpd-favorite { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 24px; height: 32px; padding: 0; border: 0; border-radius: 5px; background: transparent; cursor: pointer; }
-.gpd-favorite:hover { background: #fff6df; }
+.gpd-favorite:hover .gpd-star { fill: #ffad00; }
 .gpd-favorite:focus-visible { outline: 2px solid #087bff; outline-offset: 3px; }
 .gpd-facts .gpd-star { color: #ffad00; fill: none; }
 .gpd-favorite.active .gpd-star { fill: #ffad00; }
