@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Pause, Play } from 'lucide-react';
 
 const slides = [
   {
@@ -37,9 +36,7 @@ const slides = [
 
 export function PluginBannerCarousel() {
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
   const [hovered, setHovered] = useState(false);
-  const [focused, setFocused] = useState(false);
   const reducedMotion = useReducedMotion();
   const slide = slides[active];
 
@@ -48,15 +45,13 @@ export function PluginBannerCarousel() {
   }, []);
 
   useEffect(() => {
-    if (paused || hovered || focused) return;
+    if (hovered) return;
     const timer = window.setTimeout(() => setActive(index => (index + 1) % slides.length), 10_000);
     return () => window.clearTimeout(timer);
-  }, [active, paused, hovered, focused]);
+  }, [active, hovered]);
 
   return <section className="gsp-banner" aria-label="Minecraft 插件推荐" aria-roledescription="轮播"
-    onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
-    onFocusCapture={() => setFocused(true)}
-    onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
+    onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
     <AnimatePresence initial={false}>
       <motion.div key={active} className="gsp-banner-slide" role="group" aria-roledescription="幻灯片"
         aria-label={`${active + 1} / ${slides.length}`} style={{ backgroundColor: slide.background }}
@@ -67,14 +62,5 @@ export function PluginBannerCarousel() {
         <div className="gsp-banner-copy"><h2>{slide.title}</h2><p>{slide.description}</p></div>
       </motion.div>
     </AnimatePresence>
-    <div className="gsp-banner-controls">
-      <div className="gsp-banner-dots" aria-label="选择推荐横幅">{slides.map((item, index) =>
-        <button key={item.image} type="button" className={active === index ? 'active' : ''}
-          aria-label={`切换至第 ${index + 1} 张：${item.title}`} aria-pressed={active === index}
-          onClick={() => setActive(index)} />
-      )}</div>
-      <button type="button" className="gsp-banner-pause" aria-label={paused ? '播放横幅轮播' : '暂停横幅轮播'}
-        onClick={() => setPaused(value => !value)}>{paused ? <Play size={12} /> : <Pause size={12} />}</button>
-    </div>
   </section>;
 }

@@ -8,14 +8,6 @@
   mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, .35) 15%, rgba(0, 0, 0, .8) 30%, #000 45%);
 }
 .gsp-banner-copy { position: relative; z-index: 1; padding: 24px 23px; }
-.gsp-banner-controls { position: absolute; z-index: 2; left: 23px; bottom: 3px; display: flex; align-items: center; gap: 10px; }
-.gsp-banner-dots { display: flex; align-items: center; gap: 3px; }
-.gsp-banner-dots button { display: grid; place-items: center; width: 17px; height: 20px; padding: 0; border: 0; background: transparent; }
-.gsp-banner-dots button::after { content: ''; width: 5px; height: 5px; border-radius: 8px; background: #98adc7; transition: width .25s, background .25s; }
-.gsp-banner-dots button.active { width: 24px; }
-.gsp-banner-dots button.active::after { width: 18px; background: #087bff; }
-.gsp-banner-pause { display: grid; place-items: center; width: 22px; height: 20px; padding: 0; border: 0; border-radius: 4px; color: #597ba7; background: transparent; }
-.gsp-banner-pause:hover { background: #ffffff80; }
 .cloud-shell .gsp-banner h2 { display: block; margin: 0 0 7px; font-size: 24px; line-height: 32px; letter-spacing: .2px; color: #080f2a; font-weight: 700; }
 .gsp-banner p { margin: 0; font-size: 14px; line-height: 22px; color: #597ba7; }
 .gsp-catalog { padding: 10px 6px 7px; border-radius: 8px; background: #fff; }
@@ -167,7 +159,6 @@
   .gsp-banner { height: 170px; }
   .gsp-banner-slide > img { opacity: .25; width: 100%; }
   .gsp-banner-copy { width: 100%; padding: 18px 18px 28px; }
-  .gsp-banner-controls { left: 18px; bottom: 6px; }
   .cloud-shell .gsp-banner h2 { font-size: 19px; line-height: 28px; }
   .gsp-categories { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
   .gsp-categories button { flex: none; }
