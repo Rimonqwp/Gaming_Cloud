@@ -1,0 +1,25 @@
+{
+  "generator": "Built-in imagegen",
+  "assets": [
+    {
+      "file": "public/console/plugins/banner-survival.webp",
+      "prompt": "Use case: stylized-concept. Asset type: Minecraft game-server plugin marketplace banner, panoramic horizontal 3:1 image. Create a polished Minecraft voxel game render, block-built scenery, pixel textures and soft shader lighting matching the existing friendly village banner. Composition: scenic details on the center and right, leftmost 15% light mist softly blending into the scene; arrange important subjects across the middle horizontal band so a short wide UI banner can crop the upper and lower edges. Not a UI mockup. No text, no typography, no logos, no watermark. Scene: lush emerald-green Minecraft survival meadow with a riverside farm, wheat fields, blocky oak trees, wooden starter home and two players with tools exploring together. Bright morning daylight; mint, green, light blue palette."
+    },
+    {
+      "file": "public/console/plugins/banner-build.webp",
+      "prompt": "Use case: stylized-concept. Asset type: Minecraft game-server plugin marketplace banner, panoramic horizontal 3:1 image. Create a polished Minecraft voxel game render, block-built scenery, pixel textures and soft shader lighting matching the existing friendly village banner. Composition: scenic details on the center and right, leftmost 15% light mist softly blending into the scene; arrange important subjects across the middle horizontal band so a short wide UI banner can crop the upper and lower edges. Not a UI mockup. No text, no typography, no logos, no watermark. Scene: Minecraft medieval stone castle and creative builder town with towers, a stone bridge, elegant block-built roofs and builders placing blocks. Soft golden late-afternoon light; warm ivory and peach pastel palette."
+    },
+    {
+      "file": "public/console/plugins/banner-adventure.webp",
+      "prompt": "Use case: stylized-concept. Asset type: Minecraft game-server plugin marketplace banner, panoramic horizontal 3:1 image. Create a polished Minecraft voxel game render, block-built scenery, pixel textures and soft shader lighting matching the existing friendly village banner. Composition: scenic details on the center and right, leftmost 15% light mist softly blending into the scene; arrange important subjects across the middle horizontal band so a short wide UI banner can crop the upper and lower edges. Not a UI mockup. No text, no typography, no logos, no watermark. Scene: Minecraft underground adventure cavern with glowing cyan diamond ore, amethyst crystals, small minecart railway and blocky adventurers holding torches. Friendly magical exploration mood, no scary enemies; lavender mist, violet and cyan palette, lighter left edge."
+    },
+    {
+      "file": "public/console/plugins/banner-minigames.webp",
+      "prompt": "Use case: stylized-concept. Asset type: Minecraft game-server plugin marketplace banner, panoramic horizontal 3:1 image. Create a polished Minecraft voxel game render, block-built scenery, pixel textures and soft shader lighting matching the existing friendly village banner. Composition: scenic details on the center and right, leftmost 15% light mist softly blending into the scene; arrange important subjects across the middle horizontal band so a short wide UI banner can crop the upper and lower edges. Not a UI mockup. No text, no typography, no logos, no watermark. Scene: cheerful Minecraft floating-island parkour and minigame arena, colorful block platforms suspended above clouds, green grass islands, players jumping between platforms and celebratory flags. Bright airy sky; pastel sky blue, sunny yellow and orange accents."
+    },
+    {
+      "file": "public/console/plugins/banner-community.webp",
+      "prompt": "Use case: stylized-concept. Asset type: Minecraft game-server plugin marketplace banner, panoramic horizontal 3:1 image. Create a polished Minecraft voxel game render, block-built scenery, pixel textures and soft shader lighting matching the existing friendly village banner. Composition: scenic details on the center and right, leftmost 15% light mist softly blending into the scene; arrange important subjects across the middle horizontal band so a short wide UI banner can crop the upper and lower edges. Not a UI mockup. No text, no typography, no logos, no watermark. Scene: cozy Minecraft cherry blossom village plaza with pink flowering blocky trees, lanterns, market stalls, wooden bridge over a pond and several Minecraft players gathering socially. Warm dreamy sunrise; pastel pink, rose and pale lilac palette."
+    }
+  ]
+}

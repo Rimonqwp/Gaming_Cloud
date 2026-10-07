@@ -5,6 +5,7 @@ import { Switch } from '../../components/ui/switch';
 import type { ConsoleInstance } from './cloudDashboardData';
 import { initialInstalledPlugins, marketplacePlugins, type InstalledPlugin, type MarketplacePlugin } from './gameServerPluginsData';
 import '../../../styles/cloud-plugins.css';
+import { PluginBannerCarousel } from './PluginBannerCarousel';
 
 const categories = [
   { name: '全部', icon: Box, tone: 'blue' }, { name: '必备推荐', icon: Flame, tone: 'orange' },
@@ -60,7 +61,7 @@ export function GameServerPlugins({ server, onNotice }: { server: ConsoleInstanc
   const reset = () => { setQuery(''); setCategory('全部'); setPlatform('all'); setVersion('all'); setSort('default'); };
   return <div className="gsp-layout">
     <div className="gsp-main">
-      <section className="gsp-banner"><img src="/console/plugins/banner.png" alt="Minecraft 玩家与村庄" /><div><h2>丰富的插件生态，让你的服务器更精彩！</h2><p>从实用工具到趣味玩法，海量优质插件一键安装，轻松打造专属的 Minecraft 服务器。</p></div></section>
+      <PluginBannerCarousel />
       <section className="gsp-catalog" aria-label="插件目录">
         <div className="gsp-filters">
           <label className="gsp-search"><Search size={18} /><input aria-label="搜索插件" placeholder="搜索插件名称、功能或作者（如：Essentials、领地、传送...）" value={query} onChange={e => setQuery(e.target.value)} /></label>

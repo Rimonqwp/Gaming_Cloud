@@ -1,12 +1,21 @@
 .gsp-layout { display: grid; grid-template-columns: minmax(0, 1fr) 298px; align-items: start; gap: 12px; }
 .gsp-main, .gsp-sidebar { min-width: 0; }
 .gsp-banner { position: relative; height: 113px; border: 1px solid #fff; border-radius: 8px; background: #e6f2fc; overflow: hidden; margin-bottom: 5px; }
-.gsp-banner > img {
+.gsp-banner-slide { position: absolute; inset: 0; overflow: hidden; }
+.gsp-banner-slide > img {
   position: absolute; right: 0; top: 0; height: 100%; width: 51%; object-fit: cover;
   -webkit-mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, .35) 15%, rgba(0, 0, 0, .8) 30%, #000 45%);
   mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, .35) 15%, rgba(0, 0, 0, .8) 30%, #000 45%);
 }
-.gsp-banner > div { position: relative; z-index: 1; padding: 24px 23px; }
+.gsp-banner-copy { position: relative; z-index: 1; padding: 24px 23px; }
+.gsp-banner-controls { position: absolute; z-index: 2; left: 23px; bottom: 3px; display: flex; align-items: center; gap: 10px; }
+.gsp-banner-dots { display: flex; align-items: center; gap: 3px; }
+.gsp-banner-dots button { display: grid; place-items: center; width: 17px; height: 20px; padding: 0; border: 0; background: transparent; }
+.gsp-banner-dots button::after { content: ''; width: 5px; height: 5px; border-radius: 8px; background: #98adc7; transition: width .25s, background .25s; }
+.gsp-banner-dots button.active { width: 24px; }
+.gsp-banner-dots button.active::after { width: 18px; background: #087bff; }
+.gsp-banner-pause { display: grid; place-items: center; width: 22px; height: 20px; padding: 0; border: 0; border-radius: 4px; color: #597ba7; background: transparent; }
+.gsp-banner-pause:hover { background: #ffffff80; }
 .cloud-shell .gsp-banner h2 { display: block; margin: 0 0 7px; font-size: 24px; line-height: 32px; letter-spacing: .2px; color: #080f2a; font-weight: 700; }
 .gsp-banner p { margin: 0; font-size: 14px; line-height: 22px; color: #597ba7; }
 .gsp-catalog { padding: 10px 6px 7px; border-radius: 8px; background: #fff; }
@@ -138,8 +147,8 @@
   .gsp-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .gsp-filters { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .gsp-search { grid-column: 1 / -1; }
-  .gsp-banner { height: auto; min-height: 150px; }
-  .gsp-banner > div { width: 50%; min-height: 150px; padding: 18px 20px; }
+  .gsp-banner { height: 210px; }
+  .gsp-banner-copy { width: 55%; min-height: 150px; padding: 18px 20px 28px; }
   .cloud-shell .gsp-banner h2 { font-size: 20px; line-height: 28px; }
   .gsp-banner p { max-width: 100%; }
 }
@@ -155,9 +164,10 @@
   .gsp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .gsp-sidebar { grid-template-columns: minmax(0, 1fr); }
   .gsp-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .gsp-banner { height: 150px; }
-  .gsp-banner > img { opacity: .25; width: 100%; }
-  .gsp-banner > div { width: 100%; padding: 18px; }
+  .gsp-banner { height: 170px; }
+  .gsp-banner-slide > img { opacity: .25; width: 100%; }
+  .gsp-banner-copy { width: 100%; padding: 18px 18px 28px; }
+  .gsp-banner-controls { left: 18px; bottom: 6px; }
   .cloud-shell .gsp-banner h2 { font-size: 19px; line-height: 28px; }
   .gsp-categories { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
   .gsp-categories button { flex: none; }
