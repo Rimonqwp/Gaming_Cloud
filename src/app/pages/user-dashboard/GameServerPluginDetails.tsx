@@ -7,7 +7,7 @@ import '../../../styles/cloud-plugin-details.css';
 type Props = {
   plugin: MarketplacePlugin; plugins: MarketplacePlugin[]; installed: InstalledPlugin[];
   categories: { name: string; icon: LucideIcon; tone: string }[];
-  query: string; category: string; platform: string;
+  query: string; category: string; platform: string; transitioning: boolean;
   listScrollMemory: MutableRefObject<{ filters: string; top: number }>;
   onQuery: (value: string) => void; onCategory: (value: string) => void; onPlatform: (value: string) => void;
   onSelect: (id: string) => void; onBack: () => void; onReset: () => void;
@@ -112,7 +112,7 @@ export function GameServerPluginDetails(props: Props) {
       <nav className="gsp-categories gpd-categories" aria-label="详情页插件分类">{props.categories.slice(0, 5).map(c => <button key={c.name} className={`${c.tone}${props.category === c.name ? ' active' : ''}`} aria-pressed={props.category === c.name} onClick={() => props.onCategory(c.name)}><c.icon size={15} />{c.name}</button>)}<label className="gsp-select"><select aria-label="详情页插件服务端" value={props.platform} onChange={e => props.onPlatform(e.target.value)}><option value="all">全部服务端</option><option>Paper</option><option>Spigot</option></select></label></nav>
       </div>
       <div className="gpd-plugin-list" ref={pluginList} role="region" aria-label="插件列表内容" tabIndex={0} onScroll={event => { props.listScrollMemory.current = { filters, top: event.currentTarget.scrollTop }; }}>
-      <div className="gpd-plugin-list-content" ref={listContent}>{plugins.map(row => <article key={row.id} className={`gpd-list-plugin${row.id === p.id ? ' selected' : ''}`}>
+      <div className="gpd-plugin-list-content" ref={listContent}>{plugins.map(row => <article key={row.id} className={`gpd-list-plugin${row.id === p.id ? ' selected' : ''}`} style={{ viewTransitionName: props.transitioning ? `plugin-card-${row.id}` : undefined }}>
         <PluginIcon id={row.id} /><div className="gpd-list-copy"><h3><button className="gpd-select-plugin" onClick={() => onSelect(row.id)} aria-label={`查看 ${row.name} 插件详情（${row.price ? `付费 ￥${row.price.toFixed(2)}` : '免费'}）`} aria-current={row.id === p.id ? 'page' : undefined}><span className={`gpd-price-icon ${row.price ? 'paid' : 'free'}`} title={row.price ? `付费插件 · ￥${row.price.toFixed(2)}` : '免费插件'} aria-hidden="true">{row.price ? <Coins size={16} /> : <Gift size={16} />}</span><span>{row.name}</span></button><PluginBadge plugin={row} />{installed.some(item => item.id === row.id) && <span className="gsp-badge green">已安装</span>}</h3><p>{row.description}</p><div className="gpd-list-bottom"><div className="gsp-meta"><span><Tag size={13} />{row.minVersion} - 1.21</span><span><Star size={15} />{row.rating} ({row.reviews})</span><span><Download size={15} />{row.downloads}万+</span></div>{installButton(row)}</div></div>
       </article>)}
       {!plugins.length && <div className="gsp-empty"><Search size={26} /><h3>未找到匹配的插件</h3><p>试试其他关键词或分类。</p><button className="gsd-button" onClick={props.onReset}>重置筛选</button></div>}

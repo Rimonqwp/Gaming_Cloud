@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link as RouterLink, useSearchParams } from 'react-router';
+import { Link as RouterLink, useSearchParams, useViewTransitionState } from 'react-router';
+import { useReducedMotion } from 'motion/react';
 import { ArrowUp, ArrowUpDown, Box, Check, ChevronRight, Compass, Download, FileText, Flame, Gamepad2, Layers, LayoutGrid, Link, List, Map, MessageCircle, Package, Puzzle, Search, Shield, Sparkles, Star, Tag, Trash2, Upload, Wrench } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../../components/ui/dialog';
 import { Switch } from '../../components/ui/switch';
@@ -38,10 +39,12 @@ const tagTones: Record<string, string[]> = {
 
 export function GameServerPlugins({ server, onNotice }: { server: ConsoleInstance; onNotice: (message: string) => void }) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const reduceMotion = useReducedMotion();
+  const transitioning = useViewTransitionState('.');
   const selected = marketplacePlugins.find(p => p.id === searchParams.get('plugin'));
   const pluginUrl = (id: string) => { const next = new URLSearchParams(searchParams); next.set('plugin', id); return `?${next}`; };
-  const openPlugin = (id: string) => { const next = new URLSearchParams(searchParams); next.set('plugin', id); setSearchParams(next); };
-  const backToCatalog = () => { const next = new URLSearchParams(searchParams); next.delete('plugin'); next.set('view', 'plugins'); setSearchParams(next); };
+  const openPlugin = (id: string) => { const next = new URLSearchParams(searchParams); next.set('plugin', id); setSearchParams(next, { viewTransition: !selected && !reduceMotion }); };
+  const backToCatalog = () => { const next = new URLSearchParams(searchParams); next.delete('plugin'); next.set('view', 'plugins'); setSearchParams(next, { viewTransition: !reduceMotion }); };
   const storageKey = `cloud-plugins-demo-v1:${server.id}`;
   const [installed, setInstalled] = useState(() => readInstalled(storageKey));
   const [query, setQuery] = useState('');
@@ -69,9 +72,9 @@ export function GameServerPlugins({ server, onNotice }: { server: ConsoleInstanc
   const updatePlugin = (id: string) => { setInstalled(rows => rows.map(p => p.id === id ? { ...p, version: pluginVersions[id] || '1.2.0', update: false } : p)); onNotice('插件已更新（演示操作）'); };
   const updateAll = () => { setInstalled(previous => previous.map(p => needsUpdate(p) ? { ...p, version: pluginVersions[p.id] || '1.2.0', update: false } : p)); onNotice(`已更新 ${updates} 个插件（演示操作）`); };
   const reset = () => { setQuery(''); setCategory('全部'); setPlatform('all'); setVersion('all'); setSort('default'); };
-  return <div className={selected ? 'gsp-detail-root' : 'gsp-layout'}>
+  return <div className={selected ? 'gsp-detail-root' : 'gsp-layout'} data-plugin-transition={transitioning || undefined}>
     {selected ? <GameServerPluginDetails key={selected.id} plugin={selected} plugins={filtered} installed={installed} categories={categories}
-      query={query} category={category} platform={platform} listScrollMemory={listScrollMemory} onQuery={setQuery} onCategory={setCategory} onPlatform={setPlatform}
+      query={query} category={category} platform={platform} transitioning={transitioning} listScrollMemory={listScrollMemory} onQuery={setQuery} onCategory={setCategory} onPlatform={setPlatform}
       onSelect={openPlugin} onBack={backToCatalog} onReset={reset} onInstall={p => p.price ? setPurchase(p) : install(p)} onUpdate={updatePlugin}
       onManage={() => setModal('manage')} onToggle={id => setInstalled(rows => rows.map(p => p.id === id ? { ...p, enabled: !p.enabled } : p))}
       onUninstall={id => { setInstalled(rows => rows.filter(p => p.id !== id)); onNotice('插件已卸载（演示操作）'); }} /> : <>
@@ -88,8 +91,8 @@ export function GameServerPlugins({ server, onNotice }: { server: ConsoleInstanc
         <nav className="gsp-categories" aria-label="插件快捷分类">{categories.map(c => <button key={c.name} className={`${c.tone}${category === c.name ? ' active' : ''}`} aria-pressed={category === c.name} onClick={() => setCategory(c.name)}><c.icon size={16} />{c.name}</button>)}</nav>
         <div className="gsp-grid">{filtered.map(p => {
           const exists = installed.some(row => row.id === p.id);
-          return <article className="gsp-plugin" key={p.id} aria-label={p.name}>
-            <div className="gsp-plugin-top"><img src={`/console/plugins/${p.id}.png`} alt={`${p.name} 图标`} /><div><h3><RouterLink className="gsp-detail-link" to={pluginUrl(p.id)} aria-label={`查看 ${p.name} 插件详情`}>{p.name}</RouterLink>{p.badge && <span className={`gsp-badge ${p.badge === '推荐' ? 'green' : 'orange'}`}>{p.badge === '推荐' ? <Puzzle size={13} /> : <Flame size={13} />}{p.badge}</span>}</h3><p>{p.description}</p><div className="gsp-tags">{p.tags.map((t, i) => <span key={t} className={`tag-${tagTones[p.id]?.[i] || 'purple'}`}>{t}</span>)}</div></div></div>
+          return <article className="gsp-plugin" key={p.id} aria-label={p.name} style={{ viewTransitionName: transitioning ? `plugin-card-${p.id}` : undefined }}>
+            <div className="gsp-plugin-top"><img src={`/console/plugins/${p.id}.png`} alt={`${p.name} 图标`} /><div><h3><RouterLink className="gsp-detail-link" to={pluginUrl(p.id)} viewTransition={!reduceMotion} aria-label={`查看 ${p.name} 插件详情`}>{p.name}</RouterLink>{p.badge && <span className={`gsp-badge ${p.badge === '推荐' ? 'green' : 'orange'}`}>{p.badge === '推荐' ? <Puzzle size={13} /> : <Flame size={13} />}{p.badge}</span>}</h3><p>{p.description}</p><div className="gsp-tags">{p.tags.map((t, i) => <span key={t} className={`tag-${tagTones[p.id]?.[i] || 'purple'}`}>{t}</span>)}</div></div></div>
             <div className="gsp-meta"><span><Compass size={13} />{p.minVersion} - 1.21</span><span><Star size={14} />{p.rating} ({p.reviews})</span><span><Download size={15} />{p.downloads}万+</span></div>
             <footer><strong className={p.price ? 'paid' : ''}>{p.price ? `￥${p.price.toFixed(2)}` : '免费'}</strong><button className={`gsp-install${p.price && !exists ? ' paid' : ''}`} disabled={exists} onClick={() => p.price ? setPurchase(p) : install(p)} aria-label={`${exists ? '已安装' : p.price ? '购买' : '安装'} ${p.name}`}>{exists ? <><Check size={14} />已安装</> : p.price ? '立即购买' : '一键安装'}</button></footer>
           </article>;

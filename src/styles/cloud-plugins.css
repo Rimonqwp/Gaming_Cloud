@@ -1,5 +1,44 @@
 .gsp-layout { display: grid; grid-template-columns: minmax(0, 1fr) 298px; align-items: start; gap: 12px; }
 .gsp-main, .gsp-sidebar { min-width: 0; }
+/* 只为插件广场与详情间的路由过渡命名，其他控制台导航保持原有行为。 */
+@media (min-width: 701px) and (prefers-reduced-motion: no-preference) {
+  [data-plugin-transition] :is(.gsp-catalog, .gpd-browser) { view-transition-name: plugin-browser; }
+  [data-plugin-transition] :is(.gsp-grid, .gpd-plugin-list) { view-transition-name: plugin-list; }
+  [data-plugin-transition] .gpd-detail { view-transition-name: plugin-detail; }
+  [data-plugin-transition] :is(.gsp-sidebar, .gpd-sidebar) { view-transition-name: plugin-sidebar; }
+  [data-plugin-transition] .gsp-banner { view-transition-name: plugin-banner; }
+
+  html:has([data-plugin-transition])::view-transition-group(*) {
+    animation-duration: 440ms;
+    animation-timing-function: cubic-bezier(.22, 1, .36, 1);
+  }
+  html:has([data-plugin-transition])::view-transition-old(*) {
+    animation: gsp-transition-out 150ms ease-out both;
+    mix-blend-mode: normal;
+  }
+  html:has([data-plugin-transition])::view-transition-new(*) {
+    animation: gsp-transition-in 260ms 80ms ease-out both;
+    mix-blend-mode: normal;
+  }
+  html:has([data-plugin-transition])::view-transition-group(root),
+  html:has([data-plugin-transition])::view-transition-old(root),
+  html:has([data-plugin-transition])::view-transition-new(root) { animation: none; }
+  html:has([data-plugin-transition])::view-transition-new(plugin-detail) {
+    animation: gsp-detail-reveal 340ms 100ms cubic-bezier(.22, 1, .36, 1) both;
+  }
+}
+@keyframes gsp-transition-out { to { opacity: 0; } }
+@keyframes gsp-transition-in { from { opacity: 0; } }
+@keyframes gsp-detail-reveal { from { opacity: 0; transform: translateX(32px); } to { opacity: 1; transform: translateX(0); } }
+/* 手机使用轻量淡入淡出；减少动态效果时连同历史返回也立即切换。 */
+@media (max-width: 700px), (prefers-reduced-motion: reduce) {
+  [data-plugin-transition] :is(.gsp-plugin, .gpd-list-plugin) { view-transition-name: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html:has([data-plugin-transition])::view-transition-group(*),
+  html:has([data-plugin-transition])::view-transition-old(*),
+  html:has([data-plugin-transition])::view-transition-new(*) { animation: none !important; }
+}
 .gsp-banner { position: relative; height: 113px; border: 1px solid #fff; border-radius: 8px; background: #e6f2fc; overflow: hidden; margin-bottom: 5px; }
 .gsp-banner-slide { position: absolute; inset: 0; overflow: hidden; }
 .gsp-banner-slide > img {
