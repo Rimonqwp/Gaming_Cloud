@@ -85,12 +85,12 @@ html:has(.gsd-page) { scrollbar-gutter: stable; }
 .gsd-table-scroll { overflow-x: auto; }
 .gsd-player-table { width: 100%; border-collapse: collapse; table-layout: fixed; text-align: left; white-space: nowrap; }
 .gsd-check-column { width: 4.5%; }
-.gsd-name-column { width: 22.2%; }
-.gsd-player-table col:nth-child(3) { width: 11.4%; }
-.gsd-login-column { width: 17.4%; }
-.gsd-player-table col:nth-child(5) { width: 12%; }
-.gsd-player-table col:nth-child(6) { width: 15.5%; }
-.gsd-action-column { width: 17%; }
+.gsd-name-column { width: 28%; }
+.gsd-player-table col:nth-child(3) { width: 9%; }
+.gsd-login-column { width: 16%; }
+.gsd-player-table col:nth-child(5) { width: 9%; }
+.gsd-player-table col:nth-child(6) { width: 21.5%; }
+.gsd-action-column { width: 12%; }
 .gsd-player-table th { background: #f5f8fc; color: #455d87; height: 38px; padding: 0 6px; font-weight: 600; font-size: 11px; }
 .gsd-player-sort { display: inline-flex; align-items: center; gap: 4px; min-height: 38px; padding: 0; border: 0; background: none; color: inherit; font-weight: inherit; cursor: pointer; white-space: nowrap; }
 .gsd-player-sort svg { flex: none; color: #a0b1cd; }
@@ -110,16 +110,14 @@ html:has(.gsd-page) { scrollbar-gutter: stable; }
 .gsd-cell-secondary { display: block; color: #8b9cba; font-size: 10px; line-height: 17px; }
 .gsd-player-list-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 16px 0 10px; }
 .gsd-player-list-heading > span { font-size: 11px; color: #8191ad; }
-.gsd-player-table.minecraft { min-width: 1100px; }
+.gsd-player-table.minecraft { min-width: 920px; }
 .gsd-player-table.minecraft col:nth-child(1) { width: 3%; }
-.gsd-player-table.minecraft col:nth-child(2) { width: 29%; }
-.gsd-player-table.minecraft col:nth-child(3) { width: 7%; }
-.gsd-player-table.minecraft col:nth-child(4) { width: 13%; }
-.gsd-player-table.minecraft col:nth-child(5) { width: 7%; }
-.gsd-player-table.minecraft col:nth-child(6) { width: 10%; }
+.gsd-player-table.minecraft col:nth-child(2) { width: 30%; }
+.gsd-player-table.minecraft col:nth-child(3) { width: 9%; }
+.gsd-player-table.minecraft col:nth-child(4) { width: 16%; }
+.gsd-player-table.minecraft col:nth-child(5) { width: 9%; }
+.gsd-player-table.minecraft col:nth-child(6) { width: 21%; }
 .gsd-player-table.minecraft col:nth-child(7) { width: 12%; }
-.gsd-player-table.minecraft col:nth-child(8) { width: 8%; }
-.gsd-player-table.minecraft col:nth-child(9) { width: 11%; }
 .gsd-player-table.minecraft .gsd-role { padding: 0 7px; }
 .gsd-player-table.minecraft .gsd-row-actions button { margin-right: 10px; }
 .gsd-player-table.minecraft .gsd-row-actions button:last-child { margin-right: 0; }
@@ -130,6 +128,10 @@ html:has(.gsd-page) { scrollbar-gutter: stable; }
 .gsd-player-status.offline { color: #8295b5; background: #f0f3f8; }
 .gsd-player-status.banned { color: #ff4351; background: #ffe9ec; }
 .gsd-role { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 12px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+.gsd-role-badges { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; max-width: 100%; }
+.gsd-whitelist-setting { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 13px; }
+.gsd-whitelist-setting input { accent-color: #087bff; width: 15px; height: 15px; }
+.gsd-whitelist-setting span { flex-basis: 100%; margin-left: 23px; font-size: 11px; color: #8191ad; }
 .gsd-role.admin { color: #ee891b; background: #fff1e2; }
 .gsd-role.member { color: #087bff; background: #e8f3ff; }
 .gsd-role.whitelist { color: #00b987; background: #dff9f0; }

@@ -6,21 +6,31 @@ import type { MinecraftPlayerProfile } from "./minecraftPlayerProfiles";
 
 export type PlayerStatus = "在线" | "离线" | "已封禁";
 export type PlayerRole = "管理员" | "成员" | "白名单" | "黑名单";
-export type ServerPlayer = { name: string; id: string; status: PlayerStatus; lastLogin: string; hours: number; role: PlayerRole; avatar: string } & MinecraftPlayerProfile;
+export type ServerPlayer = { name: string; id: string; status: PlayerStatus; lastLogin: string; hours: number; roles: PlayerRole[]; avatar: string } & MinecraftPlayerProfile;
 type DetailTab = "basic" | "stats" | "records";
 const tabs = [{ id: "basic", label: "基础信息" }, { id: "stats", label: "统计数据" }, { id: "records", label: "操作记录" }] as const;
 const roleClass = { 管理员: "admin", 成员: "member", 白名单: "whitelist", 黑名单: "blacklist" };
 const statusClass = { 在线: "online", 离线: "offline", 已封禁: "banned" };
+type BaseRole = Exclude<PlayerRole, "白名单">;
+const baseRoles: BaseRole[] = ["管理员", "成员", "黑名单"];
+const primaryRole = (roles: PlayerRole[]): BaseRole => roles.find((role): role is BaseRole => role !== "白名单") ?? "成员";
+
+export function PlayerRoleBadges({ roles }: { roles: PlayerRole[] }) {
+  return <span className="gsd-role-badges">{roles.map(role => <span key={role} className={`gsd-role ${roleClass[role]}`}>{role === "管理员" && <Crown size={12} fill="currentColor" />}{role}</span>)}</span>;
+}
 
 export function GameServerPlayerDetails({ player, minecraft, averageHours, records, onClose, onAction, onRoleChange, onNotice }: {
   player: ServerPlayer; minecraft: boolean; averageHours: number;
   records: { id: string; text: string; actor: string; time: string; action: string }[];
   onClose: () => void; onAction: (action: "kick" | "ban" | "unban" | "recall") => void;
-  onRoleChange: (role: PlayerRole) => void; onNotice: (message: string) => void;
+  onRoleChange: (roles: PlayerRole[]) => void; onNotice: (message: string) => void;
 }) {
   const [tab, setTab] = useState<DetailTab>("basic");
   const [modal, setModal] = useState<"archive" | "role" | null>(null);
-  const [roleDraft, setRoleDraft] = useState<PlayerRole>(player.role);
+  const [roleDraft, setRoleDraft] = useState<BaseRole>(() => primaryRole(player.roles));
+  const [whitelistDraft, setWhitelistDraft] = useState(() => player.roles.includes("白名单"));
+  const draftRoles: PlayerRole[] = roleDraft === "黑名单" ? [roleDraft] : whitelistDraft ? [roleDraft, "白名单"] : [roleDraft];
+  const rolesChanged = draftRoles.length !== player.roles.length || draftRoles.some(role => !player.roles.includes(role));
   const headingRef = useRef<HTMLHeadingElement>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const playerName = minecraft ? player.gameId : player.name;
@@ -35,7 +45,7 @@ export function GameServerPlayerDetails({ player, minecraft, averageHours, recor
     catch { onNotice(`${label}：${value}，请手动复制`); }
   };
   const statusBadge = <span className={`gsd-player-status ${statusClass[player.status]}`}><i />{player.status}</span>;
-  const roleBadge = <span className={`gsd-role ${roleClass[player.role]}`}>{player.role === "管理员" && <Crown size={12} fill="currentColor" />}{player.role}</span>;
+  const roleBadge = <PlayerRoleBadges roles={player.roles} />;
   const fields: [string, ReactNode][] = [
     ["玩家名称", playerName],
     [minecraft ? "UUID" : "Steam ID", <><span className="gsd-detail-ellipsis" title={identity}>{identity}</span><button className="gsd-detail-copy" aria-label={`复制玩家 ${minecraft ? "UUID" : "Steam ID"}`} onClick={() => void copy(identity, minecraft ? "玩家 UUID" : "Steam ID")}><Copy size={12} /></button></>],
@@ -72,8 +82,8 @@ export function GameServerPlayerDetails({ player, minecraft, averageHours, recor
       <button className="kick" disabled={player.status !== "在线"} title={player.status !== "在线" ? "玩家当前未在线" : "踢出服务器"} onClick={() => onAction("kick")}><UserRoundX size={13} />踢出</button>
       <button className="ban" onClick={() => onAction(player.status === "已封禁" ? "unban" : "ban")}><ShieldX size={13} />{player.status === "已封禁" ? "解封" : "封禁"}</button>
     </div>
-    <button className="gsd-detail-edit" onClick={() => { setRoleDraft(player.role); setModal("role"); }}><Pencil size={13} />编辑权限组</button>
+    <button className="gsd-detail-edit" onClick={() => { setRoleDraft(primaryRole(player.roles)); setWhitelistDraft(player.roles.includes("白名单")); setModal("role"); }}><Pencil size={13} />编辑权限组</button>
     <Dialog open={modal === "archive"} onOpenChange={open => { if (!open) setModal(null); }}><DialogContent className="cloud-modal gsd-dialog"><DialogTitle>{playerName} 的玩家档案</DialogTitle><DialogDescription>显示当前演示玩家档案；存档路径为示例，未读取真实服务器文件。</DialogDescription><dl className="gsd-detail-fields">{[["玩家名称", playerName], [minecraft ? "UUID" : "Steam ID", identity], ["存档路径", archivePath], ["累计游戏时长", `${player.hours} 小时`], ["首次加入", player.firstJoined], ["最后登录", player.lastLogin]].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><button className="gsd-button" onClick={() => void copy(archivePath, "存档路径")}><Copy size={14} />复制存档路径</button></DialogContent></Dialog>
-    <Dialog open={modal === "role"} onOpenChange={open => { if (!open) setModal(null); }}><DialogContent className="cloud-modal gsd-dialog"><DialogTitle>编辑 {playerName} 的权限组</DialogTitle><DialogDescription>修改会同步到玩家列表和管理记录，仅保存在当前演示会话。</DialogDescription><Select value={roleDraft} onValueChange={value => setRoleDraft(value as PlayerRole)}><SelectTrigger aria-label="玩家权限组"><SelectValue /></SelectTrigger><SelectContent>{Object.keys(roleClass).map(role => <SelectItem key={role} value={role}>{role}</SelectItem>)}</SelectContent></Select><button className="gsd-button primary" disabled={roleDraft === player.role} onClick={() => { onRoleChange(roleDraft); setModal(null); }}>保存权限组</button></DialogContent></Dialog>
+    <Dialog open={modal === "role"} onOpenChange={open => { if (!open) setModal(null); }}><DialogContent className="cloud-modal gsd-dialog"><DialogTitle>编辑 {playerName} 的权限组</DialogTitle><DialogDescription>白名单可与管理员或成员同时设置。修改会同步到玩家列表和管理记录，仅保存在当前演示会话。</DialogDescription><Select value={roleDraft} onValueChange={value => { setRoleDraft(value as BaseRole); if (value === "黑名单") setWhitelistDraft(false); }}><SelectTrigger aria-label="玩家权限组"><SelectValue /></SelectTrigger><SelectContent>{baseRoles.map(role => <SelectItem key={role} value={role}>{role}</SelectItem>)}</SelectContent></Select><label className="gsd-whitelist-setting"><input type="checkbox" checked={whitelistDraft} disabled={roleDraft === "黑名单"} onChange={event => setWhitelistDraft(event.target.checked)} />加入白名单<span>{roleDraft === "黑名单" ? "黑名单玩家不可同时加入白名单" : "保留当前管理员或成员权限"}</span></label><PlayerRoleBadges roles={draftRoles} /><button className="gsd-button primary" disabled={!rolesChanged} onClick={() => { onRoleChange(draftRoles); setModal(null); }}>保存权限组</button></DialogContent></Dialog>
   </section>;
 }

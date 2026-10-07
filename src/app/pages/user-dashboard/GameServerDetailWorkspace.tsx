@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Archive, ArrowDown, ArrowUp, ArrowUpDown, Ban, Check, ChevronLeft, ChevronRight, ClipboardList, Clock3, Copy, Crown, Eye, FileText, FolderClosed, Gamepad2, House, Megaphone, Power, RefreshCw, Save, Search, Send, Settings, ShieldCheck, SquareTerminal, Swords, Timer, Trash2, Users, Wrench, X, Zap } from "lucide-react";
+import { Archive, ArrowDown, ArrowUp, ArrowUpDown, Ban, Check, ChevronLeft, ChevronRight, ClipboardList, Clock3, Copy, Eye, FileText, FolderClosed, Gamepad2, House, Megaphone, Power, RefreshCw, Save, Search, Send, Settings, ShieldCheck, SquareTerminal, Swords, Timer, Trash2, Users, Wrench, X, Zap } from "lucide-react";
 import { MetricTrend } from "./MetricTrend";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
@@ -16,9 +16,9 @@ import { GameServerBackups } from "./GameServerBackups";
 import { Box } from "lucide-react";
 import { GameServerPlugins } from "./GameServerPlugins";
 import { minecraftPlayerProfiles, type MinecraftPlayerProfile } from "./minecraftPlayerProfiles";
-import { GameServerPlayerDetails, type ServerPlayer as Player, type PlayerStatus, type PlayerRole } from "./GameServerPlayerDetails";
+import { GameServerPlayerDetails, PlayerRoleBadges, type ServerPlayer as Player, type PlayerStatus, type PlayerRole } from "./GameServerPlayerDetails";
 
-type PlayerSortKey = "name" | "status" | "lastLogin" | "hours" | "connection" | "location" | "role";
+type PlayerSortKey = "name" | "status" | "lastLogin" | "hours" | "role";
 type PlayerSort = { key: PlayerSortKey; direction: "ascending" | "descending" };
 const playerCollator = new Intl.Collator("zh-CN", { numeric: true, sensitivity: "base" });
 const playerStatusOrder: Record<PlayerStatus, number> = { 在线: 0, 离线: 1, 已封禁: 2 };
@@ -34,19 +34,11 @@ function comparePlayers(a: Player, b: Player, sort: PlayerSort, minecraft: boole
     case "status": difference = playerStatusOrder[a.status] - playerStatusOrder[b.status]; break;
     case "lastLogin": difference = a.lastLogin.localeCompare(b.lastLogin); break;
     case "hours": difference = a.hours - b.hours; break;
-    case "connection":
-      // A dash represents unavailable latency; keep it after measured values in either direction.
-      if ((a.status === "在线") !== (b.status === "在线")) return a.status === "在线" ? -1 : 1;
-      difference = (a.status === "在线" ? a.ping - b.ping : 0) || playerCollator.compare(a.clientVersion, b.clientVersion);
-      break;
-    case "location": {
-      difference = playerCollator.compare(a.world, b.world);
-      const aPosition = a.position.split(",").map(Number);
-      const bPosition = b.position.split(",").map(Number);
-      for (let axis = 0; !difference && axis < 3; axis++) difference = aPosition[axis] - bPosition[axis];
+    case "role": {
+      difference = Math.min(...a.roles.map(role => playerRoleOrder[role])) - Math.min(...b.roles.map(role => playerRoleOrder[role]))
+        || Number(b.roles.includes("白名单")) - Number(a.roles.includes("白名单"));
       break;
     }
-    case "role": difference = playerRoleOrder[a.role] - playerRoleOrder[b.role]; break;
   }
   return (difference || playerCollator.compare(a.id, b.id)) * (sort.direction === "ascending" ? 1 : -1);
 }
@@ -63,14 +55,14 @@ const tabs = [
   { id: "machine", label: "机器设定", icon: Settings },
 ] as const;
 const basePlayers: Omit<Player, keyof MinecraftPlayerProfile>[] = [
-  { name: "小帕帕", id: "76561198000000001", status: "在线", lastLogin: "2024-10-26 14:32", hours: 26, role: "管理员", avatar: "player-1" },
-  { name: "天空之城", id: "76561198000000002", status: "在线", lastLogin: "2024-10-26 14:18", hours: 18, role: "成员", avatar: "player-2" },
-  { name: "喵喵子", id: "76561198000000003", status: "在线", lastLogin: "2024-10-26 13:56", hours: 12, role: "成员", avatar: "player-3" },
-  { name: "星空旅人", id: "76561198000000004", status: "离线", lastLogin: "2024-10-26 11:20", hours: 8, role: "成员", avatar: "player-4" },
-  { name: "黑夜骑士", id: "76561198000000005", status: "在线", lastLogin: "2024-10-26 14:05", hours: 34, role: "白名单", avatar: "player-5" },
-  { name: "可乐不加冰", id: "76561198000000006", status: "已封禁", lastLogin: "2024-10-25 20:13", hours: 2, role: "黑名单", avatar: "player-6" },
-  { name: "山田太郎", id: "76561198000000007", status: "离线", lastLogin: "2024-10-25 18:50", hours: 6, role: "成员", avatar: "player-7" },
-  { name: "月下独吟", id: "76561198000000008", status: "在线", lastLogin: "2024-10-26 14:28", hours: 15, role: "成员", avatar: "player-8" },
+  { name: "小帕帕", id: "76561198000000001", status: "在线", lastLogin: "2024-10-26 14:32", hours: 26, roles: ["管理员", "白名单"], avatar: "player-1" },
+  { name: "天空之城", id: "76561198000000002", status: "在线", lastLogin: "2024-10-26 14:18", hours: 18, roles: ["成员", "白名单"], avatar: "player-2" },
+  { name: "喵喵子", id: "76561198000000003", status: "在线", lastLogin: "2024-10-26 13:56", hours: 12, roles: ["成员"], avatar: "player-3" },
+  { name: "星空旅人", id: "76561198000000004", status: "离线", lastLogin: "2024-10-26 11:20", hours: 8, roles: ["成员"], avatar: "player-4" },
+  { name: "黑夜骑士", id: "76561198000000005", status: "在线", lastLogin: "2024-10-26 14:05", hours: 34, roles: ["成员", "白名单"], avatar: "player-5" },
+  { name: "可乐不加冰", id: "76561198000000006", status: "已封禁", lastLogin: "2024-10-25 20:13", hours: 2, roles: ["黑名单"], avatar: "player-6" },
+  { name: "山田太郎", id: "76561198000000007", status: "离线", lastLogin: "2024-10-25 18:50", hours: 6, roles: ["成员"], avatar: "player-7" },
+  { name: "月下独吟", id: "76561198000000008", status: "在线", lastLogin: "2024-10-26 14:28", hours: 15, roles: ["成员"], avatar: "player-8" },
 ];
 const initialPlayers: Player[] = basePlayers.map(player => ({ ...player, ...minecraftPlayerProfiles[player.id] }));
 type ManagementAction = "封禁" | "解封" | "白名单" | "权限变更" | "移除" | "踢出" | "召回";
@@ -98,7 +90,6 @@ const modeDefinitions = [
 ] as const;
 const timeFormat = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 const clockFormat = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" });
-const roleClass = (role: PlayerRole) => ({ 管理员: "admin", 成员: "member", 白名单: "whitelist", 黑名单: "blacklist" })[role];
 const statusClass = (status: PlayerStatus) => ({ 在线: "online", 离线: "offline", 已封禁: "banned" })[status];
 
 function initialLogs(server: ConsoleInstance) {
@@ -195,7 +186,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
     return () => window.clearTimeout(timer);
   }, [notice, onNotice]);
 
-  const filtered = players.filter(player => `${player.name} ${player.id}${minecraft ? ` ${player.gameId} ${player.uuid}` : ""}`.toLowerCase().includes(query.trim().toLowerCase()) && (status === "all" || player.status === status) && (group === "all" || player.role === group));
+  const filtered = players.filter(player => `${player.name} ${player.id}${minecraft ? ` ${player.gameId} ${player.uuid}` : ""}`.toLowerCase().includes(query.trim().toLowerCase()) && (status === "all" || player.status === status) && (group === "all" || player.roles.includes(group as PlayerRole)));
   const sorted = playerSort ? [...filtered].sort((a, b) => comparePlayers(a, b, playerSort, minecraft)) : filtered;
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, pageCount);
@@ -228,7 +219,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
   const addEvent = (text: string, danger = false) => setEvents(previous => [{ text, time: timeFormat.format(new Date()), danger }, ...previous]);
   const actOnPlayer = (player: Player, action: "kick" | "ban" | "unban") => {
     const nextStatus = action === "ban" ? "已封禁" : "离线";
-    setPlayers(previous => previous.map(row => row.id === player.id ? { ...row, status: nextStatus, role: action === "ban" ? "黑名单" : action === "unban" ? "成员" : row.role } : row));
+    setPlayers(previous => previous.map<Player>(row => row.id === player.id ? { ...row, status: nextStatus, roles: action === "ban" ? ["黑名单"] : action === "unban" ? ["成员"] : row.roles } : row));
     const text = `${displayPlayerId(player)} ${action === "kick" ? "已被踢出服务器" : action === "ban" ? "已被管理员封禁" : "已解除封禁"}`;
     const record: ManagementRecord = {
       id: crypto.randomUUID(), playerId: player.id,
@@ -244,11 +235,13 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
     setManagementRecords(previous => [{ id: crypto.randomUUID(), playerId: player.id, text: "被召回到服务器出生点", action: "召回", actor: user?.displayName || user?.username || "本地管理员", time: timeFormat.format(new Date()) }, ...previous]);
     log(`Player: ${text}（演示操作）`); addEvent(text); onNotice(`${text}（演示操作）`);
   };
-  const changePlayerRole = (player: Player, role: PlayerRole) => {
-    setPlayers(previous => previous.map(row => row.id === player.id ? { ...row, role, status: role === "黑名单" ? "已封禁" : row.status === "已封禁" ? "离线" : row.status } : row));
-    const text = `${displayPlayerId(player)} 的权限组已设为${role}`;
-    setManagementRecords(previous => [{ id: crypto.randomUUID(), playerId: player.id, text: `权限组被设为${role}`, action: "权限变更", actor: user?.displayName || user?.username || "本地管理员", time: timeFormat.format(new Date()) }, ...previous]);
-    log(`Player: ${text}（演示操作）`); addEvent(text, role === "黑名单"); onNotice(`${text}（演示操作）`);
+  const changePlayerRole = (player: Player, roles: PlayerRole[]) => {
+    const banned = roles.includes("黑名单");
+    setPlayers(previous => previous.map<Player>(row => row.id === player.id ? { ...row, roles, status: banned ? "已封禁" : row.status === "已封禁" ? "离线" : row.status } : row));
+    const groups = roles.join(" + ");
+    const text = `${displayPlayerId(player)} 的权限组已设为${groups}`;
+    setManagementRecords(previous => [{ id: crypto.randomUUID(), playerId: player.id, text: `权限组被设为${groups}`, action: "权限变更", actor: user?.displayName || user?.username || "本地管理员", time: timeFormat.format(new Date()) }, ...previous]);
+    log(`Player: ${text}（演示操作）`); addEvent(text, banned); onNotice(`${text}（演示操作）`);
   };
   const save = () => { onBackup(); setBackupRequest(previous => previous + 1); log("Save: 世界存档备份已完成（演示操作）"); addEvent("已创建世界存档备份"); };
   const sendCommand = () => {
@@ -307,28 +300,27 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
       {activeTab === "files" || activeTab === "overview" || activeTab === "tasks" || activeTab === "plugins" || activeTab === "backups" || activeTab === "machine" ? null : activeTab === "players" ? <div className={`gsd-layout gsd-players-layout${playerDetail ? " gsd-player-selected" : ""}`}>
         <div className="gsd-metrics gsd-player-metrics" role="region" aria-label="玩家统计">
           <Metric title="在线玩家" value={Math.max(0, server.running ? server.players + onlineDelta : 0)} description="当前服务器在线人数" tone="green" icon={Users} points={[7, 9, 9, 9, 15, 15, 13, 14, 24, 24, 24, 22, 29, 29, 30, 31, 32]} />
-          <Metric title="白名单" value={40} description="已加入白名单的玩家" tone="blue" icon={ClipboardList} points={[5, 12, 16, 18, 17, 15, 16, 21, 27, 32, 36, 38, 40]} />
-          <Metric title="黑名单" value={3 + players.filter(player => player.role === "黑名单").length - 1} description="已加入黑名单的玩家" tone="red" icon={Ban} points={[1, 2, 3, 3, 3, 3, 5, 8, 11, 14, 16, 18]} />
+          <Metric title="白名单" value={40 + players.filter(player => player.roles.includes("白名单")).length - initialPlayers.filter(player => player.roles.includes("白名单")).length} description="已加入白名单的玩家" tone="blue" icon={ClipboardList} points={[5, 12, 16, 18, 17, 15, 16, 21, 27, 32, 36, 38, 40]} />
+          <Metric title="黑名单" value={3 + players.filter(player => player.roles.includes("黑名单")).length - 1} description="已加入黑名单的玩家" tone="red" icon={Ban} points={[1, 2, 3, 3, 3, 3, 5, 8, 11, 14, 16, 18]} />
           <Metric title="平均在线时长" value={averagePlayHours} unit="小时" description="所有玩家游戏时长均值" tone="orange" icon={Clock3} points={[8, 9, 10, 11, 11.4, 12.2, 13, 13.6, 14.2, 14.8, averagePlayHours]} />
         </div>
         <section className="gsd-main gsd-card" aria-label="玩家管理">
           <div className="gsd-filters"><label className="gsd-search"><Search size={17} /><input aria-label="搜索玩家" placeholder={minecraft ? "搜索玩家 ID、UUID 或昵称..." : "搜索玩家昵称或 Steam ID..."} value={query} onChange={event => { setQuery(event.target.value); setPage(1); }} /></label><PlayerSelect label="玩家状态筛选" value={status} onValueChange={value => { setStatus(value); setPage(1); }} options={[{ value: "all", label: "全部状态" }, ...["在线", "离线", "已封禁"].map(value => ({ value, label: value }))]} /><PlayerSelect label="权限组筛选" value={group} onValueChange={value => { setGroup(value); setPage(1); }} options={[{ value: "all", label: "全部权限组" }, ...["管理员", "成员", "白名单", "黑名单"].map(value => ({ value, label: value }))]} /><button className="gsd-button" onClick={() => { setPlayers(previous => [...previous]); onNotice("玩家列表已刷新"); }}><RefreshCw size={17} />刷新</button></div>
           <div className="gsd-player-list-heading"><h2>玩家列表</h2><span>{server.game} · {filtered.length} 名玩家 · 演示数据</span></div>
           <div className="gsd-table-scroll"><table className={`gsd-player-table${minecraft ? " minecraft" : ""}`}>
-            <colgroup><col className="gsd-check-column" /><col className="gsd-name-column" /><col /><col className="gsd-login-column" /><col />{minecraft && <><col /><col /></>}<col /><col className="gsd-action-column" /></colgroup>
+            <colgroup><col className="gsd-check-column" /><col className="gsd-name-column" /><col /><col className="gsd-login-column" /><col /><col /><col className="gsd-action-column" /></colgroup>
             <thead><tr>
               <th><input type="checkbox" aria-label="选择当前页全部玩家" checked={rows.length > 0 && rows.every(row => selected.includes(row.id))} ref={element => { if (element) element.indeterminate = rows.some(row => selected.includes(row.id)) && !rows.every(row => selected.includes(row.id)); }} onChange={event => setSelected(previous => event.target.checked ? [...new Set([...previous, ...rows.map(row => row.id)])] : previous.filter(id => !rows.some(row => row.id === id)))} /></th>
-              {sortHeader("name", minecraft ? "玩家 ID / UUID" : "玩家昵称", minecraft ? "按玩家 ID 排序，相同时比较 UUID" : "按玩家昵称排序")}{sortHeader("status", "在线状态", "升序：在线、离线、已封禁")}{sortHeader("lastLogin", "最后登录")}{sortHeader("hours", "游戏时长")}{minecraft && <>{sortHeader("connection", "连接信息", "按延迟排序，相同时比较客户端版本；无延迟的玩家排在最后")}{sortHeader("location", "最近位置", "按所在世界排序，相同时依次比较 X、Y、Z 坐标")}</>}{sortHeader("role", "权限组", "升序：管理员、成员、白名单、黑名单")}<th>操作</th>
+              {sortHeader("name", minecraft ? "玩家 ID / UUID" : "玩家昵称", minecraft ? "按玩家 ID 排序，相同时比较 UUID" : "按玩家昵称排序")}{sortHeader("status", "在线状态", "升序：在线、离线、已封禁")}{sortHeader("lastLogin", "最后登录")}{sortHeader("hours", "游戏时长")}{sortHeader("role", "权限组", "升序：管理员、成员、黑名单；同组优先白名单玩家")}<th>操作</th>
             </tr></thead>
             <tbody>{rows.map(player => <tr key={player.id} className={selected.includes(player.id) ? "selected" : undefined}>
               <td><input type="checkbox" aria-label={`选择 ${displayPlayerId(player)}`} checked={selected.includes(player.id)} onChange={event => setSelected(previous => event.target.checked ? [...previous, player.id] : previous.filter(id => id !== player.id))} /></td>
               <td><div className={`gsd-player${minecraft ? " minecraft" : ""}`}><img src={playerAvatar(player)} alt={`${displayPlayerId(player)} 的玩家头像`} width={36} height={36} /><div><button title={player.name} onClick={() => openPlayerDetail(player)}>{displayPlayerId(player)}</button><small title={minecraft ? player.uuid : player.id}>{minecraft ? player.uuid : player.id}</small></div></div></td>
               <td><span className={`gsd-player-status ${statusClass(player.status)}`}><i />{player.status}</span></td>
               <td><time>{player.lastLogin}</time></td><td>{player.hours} 小时</td>
-              {minecraft && <><td><span>{player.status === "在线" ? `${player.ping} ms` : "—"}</span><small className="gsd-cell-secondary">客户端 {player.clientVersion}</small></td><td><span>{player.world}</span><small className="gsd-cell-secondary">{player.position}</small></td></>}
-              <td><span className={`gsd-role ${roleClass(player.role)}`}>{player.role === "管理员" && <Crown size={14} fill="currentColor" />}{player.role}</span></td>
+              <td><PlayerRoleBadges roles={player.roles} /></td>
               <td className="gsd-row-actions"><button onClick={() => openPlayerDetail(player)}>查看</button>{player.status === "已封禁" ? <button onClick={() => actOnPlayer(player, "unban")}>解除封禁</button> : <><button onClick={() => actOnPlayer(player, "kick")}>踢出</button><button className="danger" onClick={() => actOnPlayer(player, "ban")}>封禁</button></>}</td>
-            </tr>)}{!rows.length && <tr><td colSpan={minecraft ? 9 : 7}><div className="gsd-empty"><Search size={25} /><strong>没有符合条件的玩家</strong><button onClick={() => { setQuery(""); setStatus("all"); setGroup("all"); }}>清除筛选</button></div></td></tr>}</tbody>
+            </tr>)}{!rows.length && <tr><td colSpan={7}><div className="gsd-empty"><Search size={25} /><strong>没有符合条件的玩家</strong><button onClick={() => { setQuery(""); setStatus("all"); setGroup("all"); }}>清除筛选</button></div></td></tr>}</tbody>
           </table></div>
           <footer className="gsd-pagination"><span>{selected.length ? `已选择 ${selected.length} 名玩家 · ` : ""}共 {filtered.length} 名玩家，当前在线 {onlineCount} 人</span><nav aria-label="玩家分页"><button aria-label="上一页玩家" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}><ChevronLeft size={15} /></button><button className="current" aria-current="page">{currentPage}</button><button aria-label="下一页玩家" disabled={currentPage === pageCount} onClick={() => setPage(currentPage + 1)}><ChevronRight size={15} /></button><PlayerSelect label="每页玩家数量" value={String(pageSize)} onValueChange={value => { setPageSize(Number(value)); setPage(1); }} options={[{ value: "10", label: "10 条/页" }, { value: "5", label: "5 条/页" }]} /></nav></footer>
         </section>
