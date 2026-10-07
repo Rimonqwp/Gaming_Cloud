@@ -56,7 +56,7 @@
 .gsp-install.paid { min-width: 84px; color: #fff; background: #2689ff; }
 .gsp-install.paid:hover { background: #0871ea; }
 .gsp-install:disabled { color: #709988; background: #eef8f4; }
-.gsp-sidebar { display: flex; flex-direction: column; gap: 12px; }
+.gsp-sidebar { display: flex; flex-direction: column; align-self: stretch; gap: 12px; }
 .gsp-sidebar > section { padding: 12px 14px; }
 .gsp-sidebar h2 { margin-bottom: 12px !important; }
 .gsp-sidebar h2 svg { color: #2e4b78; }
@@ -72,22 +72,16 @@
 .gsp-overview dl > div { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 36px; }
 .gsp-overview dt { display: inline-flex; align-items: center; gap: 12px; color: #6c85ad; }
 .gsp-overview dd { margin: 0; color: #102042; font-weight: 600; }
-.gsp-storage { padding-left: 32px; margin: 0 0 5px; }
-.gsp-storage > div { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 7px; color: #6b87ae; }
-.gsp-storage strong { color: #087bff; }
-.gsp-storage progress { display: block; width: 100%; height: 9px; border: 0; border-radius: 10px; overflow: hidden; background: #e3ecf8; }
-.gsp-storage progress::-webkit-progress-bar { background: #e3ecf8; border-radius: 10px; }
-.gsp-storage progress::-webkit-progress-value { background: #0866ff; border-radius: 10px; }
-.gsp-storage progress::-moz-progress-bar { background: #0866ff; border-radius: 10px; }
 .gsp-actions { display: flex; flex-direction: column; gap: 7px; }
 .gsp-actions h2 { margin-bottom: 3px !important; }
 .gsp-actions > button { position: relative; width: 100%; }
 .gsp-update-count { position: absolute; right: -2px; top: -6px; background: #ff344d; border: 2px solid #fff; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; color: #fff; font-size: 11px; }
+.gsp-ranking { display: flex; flex-direction: column; flex: 1; }
 .gsp-ranking header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; gap: 8px; }
 .gsp-ranking header h2 { margin-bottom: 0 !important; }
 .gsp-ranking header button { display: inline-flex; align-items: center; border: 0; padding: 0; background: none; font-size: 11px; color: #087bff; }
-.gsp-ranking ol { list-style: none; padding: 0; margin: 8px 0 3px; }
-.gsp-ranking li { display: flex; align-items: center; gap: 24px; height: 26px; }
+.gsp-ranking ol { display: flex; flex-direction: column; justify-content: space-between; flex: 1; list-style: none; padding: 0; margin: 8px 0 3px; }
+.gsp-ranking li { display: flex; align-items: center; gap: 24px; min-height: 25px; }
 .gsp-ranking li > button { flex: 1; min-width: 0; text-align: left; border: 0; padding: 0; background: none; color: #172446; font-size: 12px; }
 .gsp-ranking li > button:hover { color: #087bff; }
 .gsp-ranking li > span:last-child { color: #7890b6; }

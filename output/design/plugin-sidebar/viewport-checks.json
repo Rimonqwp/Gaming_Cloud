@@ -1,0 +1,35 @@
+[
+  {
+    "catalogBottom": 1003.5,
+    "containerWidth": 1600,
+    "overflow": false,
+    "rankingBottom": 1003.5,
+    "rows": 10,
+    "viewport": [
+      2027,
+      1750
+    ]
+  },
+  {
+    "catalogBottom": 1196.03125,
+    "containerWidth": 1180.390625,
+    "overflow": false,
+    "rankingBottom": 1196.03125,
+    "rows": 10,
+    "viewport": [
+      1280,
+      1000
+    ]
+  },
+  {
+    "containerWidth": 360,
+    "overflow": false,
+    "rankingHeight": 310,
+    "rows": 10,
+    "storagePresent": false,
+    "viewport": [
+      390,
+      844
+    ]
+  }
+]
