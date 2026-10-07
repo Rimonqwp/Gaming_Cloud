@@ -96,7 +96,7 @@ const modeDefinitions = [
   { key: "whitelist", title: "白名单模式", description: "仅白名单玩家可加入服务器", icon: FileText, tone: "green" },
   { key: "pvp", title: "PVP 模式", description: "允许玩家之间进行 PVP", icon: Swords, tone: "blue" },
   { key: "autosave", title: "自动保存", description: "定时自动保存世界数据", detail: "每 30 分钟保存一次", icon: Save, tone: "blue" },
-  { key: "maintenance", title: "维护模式", description: "阻止新玩家加入服务器", detail: "开启后仅管理员可进入", icon: Wrench, tone: "orange" },
+  { key: "maintenance", title: "维护模式", description: "开启后仅管理员可进入", icon: Wrench, tone: "orange" },
 ] as const;
 const timeFormat = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 const clockFormat = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" });
@@ -316,7 +316,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
           <footer className="gsd-pagination"><span>{selected.length ? `已选择 ${selected.length} 名玩家 · ` : ""}共 {filtered.length} 名玩家，当前在线 {onlineCount} 人</span><nav aria-label="玩家分页"><button aria-label="上一页玩家" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}><ChevronLeft size={15} /></button><button className="current" aria-current="page">{currentPage}</button><button aria-label="下一页玩家" disabled={currentPage === pageCount} onClick={() => setPage(currentPage + 1)}><ChevronRight size={15} /></button><PlayerSelect label="每页玩家数量" value={String(pageSize)} onValueChange={value => { setPageSize(Number(value)); setPage(1); }} options={[{ value: "10", label: "10 条/页" }, { value: "5", label: "5 条/页" }]} /></nav></footer>
         </section>
         <aside className="gsd-sidebar">
-          <section className="gsd-card gsd-quick"><h2><Settings size={20} />快捷管理</h2><div className="gsd-quick-grid">{modeDefinitions.map(mode => <div className={`gsd-quick-item ${mode.tone}`} key={mode.key} title={`${mode.description}${"detail" in mode ? `；${mode.detail}` : ""}`}><span className="gsd-icon-tile"><mode.icon size={21} /></span><div><h3>{mode.title}</h3><p>{mode.description}</p>{"detail" in mode && <small>{mode.detail}</small>}</div><Switch className="gsd-switch" aria-label={mode.title} checked={modes[mode.key]} onCheckedChange={checked => toggleMode(mode.key, checked)} /></div>)}</div></section>
+          <section className="gsd-card gsd-quick"><h2><Settings size={20} />快捷管理</h2><div className="gsd-quick-grid">{modeDefinitions.filter(mode => mode.key === "whitelist" || mode.key === "maintenance").map(mode => <div className={`gsd-quick-item ${mode.tone}`} key={mode.key} title={mode.description}><span className="gsd-icon-tile"><mode.icon size={21} /></span><div><h3>{mode.title}</h3><p>{mode.description}</p></div><Switch className="gsd-switch" aria-label={mode.title} checked={modes[mode.key]} onCheckedChange={checked => toggleMode(mode.key, checked)} /></div>)}</div></section>
           <section className="gsd-card gsd-management-records" aria-label="最近管理记录">
             <header><h2><ShieldCheck size={18} />最近管理记录</h2><button className="gsd-management-more" type="button" aria-label="查看更多管理记录" onClick={() => setManagementRecordsOpen(true)}>查看更多<ChevronRight size={13} /></button></header>
             {renderManagementRecords(managementRecords.slice(0, 5))}
