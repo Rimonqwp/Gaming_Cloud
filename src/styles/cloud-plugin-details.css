@@ -23,7 +23,7 @@
 .gpd-list-plugin > img { flex: none; width: 67px; height: 67px; object-fit: cover; border-radius: 9px; }
 .gpd-list-copy { display: flex; flex-direction: column; align-self: stretch; flex: 1; min-width: 0; }
 .cloud-shell .gpd-list-plugin h3 { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin: 0 0 7px; color: #101535; font-weight: 700; font-size: 18px; line-height: 21px; }
-.gpd-select-plugin { border: 0; padding: 0; background: none; color: inherit; font-weight: inherit !important; text-align: left; }
+.gpd-select-plugin { display: inline-flex; align-items: center; gap: 6px; min-width: 0; border: 0; padding: 0; background: none; color: inherit; font-weight: inherit !important; text-align: left; }
 .gpd-select-plugin::after { content: ''; position: absolute; inset: 0; border-radius: 9px; }
 .gpd-list-plugin .gsp-install { position: relative; z-index: 1; align-self: end; width: 104px; min-width: 0; height: 32px; padding: 0 6px; white-space: nowrap; }
 .gpd-select-plugin:focus-visible { outline: none; }
@@ -32,7 +32,9 @@
 .gpd-list-bottom { display: grid; grid-template-columns: minmax(0, 1fr) 104px; align-items: center; gap: 8px; margin-top: auto; }
 .gpd-list-bottom .gsp-meta { min-width: 0; flex-wrap: wrap; margin: 0; gap: 4px 8px; justify-content: flex-start; font-size: 13px; }
 .gpd-list-bottom .gsp-meta > span { gap: 5px; }
-.gpd-free { color: #00b781; background: #def8ef; padding: 2px 6px; border-radius: 5px; font-weight: 600; }
+.gpd-price-icon { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; flex: none; width: 20px; height: 20px; border-radius: 5px; }
+.gpd-price-icon.free { color: #00a878; background: #def8ef; }
+.gpd-price-icon.paid { color: #b97908; background: #fff3d6; }
 .gpd-detail > .gpd-summary { display: flex; justify-content: space-between; gap: 16px; padding: 20px 22px 14px; margin-bottom: 0; }
 .gpd-identity { display: flex; align-items: flex-start; gap: 20px; min-width: 0; }
 .gpd-identity > img { width: 102px; height: 102px; border-radius: 13px; flex: none; object-fit: cover; }
