@@ -107,8 +107,23 @@ html:has(.gsd-page) { scrollbar-gutter: stable; }
 .gsd-player small { display: block; color: #8b9cba; font-size: 10px; line-height: 17px; overflow: hidden; text-overflow: ellipsis; }
 .gsd-player.minecraft img { border-radius: 4px; image-rendering: pixelated; }
 .gsd-cell-secondary { display: block; color: #8b9cba; font-size: 10px; line-height: 17px; }
-.gsd-player-list-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 16px 0 10px; }
-.gsd-player-list-heading > span { font-size: 11px; color: #8191ad; }
+.gsd-player-list-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin: 12px 0 10px; min-height: 30px; }
+.gsd-player-list-title, .gsd-player-list-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.gsd-player-list-tools { margin-left: auto; }
+.gsd-player-list-tools > span { font-size: 11px; color: #8191ad; }
+.gsd-selection-summary { font-size: 11px; color: #087bff; }
+.gsd-bulk-trigger { display: inline-flex; align-items: center; justify-content: center; gap: 5px; height: 29px; padding: 0 10px; border: 1px solid #c9ddff; border-radius: 5px; background: #f4f8ff; color: #087bff; font-size: 11px; }
+.gsd-bulk-trigger:hover, .gsd-bulk-trigger[data-state="open"] { background: #e8f3ff; }
+.gsd-bulk-trigger:disabled { background: #f9fbfe; color: #9babbe; border-color: #e5edf9; cursor: not-allowed; }
+.gsd-clear-selection { display: grid; place-items: center; width: 25px; height: 25px; padding: 0; border: 0; border-radius: 4px; background: none; color: #8191ad; }
+.gsd-clear-selection:hover { color: #087bff; background: #edf5ff; }
+.gsd-player-action-menu { width: 230px; background: #fff; color: #445d82; border-color: #dce8fb; }
+.gsd-player-action-menu [data-slot$="menu-label"] { color: #8191ad; font-size: 11px; }
+.gsd-player-action-menu [role="menuitem"] { cursor: pointer; font-size: 12px; }
+.gsd-player-action-menu [data-highlighted] { color: #087bff; background: #edf5ff; }
+.gsd-player-action-menu [role="menuitem"].danger { color: #ff4351; }
+.gsd-player-action-menu [role="menuitem"].danger svg { color: inherit; }
+.gsd-menu-action-count { margin-left: auto; font-size: 10px; color: #8191ad; }
 .gsd-player-table.minecraft { min-width: 920px; }
 .gsd-player-table.minecraft col:nth-child(1) { width: 3%; }
 .gsd-player-table.minecraft col:nth-child(2) { width: 30%; }
@@ -136,6 +151,7 @@ html:has(.gsd-page) { scrollbar-gutter: stable; }
 .gsd-row-actions button:last-child { margin-right: 0; }
 .gsd-row-actions button:hover, .gsd-player button:hover { text-decoration: underline; }
 .gsd-row-actions button.danger { color: #ff4351; }
+.gsd-row-actions button:disabled { color: #a5b4ca; cursor: not-allowed; text-decoration: none; }
 .gsd-pagination { height: 52px; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding-bottom: 7px; font-size: 11px; letter-spacing: .15px; color: #7f91b0; }
 .gsd-pagination > span { line-height: 29px; }
 .gsd-pagination nav { display: flex; align-items: center; gap: 6px; }
