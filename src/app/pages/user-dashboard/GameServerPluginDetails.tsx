@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type MutableRefObject } from 'react';
 import { ArrowLeft, BadgeCheck, Box, Check, ChevronDown, ChevronLeft, ChevronRight, Clock3, Coins, Download, Flame, Gift, Layers, MoreVertical, Package, Puzzle, RefreshCw, Search, ShieldCheck, ShoppingBag, Star, Tag, Timer, Trash2, Upload, type LucideIcon } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
 import { pluginFeatures, pluginIntroduction, pluginVersions, marketplacePlugins, type InstalledPlugin, type MarketplacePlugin } from './gameServerPluginsData';
@@ -8,6 +8,7 @@ type Props = {
   plugin: MarketplacePlugin; plugins: MarketplacePlugin[]; installed: InstalledPlugin[];
   categories: { name: string; icon: LucideIcon; tone: string }[];
   query: string; category: string; platform: string;
+  listScrollMemory: MutableRefObject<{ filters: string; top: number }>;
   onQuery: (value: string) => void; onCategory: (value: string) => void; onPlatform: (value: string) => void;
   onSelect: (id: string) => void; onBack: () => void; onReset: () => void;
   onInstall: (plugin: MarketplacePlugin) => void; onUpdate: (id: string) => void;
@@ -46,6 +47,53 @@ export function GameServerPluginDetails(props: Props) {
   const [relatedOffset, setRelatedOffset] = useState(0);
   const [showAllUpdates, setShowAllUpdates] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
+  const layout = useRef<HTMLDivElement>(null);
+  const browser = useRef<HTMLElement>(null);
+  const browserControls = useRef<HTMLDivElement>(null);
+  const pluginList = useRef<HTMLDivElement>(null);
+  const listContent = useRef<HTMLDivElement>(null);
+  const filters = JSON.stringify([props.query, props.category, props.platform]);
+  useLayoutEffect(() => {
+    const panel = browser.current!;
+    const chrome = panel.closest('.cloud-shell')?.querySelector<HTMLElement>('.cloud-console-chrome');
+    const updateHeight = () => {
+      if (window.matchMedia('(max-width: 700px)').matches) {
+        panel.style.removeProperty('--gpd-browser-height');
+        panel.style.removeProperty('--gpd-browser-top');
+        return;
+      }
+      const scale = Number.parseFloat(getComputedStyle(panel).getPropertyValue('--console-display-scale')) || 1;
+      const toolbarBottom = chrome && getComputedStyle(chrome).position === 'sticky' ? chrome.getBoundingClientRect().bottom : 0;
+      const stickyTop = Math.max(12, toolbarBottom + 12);
+      const top = Math.max(stickyTop, layout.current!.getBoundingClientRect().top);
+      panel.style.setProperty('--gpd-browser-top', `${stickyTop / scale}px`);
+      panel.style.setProperty('--gpd-browser-height', `${Math.max(0, window.innerHeight - top - 12) / scale}px`);
+    };
+    let frame = 0;
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(() => { frame = 0; updateHeight(); });
+    };
+    updateHeight();
+    const observer = new ResizeObserver(schedule);
+    observer.observe(browserControls.current!);
+    observer.observe(listContent.current!);
+    observer.observe(layout.current!);
+    if (chrome) observer.observe(chrome);
+    window.addEventListener('resize', schedule);
+    window.addEventListener('scroll', schedule, { passive: true });
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+      window.removeEventListener('resize', schedule);
+      window.removeEventListener('scroll', schedule);
+    };
+  }, []);
+  useLayoutEffect(() => {
+    const memory = props.listScrollMemory;
+    const top = memory.current.filters === filters ? memory.current.top : 0;
+    memory.current = { filters, top };
+    pluginList.current!.scrollTop = top;
+  }, [filters, props.listScrollMemory]);
   useEffect(() => { heading.current?.focus({ preventScroll: true }); }, []);
   const current = installed.find(row => row.id === p.id);
   const canUpdate = current && (current.update || current.version !== pluginVersions[p.id]);
@@ -57,14 +105,18 @@ export function GameServerPluginDetails(props: Props) {
     const exists = installed.some(item => item.id === row.id);
     return <button className="gsp-install" disabled={exists} onClick={() => onInstall(row)} aria-label={`${exists ? '已安装' : row.price ? '购买' : '安装'} ${row.name}`}>{exists ? <><BadgeCheck size={14} />已安装</> : row.price ? `￥${row.price.toFixed(2)} 购买` : '一键安装'}</button>;
   };
-  return <div className="gpd-layout">
-    <section className="gsd-card gpd-browser" aria-label="插件列表">
+  return <div className="gpd-layout" ref={layout}>
+    <section className="gsd-card gpd-browser" aria-label="插件列表" ref={browser}>
+      <div className="gpd-browser-controls" ref={browserControls}>
       <div className="gpd-search-row"><button className="gpd-back" onClick={props.onBack} aria-label="返回插件广场" title="返回插件广场"><ArrowLeft size={17} /></button><label className="gsp-search"><Search size={17} /><input aria-label="搜索插件" placeholder="搜索插件名称、功能或作者，如：Essentials、经济、传送..." value={props.query} onChange={e => props.onQuery(e.target.value)} /></label></div>
       <nav className="gsp-categories gpd-categories" aria-label="详情页插件分类">{props.categories.slice(0, 5).map(c => <button key={c.name} className={`${c.tone}${props.category === c.name ? ' active' : ''}`} aria-pressed={props.category === c.name} onClick={() => props.onCategory(c.name)}><c.icon size={15} />{c.name}</button>)}<label className="gsp-select"><select aria-label="详情页插件服务端" value={props.platform} onChange={e => props.onPlatform(e.target.value)}><option value="all">全部服务端</option><option>Paper</option><option>Spigot</option></select></label></nav>
-      <div className="gpd-plugin-list">{plugins.map(row => <article key={row.id} className={`gpd-list-plugin${row.id === p.id ? ' selected' : ''}`}>
+      </div>
+      <div className="gpd-plugin-list" ref={pluginList} role="region" aria-label="插件列表内容" tabIndex={0} onScroll={event => { props.listScrollMemory.current = { filters, top: event.currentTarget.scrollTop }; }}>
+      <div className="gpd-plugin-list-content" ref={listContent}>{plugins.map(row => <article key={row.id} className={`gpd-list-plugin${row.id === p.id ? ' selected' : ''}`}>
         <PluginIcon id={row.id} /><div className="gpd-list-copy"><h3><button className="gpd-select-plugin" onClick={() => onSelect(row.id)} aria-label={`查看 ${row.name} 插件详情（${row.price ? `付费 ￥${row.price.toFixed(2)}` : '免费'}）`} aria-current={row.id === p.id ? 'page' : undefined}><span className={`gpd-price-icon ${row.price ? 'paid' : 'free'}`} title={row.price ? `付费插件 · ￥${row.price.toFixed(2)}` : '免费插件'} aria-hidden="true">{row.price ? <Coins size={16} /> : <Gift size={16} />}</span><span>{row.name}</span></button><PluginBadge plugin={row} />{installed.some(item => item.id === row.id) && <span className="gsp-badge green">已安装</span>}</h3><p>{row.description}</p><div className="gpd-list-bottom"><div className="gsp-meta"><span><Tag size={13} />{row.minVersion} - 1.21</span><span><Star size={15} />{row.rating} ({row.reviews})</span><span><Download size={15} />{row.downloads}万+</span></div>{installButton(row)}</div></div>
-      </article>)}</div>
+      </article>)}
       {!plugins.length && <div className="gsp-empty"><Search size={26} /><h3>未找到匹配的插件</h3><p>试试其他关键词或分类。</p><button className="gsd-button" onClick={props.onReset}>重置筛选</button></div>}
+      </div></div>
     </section>
     <section className="gsd-card gpd-detail" aria-label={`${p.name} 插件详情`}>
       <header className="gpd-summary"><div className="gpd-identity"><PluginIcon id={p.id} large /><div><h2 ref={heading} tabIndex={-1}>{p.name}<PluginBadge plugin={p} />{current && <span className="gsp-badge green">已安装</span>}</h2><p className="gpd-author">作者：{p.author}<BadgeCheck size={14} /></p><p>{p.id === 'essentials' ? '最受欢迎的基础功能插件，提供传送、家、经济、商店、TPA 等服务器核心功能，是大多数 Minecraft 服务器的必备插件。' : p.description}</p></div></div><div className="gpd-primary-actions"><button className="gsd-button primary" disabled={!!current && !canUpdate} onClick={() => current ? onUpdate(p.id) : onInstall(p)}>{current ? <Upload size={17} /> : <Download size={17} />}{current ? canUpdate ? '升级插件' : '已是最新版本' : p.price ? `￥${p.price.toFixed(2)} 购买` : '一键安装'}</button><DropdownMenu><DropdownMenuTrigger asChild><button className="gsd-button">更多操作<ChevronDown size={15} /></button></DropdownMenuTrigger><DropdownMenuContent align="end">{current && <><DropdownMenuItem onSelect={() => props.onToggle(p.id)}><ShieldCheck size={15} />{current.enabled ? '停用插件' : '启用插件'}</DropdownMenuItem><DropdownMenuItem onSelect={() => props.onUninstall(p.id)}><Trash2 size={15} />卸载插件</DropdownMenuItem></>}<DropdownMenuItem onSelect={props.onManage}><Box size={15} />管理已安装插件</DropdownMenuItem><DropdownMenuItem onSelect={props.onBack}><ArrowLeft size={15} />返回插件广场</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></header>

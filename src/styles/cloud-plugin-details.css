@@ -9,6 +9,7 @@
 .gsp-detail-root { padding-top: 6px; }
 .gpd-layout > .gsd-card { padding: 0; overflow: hidden; }
 .gpd-browser { min-width: 0; }
+.gpd-browser-controls { display: flow-root; flex: none; }
 .gpd-search-row { display: flex; gap: 6px; padding: 14px 12px 0; }
 .gpd-search-row .gsp-search { flex: 1; height: 40px; padding: 0 10px; }
 .gpd-search-row input { font-size: 14px; }
@@ -16,7 +17,13 @@
 .gpd-categories { margin: 14px 10px 20px; flex-wrap: nowrap; gap: 5px; }
 .gpd-categories button { font-size: 12px; padding: 0 9px; gap: 5px; height: 36px; }
 .gpd-categories .gsp-select { flex: 1; min-width: 90px; height: 36px; padding: 0 6px; }
-.gpd-plugin-list { display: grid; gap: 7px; padding: 0 10px 10px; }
+.gpd-plugin-list { min-height: 0; }
+.gpd-plugin-list:focus-visible { outline: 2px solid #087bff; outline-offset: -2px; }
+.gpd-plugin-list-content { display: grid; gap: 7px; padding: 0 10px 10px; }
+@media (min-width: 701px) {
+  .gpd-browser { position: sticky; top: var(--gpd-browser-top, calc(12px / var(--console-display-scale, 1))); display: flex; flex-direction: column; max-height: var(--gpd-browser-height, calc((100dvh - 24px) / var(--console-display-scale, 1))); }
+  .gpd-plugin-list { overflow-y: auto; overscroll-behavior-y: contain; scrollbar-gutter: stable; }
+}
 .gpd-list-plugin { position: relative; display: flex; align-items: center; gap: 16px; padding: 12px 10px; min-height: 112px; min-width: 0; border: 1px solid #e0eaf7; border-radius: 9px; background: #fff; }
 .gpd-list-plugin.selected { border-color: #398cff; background: #f3f8ff; box-shadow: inset 0 0 0 1px #6da6ff20; }
 .gpd-list-plugin:hover { border-color: #97beff; }

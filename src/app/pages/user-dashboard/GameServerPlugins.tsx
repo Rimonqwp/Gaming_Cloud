@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router';
 import { ArrowUp, ArrowUpDown, Box, Check, ChevronRight, Compass, Download, FileText, Flame, Gamepad2, Layers, LayoutGrid, Link, List, Map, MessageCircle, Package, Puzzle, Search, Shield, Sparkles, Star, Tag, Trash2, Upload, Wrench } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../../components/ui/dialog';
@@ -47,6 +47,7 @@ export function GameServerPlugins({ server, onNotice }: { server: ConsoleInstanc
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('全部');
   const [platform, setPlatform] = useState('all');
+  const listScrollMemory = useRef({ filters: '', top: 0 });
   const [version, setVersion] = useState('all');
   const [sort, setSort] = useState('default');
   const [modal, setModal] = useState<'manage' | 'upload' | 'ranking' | null>(null);
@@ -70,7 +71,7 @@ export function GameServerPlugins({ server, onNotice }: { server: ConsoleInstanc
   const reset = () => { setQuery(''); setCategory('全部'); setPlatform('all'); setVersion('all'); setSort('default'); };
   return <div className={selected ? 'gsp-detail-root' : 'gsp-layout'}>
     {selected ? <GameServerPluginDetails key={selected.id} plugin={selected} plugins={filtered} installed={installed} categories={categories}
-      query={query} category={category} platform={platform} onQuery={setQuery} onCategory={setCategory} onPlatform={setPlatform}
+      query={query} category={category} platform={platform} listScrollMemory={listScrollMemory} onQuery={setQuery} onCategory={setCategory} onPlatform={setPlatform}
       onSelect={openPlugin} onBack={backToCatalog} onReset={reset} onInstall={p => p.price ? setPurchase(p) : install(p)} onUpdate={updatePlugin}
       onManage={() => setModal('manage')} onToggle={id => setInstalled(rows => rows.map(p => p.id === id ? { ...p, enabled: !p.enabled } : p))}
       onUninstall={id => { setInstalled(rows => rows.filter(p => p.id !== id)); onNotice('插件已卸载（演示操作）'); }} /> : <>
