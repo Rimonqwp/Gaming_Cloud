@@ -89,6 +89,10 @@ html:has(.gsd-page) { scrollbar-gutter: stable; }
 .gsd-player-table col:nth-child(6) { width: 15.5%; }
 .gsd-action-column { width: 17%; }
 .gsd-player-table th { background: #f5f8fc; color: #455d87; height: 38px; padding: 0 6px; font-weight: 600; font-size: 11px; }
+.gsd-player-sort { display: inline-flex; align-items: center; gap: 4px; min-height: 38px; padding: 0; border: 0; background: none; color: inherit; font-weight: inherit; cursor: pointer; white-space: nowrap; }
+.gsd-player-sort svg { flex: none; color: #a0b1cd; }
+.gsd-player-sort:hover, .gsd-player-sort.active, .gsd-player-sort.active svg { color: #087bff; }
+.gsd-player-sort:focus-visible { outline: 2px solid #1683ff; outline-offset: 2px; border-radius: 3px; }
 .gsd-player-table td { height: 47px; padding: 4px 6px; border-bottom: 1px solid #eaf0f9; font-size: 12px; color: #687fa7; }
 .gsd-player-table tbody tr:hover { background: #f8fbff; }
 .gsd-player-table tbody tr.selected { background: #eff6ff; }

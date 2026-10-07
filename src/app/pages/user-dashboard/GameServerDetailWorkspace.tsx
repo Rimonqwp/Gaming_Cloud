@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Archive, Ban, Check, ChevronLeft, ChevronRight, ClipboardList, Clock3, Copy, Crown, Eye, FileText, FolderClosed, Gamepad2, House, Megaphone, Power, RefreshCw, Save, Search, Send, Settings, SquareTerminal, Swords, Timer, Trash2, Users, Wrench, X, Zap } from "lucide-react";
+import { Archive, ArrowDown, ArrowUp, ArrowUpDown, Ban, Check, ChevronLeft, ChevronRight, ClipboardList, Clock3, Copy, Crown, Eye, FileText, FolderClosed, Gamepad2, House, Megaphone, Power, RefreshCw, Save, Search, Send, Settings, SquareTerminal, Swords, Timer, Trash2, Users, Wrench, X, Zap } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
@@ -19,6 +19,38 @@ import { minecraftPlayerProfiles, type MinecraftPlayerProfile } from "./minecraf
 type PlayerStatus = "在线" | "离线" | "已封禁";
 type PlayerRole = "管理员" | "成员" | "白名单" | "黑名单";
 type Player = { name: string; id: string; status: PlayerStatus; lastLogin: string; hours: number; role: PlayerRole; avatar: string } & MinecraftPlayerProfile;
+type PlayerSortKey = "name" | "status" | "lastLogin" | "hours" | "connection" | "location" | "role";
+type PlayerSort = { key: PlayerSortKey; direction: "ascending" | "descending" };
+const playerCollator = new Intl.Collator("zh-CN", { numeric: true, sensitivity: "base" });
+const playerStatusOrder: Record<PlayerStatus, number> = { 在线: 0, 离线: 1, 已封禁: 2 };
+const playerRoleOrder: Record<PlayerRole, number> = { 管理员: 0, 成员: 1, 白名单: 2, 黑名单: 3 };
+
+function comparePlayers(a: Player, b: Player, sort: PlayerSort, minecraft: boolean) {
+  let difference = 0;
+  switch (sort.key) {
+    case "name":
+      difference = playerCollator.compare(minecraft ? a.gameId : a.name, minecraft ? b.gameId : b.name)
+        || playerCollator.compare(minecraft ? a.uuid : a.id, minecraft ? b.uuid : b.id);
+      break;
+    case "status": difference = playerStatusOrder[a.status] - playerStatusOrder[b.status]; break;
+    case "lastLogin": difference = a.lastLogin.localeCompare(b.lastLogin); break;
+    case "hours": difference = a.hours - b.hours; break;
+    case "connection":
+      // A dash represents unavailable latency; keep it after measured values in either direction.
+      if ((a.status === "在线") !== (b.status === "在线")) return a.status === "在线" ? -1 : 1;
+      difference = (a.status === "在线" ? a.ping - b.ping : 0) || playerCollator.compare(a.clientVersion, b.clientVersion);
+      break;
+    case "location": {
+      difference = playerCollator.compare(a.world, b.world);
+      const aPosition = a.position.split(",").map(Number);
+      const bPosition = b.position.split(",").map(Number);
+      for (let axis = 0; !difference && axis < 3; axis++) difference = aPosition[axis] - bPosition[axis];
+      break;
+    }
+    case "role": difference = playerRoleOrder[a.role] - playerRoleOrder[b.role]; break;
+  }
+  return (difference || playerCollator.compare(a.id, b.id)) * (sort.direction === "ascending" ? 1 : -1);
+}
 type DetailTab = "overview" | "players" | "files" | "plugins" | "backups" | "logs" | "tasks" | "machine";
 type Mode = "whitelist" | "pvp" | "autosave" | "maintenance";
 const tabs = [
@@ -113,6 +145,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
   const [selected, setSelected] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [playerSort, setPlayerSort] = useState<PlayerSort | null>(null);
   const [logs, setLogs] = useState(() => initialLogs(server));
   const [events, setEvents] = useState(initialEvents);
   const [command, setCommand] = useState("");
@@ -149,9 +182,21 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
   }, [notice, onNotice]);
 
   const filtered = players.filter(player => `${player.name} ${player.id}${minecraft ? ` ${player.gameId} ${player.uuid}` : ""}`.toLowerCase().includes(query.trim().toLowerCase()) && (status === "all" || player.status === status) && (group === "all" || player.role === group));
+  const sorted = playerSort ? [...filtered].sort((a, b) => comparePlayers(a, b, playerSort, minecraft)) : filtered;
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, pageCount);
-  const rows = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const rows = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const sortHeader = (key: PlayerSortKey, label: string, description?: string) => {
+    const active = playerSort?.key === key;
+    const nextDirection = active && playerSort.direction === "ascending" ? "descending" : "ascending";
+    const SortIcon = active ? playerSort.direction === "ascending" ? ArrowUp : ArrowDown : ArrowUpDown;
+    return <th aria-sort={active ? playerSort.direction : undefined}>
+      <button type="button" className={`gsd-player-sort${active ? " active" : ""}`} aria-label={`按${label}${nextDirection === "ascending" ? "升序" : "降序"}排序`} title={description} onClick={() => {
+        setPlayerSort({ key, direction: nextDirection });
+        setPage(1);
+      }}>{label}<SortIcon size={12} aria-hidden="true" /></button>
+    </th>;
+  };
   const onlineCount = players.filter(player => player.status === "在线").length;
   const onlineDelta = onlineCount - initialPlayers.filter(player => player.status === "在线").length;
   const log = (text: string) => setLogs(previous => [...previous, `[${clockFormat.format(new Date())}] ${text}`]);
@@ -215,7 +260,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
             <colgroup><col className="gsd-check-column" /><col className="gsd-name-column" /><col /><col className="gsd-login-column" /><col />{minecraft && <><col /><col /></>}<col /><col className="gsd-action-column" /></colgroup>
             <thead><tr>
               <th><input type="checkbox" aria-label="选择当前页全部玩家" checked={rows.length > 0 && rows.every(row => selected.includes(row.id))} ref={element => { if (element) element.indeterminate = rows.some(row => selected.includes(row.id)) && !rows.every(row => selected.includes(row.id)); }} onChange={event => setSelected(previous => event.target.checked ? [...new Set([...previous, ...rows.map(row => row.id)])] : previous.filter(id => !rows.some(row => row.id === id)))} /></th>
-              <th>{minecraft ? "玩家 ID / UUID" : "玩家昵称"}</th><th>在线状态</th><th>最后登录</th><th>游戏时长</th>{minecraft && <><th>连接信息</th><th>最近位置</th></>}<th>权限组</th><th>操作</th>
+              {sortHeader("name", minecraft ? "玩家 ID / UUID" : "玩家昵称", minecraft ? "按玩家 ID 排序，相同时比较 UUID" : "按玩家昵称排序")}{sortHeader("status", "在线状态", "升序：在线、离线、已封禁")}{sortHeader("lastLogin", "最后登录")}{sortHeader("hours", "游戏时长")}{minecraft && <>{sortHeader("connection", "连接信息", "按延迟排序，相同时比较客户端版本；无延迟的玩家排在最后")}{sortHeader("location", "最近位置", "按所在世界排序，相同时依次比较 X、Y、Z 坐标")}</>}{sortHeader("role", "权限组", "升序：管理员、成员、白名单、黑名单")}<th>操作</th>
             </tr></thead>
             <tbody>{rows.map(player => <tr key={player.id} className={selected.includes(player.id) ? "selected" : undefined}>
               <td><input type="checkbox" aria-label={`选择 ${displayPlayerId(player)}`} checked={selected.includes(player.id)} onChange={event => setSelected(previous => event.target.checked ? [...previous, player.id] : previous.filter(id => id !== player.id))} /></td>
