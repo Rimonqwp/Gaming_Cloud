@@ -123,6 +123,8 @@
 .ifm-path-row > .ifm-selection button { min-height: 23px; padding: 0; }
 .ifm-selection button.ifm-selection-delete { color: #f04451; }
 .ifm-selection button.ifm-selection-delete:hover { color: #d92d3d; }
+.ifm-undo-delete { flex: none; margin-left: auto; padding: 0; min-height: 23px; border: 0; background: none; color: #f04451; font-size: 12px; white-space: nowrap; cursor: pointer; }
+.ifm-undo-delete:hover { color: #d92d3d; }
 .ifm-empty, .ifm-detail-empty { display: flex; align-items: center; flex-direction: column; justify-content: center; gap: 12px; min-height: 220px; color: #8196b8; }
 .ifm-empty strong { font-size: 13px; font-weight: 500; }
 .ifm-empty button { color: #087bff; background: none; border: 0; }
