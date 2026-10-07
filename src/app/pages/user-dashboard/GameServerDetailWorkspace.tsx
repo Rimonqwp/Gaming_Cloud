@@ -65,9 +65,9 @@ const basePlayers: Omit<Player, keyof MinecraftPlayerProfile>[] = [
   { name: "月下独吟", id: "76561198000000008", status: "在线", lastLogin: "2024-10-26 14:28", hours: 15, roles: ["成员"], avatar: "player-8" },
 ];
 const initialPlayers: Player[] = basePlayers.map(player => ({ ...player, ...minecraftPlayerProfiles[player.id] }));
-type ManagementAction = "封禁" | "解封" | "白名单" | "权限变更" | "移除" | "踢出" | "召回";
+type ManagementAction = "封禁" | "解封" | "白名单" | "权限变更" | "移除" | "踢出";
 type ManagementRecord = { id: string; playerId: string; text: string; action: ManagementAction; actor: string; time: string };
-const managementActionTone: Record<ManagementAction, string> = { 封禁: "red", 解封: "green", 白名单: "blue", 权限变更: "orange", 移除: "muted", 踢出: "muted", 召回: "blue" };
+const managementActionTone: Record<ManagementAction, string> = { 封禁: "red", 解封: "green", 白名单: "blue", 权限变更: "orange", 移除: "muted", 踢出: "muted" };
 const initialManagementRecords: ManagementRecord[] = [
   { id: "management-1", playerId: "76561198000000006", text: "被加入黑名单", action: "封禁", actor: "Rimon12", time: "2024-10-25 20:13" },
   { id: "management-2", playerId: "76561198000000007", text: "被移出黑名单", action: "解封", actor: "Rimon12", time: "2024-10-25 18:50" },
@@ -230,11 +230,6 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
     setManagementRecords(previous => [record, ...previous]);
     log(`Player: ${text}`); addEvent(text, action === "ban"); onNotice(`${text}（演示操作）`);
   };
-  const recallPlayer = (player: Player) => {
-    const text = `${displayPlayerId(player)} 已召回到服务器出生点`;
-    setManagementRecords(previous => [{ id: crypto.randomUUID(), playerId: player.id, text: "被召回到服务器出生点", action: "召回", actor: user?.displayName || user?.username || "本地管理员", time: timeFormat.format(new Date()) }, ...previous]);
-    log(`Player: ${text}（演示操作）`); addEvent(text); onNotice(`${text}（演示操作）`);
-  };
   const changePlayerRole = (player: Player, roles: PlayerRole[]) => {
     const banned = roles.includes("黑名单");
     setPlayers(previous => previous.map<Player>(row => row.id === player.id ? { ...row, roles, status: banned ? "已封禁" : row.status === "已封禁" ? "离线" : row.status } : row));
@@ -325,7 +320,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
           <footer className="gsd-pagination"><span>{selected.length ? `已选择 ${selected.length} 名玩家 · ` : ""}共 {filtered.length} 名玩家，当前在线 {onlineCount} 人</span><nav aria-label="玩家分页"><button aria-label="上一页玩家" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}><ChevronLeft size={15} /></button><button className="current" aria-current="page">{currentPage}</button><button aria-label="下一页玩家" disabled={currentPage === pageCount} onClick={() => setPage(currentPage + 1)}><ChevronRight size={15} /></button><PlayerSelect label="每页玩家数量" value={String(pageSize)} onValueChange={value => { setPageSize(Number(value)); setPage(1); }} options={[{ value: "10", label: "10 条/页" }, { value: "5", label: "5 条/页" }]} /></nav></footer>
         </section>
         <aside className="gsd-sidebar">
-          {playerDetail && <GameServerPlayerDetails key={playerDetail.id} player={playerDetail} minecraft={minecraft} averageHours={averagePlayHours} records={managementRecords.filter(record => record.playerId === playerDetail.id)} onClose={closePlayerDetail} onAction={action => action === "recall" ? recallPlayer(playerDetail) : actOnPlayer(playerDetail, action)} onRoleChange={role => changePlayerRole(playerDetail, role)} onNotice={onNotice} />}
+          {playerDetail && <GameServerPlayerDetails key={playerDetail.id} player={playerDetail} minecraft={minecraft} averageHours={averagePlayHours} records={managementRecords.filter(record => record.playerId === playerDetail.id)} onClose={closePlayerDetail} onAction={action => actOnPlayer(playerDetail, action)} onRoleChange={role => changePlayerRole(playerDetail, role)} onNotice={onNotice} />}
           <section className="gsd-card gsd-quick"><h2><Settings size={20} />快捷管理</h2><div className="gsd-quick-grid">{modeDefinitions.filter(mode => mode.key === "whitelist" || mode.key === "maintenance").map(mode => <div className={`gsd-quick-item ${mode.tone}`} key={mode.key} title={mode.description}><span className="gsd-icon-tile"><mode.icon size={21} /></span><div><h3>{mode.title}</h3><p>{mode.description}</p></div><Switch className="gsd-switch" aria-label={mode.title} checked={modes[mode.key]} onCheckedChange={checked => toggleMode(mode.key, checked)} /></div>)}</div></section>
           {!playerDetail && <section className="gsd-card gsd-management-records" aria-label="最近管理记录">
             <header><h2><ShieldCheck size={18} />最近管理记录</h2><button className="gsd-management-more" type="button" aria-label="查看更多管理记录" onClick={() => setManagementRecordsOpen(true)}>查看更多<ChevronRight size={13} /></button></header>

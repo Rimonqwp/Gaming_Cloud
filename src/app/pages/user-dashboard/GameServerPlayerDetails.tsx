@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { ClipboardList, Copy, Crown, Pencil, Send, ShieldX, Signal, UserRoundX, X } from "lucide-react";
+import { ClipboardList, Copy, Crown, Plus, ShieldX, Signal, UserRoundX, X } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import type { MinecraftPlayerProfile } from "./minecraftPlayerProfiles";
 
 export type PlayerStatus = "在线" | "离线" | "已封禁";
@@ -22,15 +22,13 @@ export function PlayerRoleBadges({ roles }: { roles: PlayerRole[] }) {
 export function GameServerPlayerDetails({ player, minecraft, averageHours, records, onClose, onAction, onRoleChange, onNotice }: {
   player: ServerPlayer; minecraft: boolean; averageHours: number;
   records: { id: string; text: string; actor: string; time: string; action: string }[];
-  onClose: () => void; onAction: (action: "kick" | "ban" | "unban" | "recall") => void;
+  onClose: () => void; onAction: (action: "kick" | "ban" | "unban") => void;
   onRoleChange: (roles: PlayerRole[]) => void; onNotice: (message: string) => void;
 }) {
   const [tab, setTab] = useState<DetailTab>("basic");
-  const [modal, setModal] = useState<"archive" | "role" | null>(null);
-  const [roleDraft, setRoleDraft] = useState<BaseRole>(() => primaryRole(player.roles));
-  const [whitelistDraft, setWhitelistDraft] = useState(() => player.roles.includes("白名单"));
-  const draftRoles: PlayerRole[] = roleDraft === "黑名单" ? [roleDraft] : whitelistDraft ? [roleDraft, "白名单"] : [roleDraft];
-  const rolesChanged = draftRoles.length !== player.roles.length || draftRoles.some(role => !player.roles.includes(role));
+  const [modal, setModal] = useState<"archive" | null>(null);
+  const [roleMenuOpen, setRoleMenuOpen] = useState(false);
+  const currentRole = primaryRole(player.roles);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const playerName = minecraft ? player.gameId : player.name;
@@ -45,7 +43,21 @@ export function GameServerPlayerDetails({ player, minecraft, averageHours, recor
     catch { onNotice(`${label}：${value}，请手动复制`); }
   };
   const statusBadge = <span className={`gsd-player-status ${statusClass[player.status]}`}><i />{player.status}</span>;
-  const roleBadge = <PlayerRoleBadges roles={player.roles} />;
+  const roleBadge = <div className="gsd-detail-roles"><PlayerRoleBadges roles={player.roles} /><DropdownMenu open={roleMenuOpen} onOpenChange={setRoleMenuOpen}>
+    <DropdownMenuTrigger asChild><button className="gsd-detail-role-add" aria-label="管理玩家权限组" title="管理权限组"><Plus size={13} /></button></DropdownMenuTrigger>
+    <DropdownMenuContent className="gsd-role-menu" align="end" aria-label="玩家权限组菜单" onEscapeKeyDown={event => event.stopPropagation()}>
+      <DropdownMenuLabel>身份</DropdownMenuLabel>
+      <DropdownMenuRadioGroup value={currentRole} onValueChange={value => {
+        if (value === currentRole) return;
+        const role = value as BaseRole;
+        onRoleChange(role === "黑名单" ? [role] : player.roles.includes("白名单") ? [role, "白名单"] : [role]);
+      }}>{baseRoles.map(role => <DropdownMenuRadioItem key={role} value={role} onSelect={event => event.preventDefault()}>{role}</DropdownMenuRadioItem>)}</DropdownMenuRadioGroup>
+      <DropdownMenuSeparator />
+      <DropdownMenuLabel>访问名单</DropdownMenuLabel>
+      <DropdownMenuCheckboxItem checked={player.roles.includes("白名单")} disabled={currentRole === "黑名单"} onSelect={event => event.preventDefault()} onCheckedChange={checked => onRoleChange(checked ? [currentRole, "白名单"] : [currentRole])}>白名单</DropdownMenuCheckboxItem>
+      <p>{currentRole === "黑名单" ? "黑名单玩家不可加入白名单" : "白名单可与管理员或成员同时设置"}</p>
+    </DropdownMenuContent>
+  </DropdownMenu></div>;
   const fields: [string, ReactNode][] = [
     ["玩家名称", playerName],
     [minecraft ? "UUID" : "Steam ID", <><span className="gsd-detail-ellipsis" title={identity}>{identity}</span><button className="gsd-detail-copy" aria-label={`复制玩家 ${minecraft ? "UUID" : "Steam ID"}`} onClick={() => void copy(identity, minecraft ? "玩家 UUID" : "Steam ID")}><Copy size={12} /></button></>],
@@ -60,7 +72,7 @@ export function GameServerPlayerDetails({ player, minecraft, averageHours, recor
   ];
   const statsFields: [string, ReactNode][] = [["最后登录", player.lastLogin], ["首次加入", player.firstJoined], ["当前状态", statusBadge], ["管理操作次数", `${records.length} 次`]];
   return <section className="gsd-card gsd-player-details" aria-labelledby="gsd-player-detail-heading" onKeyDown={event => {
-    if (event.key === "Escape" && !modal) { event.stopPropagation(); onClose(); }
+    if (event.key === "Escape" && !modal && !roleMenuOpen) { event.stopPropagation(); onClose(); }
   }}>
     <header><h2 id="gsd-player-detail-heading" tabIndex={-1} ref={headingRef}>玩家详情</h2><button className="gsd-detail-close" aria-label="关闭玩家详情" onClick={onClose}><X size={17} /></button></header>
     <div className={`gsd-detail-profile${minecraft ? " minecraft" : ""}`}>
@@ -78,12 +90,9 @@ export function GameServerPlayerDetails({ player, minecraft, averageHours, recor
     </div>
     <div className="gsd-detail-actions">
       <button className="archive" onClick={() => setModal("archive")}><ClipboardList size={13} />查看档案</button>
-      <button className="recall" disabled={player.status !== "在线"} title={player.status !== "在线" ? "仅在线玩家可召回" : "召回到服务器出生点（演示操作）"} onClick={() => onAction("recall")}><Send size={13} />召回</button>
       <button className="kick" disabled={player.status !== "在线"} title={player.status !== "在线" ? "玩家当前未在线" : "踢出服务器"} onClick={() => onAction("kick")}><UserRoundX size={13} />踢出</button>
       <button className="ban" onClick={() => onAction(player.status === "已封禁" ? "unban" : "ban")}><ShieldX size={13} />{player.status === "已封禁" ? "解封" : "封禁"}</button>
     </div>
-    <button className="gsd-detail-edit" onClick={() => { setRoleDraft(primaryRole(player.roles)); setWhitelistDraft(player.roles.includes("白名单")); setModal("role"); }}><Pencil size={13} />编辑权限组</button>
     <Dialog open={modal === "archive"} onOpenChange={open => { if (!open) setModal(null); }}><DialogContent className="cloud-modal gsd-dialog"><DialogTitle>{playerName} 的玩家档案</DialogTitle><DialogDescription>显示当前演示玩家档案；存档路径为示例，未读取真实服务器文件。</DialogDescription><dl className="gsd-detail-fields">{[["玩家名称", playerName], [minecraft ? "UUID" : "Steam ID", identity], ["存档路径", archivePath], ["累计游戏时长", `${player.hours} 小时`], ["首次加入", player.firstJoined], ["最后登录", player.lastLogin]].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><button className="gsd-button" onClick={() => void copy(archivePath, "存档路径")}><Copy size={14} />复制存档路径</button></DialogContent></Dialog>
-    <Dialog open={modal === "role"} onOpenChange={open => { if (!open) setModal(null); }}><DialogContent className="cloud-modal gsd-dialog"><DialogTitle>编辑 {playerName} 的权限组</DialogTitle><DialogDescription>白名单可与管理员或成员同时设置。修改会同步到玩家列表和管理记录，仅保存在当前演示会话。</DialogDescription><Select value={roleDraft} onValueChange={value => { setRoleDraft(value as BaseRole); if (value === "黑名单") setWhitelistDraft(false); }}><SelectTrigger aria-label="玩家权限组"><SelectValue /></SelectTrigger><SelectContent>{baseRoles.map(role => <SelectItem key={role} value={role}>{role}</SelectItem>)}</SelectContent></Select><label className="gsd-whitelist-setting"><input type="checkbox" checked={whitelistDraft} disabled={roleDraft === "黑名单"} onChange={event => setWhitelistDraft(event.target.checked)} />加入白名单<span>{roleDraft === "黑名单" ? "黑名单玩家不可同时加入白名单" : "保留当前管理员或成员权限"}</span></label><PlayerRoleBadges roles={draftRoles} /><button className="gsd-button primary" disabled={!rolesChanged} onClick={() => { onRoleChange(draftRoles); setModal(null); }}>保存权限组</button></DialogContent></Dialog>
   </section>;
 }
