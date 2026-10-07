@@ -1,7 +1,11 @@
 .gsp-layout { display: grid; grid-template-columns: minmax(0, 1fr) 298px; align-items: start; gap: 12px; }
 .gsp-main, .gsp-sidebar { min-width: 0; }
 .gsp-banner { position: relative; height: 113px; border: 1px solid #fff; border-radius: 8px; background: #e6f2fc; overflow: hidden; margin-bottom: 5px; }
-.gsp-banner > img { position: absolute; right: 0; top: 0; height: 100%; width: 51%; object-fit: cover; }
+.gsp-banner > img {
+  position: absolute; right: 0; top: 0; height: 100%; width: 51%; object-fit: cover;
+  -webkit-mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, .35) 15%, rgba(0, 0, 0, .8) 30%, #000 45%);
+  mask-image: linear-gradient(to right, transparent, rgba(0, 0, 0, .35) 15%, rgba(0, 0, 0, .8) 30%, #000 45%);
+}
 .gsp-banner > div { position: relative; z-index: 1; padding: 24px 23px; }
 .cloud-shell .gsp-banner h2 { display: block; margin: 0 0 7px; font-size: 24px; line-height: 32px; letter-spacing: .2px; color: #080f2a; font-weight: 700; }
 .gsp-banner p { margin: 0; font-size: 14px; line-height: 22px; color: #597ba7; }
