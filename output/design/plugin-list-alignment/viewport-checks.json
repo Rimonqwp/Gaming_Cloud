@@ -1,0 +1,341 @@
+[
+  {
+    "containerWidth": 1600,
+    "rows": [
+      {
+        "bottomInset": 13,
+        "buttonWidth": 104,
+        "cardHeight": 129,
+        "iconCenterOffset": 0,
+        "name": "EssentialsX",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonWidth": 104,
+        "cardHeight": 129,
+        "iconCenterOffset": 0,
+        "name": "LuckPerms",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonWidth": 104,
+        "cardHeight": 129,
+        "iconCenterOffset": 0,
+        "name": "Vault",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonWidth": 104,
+        "cardHeight": 129,
+        "iconCenterOffset": 0,
+        "name": "WorldEdit",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonWidth": 104,
+        "cardHeight": 129,
+        "iconCenterOffset": 0,
+        "name": "WorldGuard",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonWidth": 104,
+        "cardHeight": 129,
+        "iconCenterOffset": 0,
+        "name": "CoreProtect",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonWidth": 104,
+        "cardHeight": 129,
+        "iconCenterOffset": 0,
+        "name": "ItemsAdder",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonWidth": 104,
+        "cardHeight": 129,
+        "iconCenterOffset": 0,
+        "name": "BossShopPro",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonWidth": 104,
+        "cardHeight": 129,
+        "iconCenterOffset": 0,
+        "name": "mcMMO",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonWidth": 104,
+        "cardHeight": 129,
+        "iconCenterOffset": 0,
+        "name": "Jobs Reborn",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonWidth": 104,
+        "cardHeight": 129,
+        "iconCenterOffset": 0,
+        "name": "Citizens",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonWidth": 104,
+        "cardHeight": 129,
+        "iconCenterOffset": 0,
+        "name": "AdvancedHomes",
+        "rightInset": 11
+      }
+    ],
+    "viewport": [
+      2027,
+      1750
+    ]
+  },
+  {
+    "overflow": false,
+    "rows": [
+      {
+        "bottomInset": 11.796875,
+        "buttonTextFits": true,
+        "buttonWidth": 93.59375,
+        "cardHeight": 103.6875,
+        "iconCenterOffset": -0.0078125,
+        "name": "EssentialsX",
+        "rightInset": 10
+      },
+      {
+        "bottomInset": 11.796875,
+        "buttonTextFits": true,
+        "buttonWidth": 93.59375,
+        "cardHeight": 103.6875,
+        "iconCenterOffset": -0.0078125,
+        "name": "LuckPerms",
+        "rightInset": 10
+      },
+      {
+        "bottomInset": 11.796875,
+        "buttonTextFits": true,
+        "buttonWidth": 93.59375,
+        "cardHeight": 103.6875,
+        "iconCenterOffset": -0.0078125,
+        "name": "Vault",
+        "rightInset": 10
+      },
+      {
+        "bottomInset": 11.796875,
+        "buttonTextFits": true,
+        "buttonWidth": 93.59375,
+        "cardHeight": 116.265625,
+        "iconCenterOffset": 0,
+        "name": "WorldEdit",
+        "rightInset": 10
+      },
+      {
+        "bottomInset": 11.796875,
+        "buttonTextFits": true,
+        "buttonWidth": 93.59375,
+        "cardHeight": 103.6875,
+        "iconCenterOffset": -0.0078125,
+        "name": "WorldGuard",
+        "rightInset": 10
+      },
+      {
+        "bottomInset": 11.796875,
+        "buttonTextFits": true,
+        "buttonWidth": 93.59375,
+        "cardHeight": 103.6875,
+        "iconCenterOffset": -0.0078125,
+        "name": "CoreProtect",
+        "rightInset": 10
+      },
+      {
+        "bottomInset": 11.796875,
+        "buttonTextFits": true,
+        "buttonWidth": 93.59375,
+        "cardHeight": 103.6875,
+        "iconCenterOffset": -0.0078125,
+        "name": "ItemsAdder",
+        "rightInset": 10
+      },
+      {
+        "bottomInset": 11.796875,
+        "buttonTextFits": true,
+        "buttonWidth": 93.59375,
+        "cardHeight": 103.6875,
+        "iconCenterOffset": -0.0078125,
+        "name": "BossShopPro",
+        "rightInset": 10
+      },
+      {
+        "bottomInset": 11.796875,
+        "buttonTextFits": true,
+        "buttonWidth": 93.59375,
+        "cardHeight": 103.6875,
+        "iconCenterOffset": -0.0078125,
+        "name": "mcMMO",
+        "rightInset": 10
+      },
+      {
+        "bottomInset": 11.796875,
+        "buttonTextFits": true,
+        "buttonWidth": 93.59375,
+        "cardHeight": 103.6875,
+        "iconCenterOffset": -0.0078125,
+        "name": "Jobs Reborn",
+        "rightInset": 10
+      },
+      {
+        "bottomInset": 11.796875,
+        "buttonTextFits": true,
+        "buttonWidth": 93.59375,
+        "cardHeight": 103.6875,
+        "iconCenterOffset": -0.0078125,
+        "name": "Citizens",
+        "rightInset": 10
+      },
+      {
+        "bottomInset": 11.796875,
+        "buttonTextFits": true,
+        "buttonWidth": 93.59375,
+        "cardHeight": 103.6875,
+        "iconCenterOffset": -0.0078125,
+        "name": "AdvancedHomes",
+        "rightInset": 10
+      }
+    ],
+    "viewport": [
+      1280,
+      1000
+    ]
+  },
+  {
+    "overflow": false,
+    "rows": [
+      {
+        "bottomInset": 13,
+        "buttonTextFits": true,
+        "buttonWidth": 104,
+        "cardHeight": 152,
+        "iconCenterOffset": 0,
+        "name": "EssentialsX",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonTextFits": true,
+        "buttonWidth": 104,
+        "cardHeight": 152,
+        "iconCenterOffset": 0,
+        "name": "LuckPerms",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonTextFits": true,
+        "buttonWidth": 104,
+        "cardHeight": 152,
+        "iconCenterOffset": 0,
+        "name": "Vault",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonTextFits": true,
+        "buttonWidth": 104,
+        "cardHeight": 152,
+        "iconCenterOffset": 0,
+        "name": "WorldEdit",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonTextFits": true,
+        "buttonWidth": 104,
+        "cardHeight": 152,
+        "iconCenterOffset": 0,
+        "name": "WorldGuard",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonTextFits": true,
+        "buttonWidth": 104,
+        "cardHeight": 152,
+        "iconCenterOffset": 0,
+        "name": "CoreProtect",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonTextFits": true,
+        "buttonWidth": 104,
+        "cardHeight": 152,
+        "iconCenterOffset": 0,
+        "name": "ItemsAdder",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonTextFits": true,
+        "buttonWidth": 104,
+        "cardHeight": 152,
+        "iconCenterOffset": 0,
+        "name": "BossShopPro",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonTextFits": true,
+        "buttonWidth": 104,
+        "cardHeight": 152,
+        "iconCenterOffset": 0,
+        "name": "mcMMO",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonTextFits": true,
+        "buttonWidth": 104,
+        "cardHeight": 152,
+        "iconCenterOffset": 0,
+        "name": "Jobs Reborn",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonTextFits": true,
+        "buttonWidth": 104,
+        "cardHeight": 152,
+        "iconCenterOffset": 0,
+        "name": "Citizens",
+        "rightInset": 11
+      },
+      {
+        "bottomInset": 13,
+        "buttonTextFits": true,
+        "buttonWidth": 104,
+        "cardHeight": 152,
+        "iconCenterOffset": 0,
+        "name": "AdvancedHomes",
+        "rightInset": 11
+      }
+    ],
+    "viewport": [
+      390,
+      844
+    ]
+  }
+]

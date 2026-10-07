@@ -17,20 +17,20 @@
 .gpd-categories button { font-size: 12px; padding: 0 9px; gap: 5px; height: 36px; }
 .gpd-categories .gsp-select { flex: 1; min-width: 90px; height: 36px; padding: 0 6px; }
 .gpd-plugin-list { display: grid; gap: 7px; padding: 0 10px 10px; }
-.gpd-list-plugin { position: relative; display: flex; gap: 16px; padding: 12px 10px 9px; min-height: 112px; min-width: 0; border: 1px solid #e0eaf7; border-radius: 9px; background: #fff; }
+.gpd-list-plugin { position: relative; display: flex; align-items: center; gap: 16px; padding: 12px 10px; min-height: 112px; min-width: 0; border: 1px solid #e0eaf7; border-radius: 9px; background: #fff; }
 .gpd-list-plugin.selected { border-color: #398cff; background: #f3f8ff; box-shadow: inset 0 0 0 1px #6da6ff20; }
 .gpd-list-plugin:hover { border-color: #97beff; }
 .gpd-list-plugin > img { flex: none; width: 67px; height: 67px; object-fit: cover; border-radius: 9px; }
-.gpd-list-copy { flex: 1; min-width: 0; }
+.gpd-list-copy { display: flex; flex-direction: column; align-self: stretch; flex: 1; min-width: 0; }
 .cloud-shell .gpd-list-plugin h3 { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin: 0 0 7px; color: #101535; font-weight: 700; font-size: 18px; line-height: 21px; }
 .gpd-select-plugin { border: 0; padding: 0; background: none; color: inherit; font-weight: inherit !important; text-align: left; }
 .gpd-select-plugin::after { content: ''; position: absolute; inset: 0; border-radius: 9px; }
-.gpd-list-plugin .gsp-install { position: relative; z-index: 1; flex: none; min-width: 93px; height: 32px; padding: 0 9px; }
+.gpd-list-plugin .gsp-install { position: relative; z-index: 1; align-self: end; width: 104px; min-width: 0; height: 32px; padding: 0 6px; white-space: nowrap; }
 .gpd-select-plugin:focus-visible { outline: none; }
 .gpd-select-plugin:focus-visible::after { outline: 2px solid #087bff; outline-offset: 1px; }
 .gpd-list-plugin p { margin: 0 0 8px; font-size: 14px; line-height: 21px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #748bb1; }
-.gpd-list-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.gpd-list-bottom .gsp-meta { flex: 1; margin: 0; gap: 10px; justify-content: flex-start; font-size: 13px; }
+.gpd-list-bottom { display: grid; grid-template-columns: minmax(0, 1fr) 104px; align-items: center; gap: 8px; margin-top: auto; }
+.gpd-list-bottom .gsp-meta { min-width: 0; flex-wrap: wrap; margin: 0; gap: 4px 8px; justify-content: flex-start; font-size: 13px; }
 .gpd-list-bottom .gsp-meta > span { gap: 5px; }
 .gpd-free { color: #00b781; background: #def8ef; padding: 2px 6px; border-radius: 5px; font-weight: 600; }
 .gpd-detail > .gpd-summary { display: flex; justify-content: space-between; gap: 16px; padding: 20px 22px 14px; margin-bottom: 0; }
