@@ -320,6 +320,13 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
   const entryMenuItems = (entry: Entry, dropdown = false) => {
     const Item = dropdown ? DropdownMenuItem : ContextMenuItem;
     const Separator = dropdown ? DropdownMenuSeparator : ContextMenuSeparator;
+    if (checked.includes(entry.path) && checked.length > 1) return <>
+      <Item disabled={busy} onSelect={() => void compress(checked)}><Archive size={15} />压缩所选 {checked.length} 项为 ZIP</Item>
+      <Item onSelect={() => void copy(checked.join("\n"))}><Copy size={15} />复制所选路径</Item>
+      <Item onSelect={clearSelection}>取消选择</Item>
+      <Separator />
+      <Item className="ifm-danger" disabled={busy} onSelect={() => openDialog("delete", undefined, checked)}><Trash2 size={15} />删除所选 {checked.length} 项</Item>
+    </>;
     const createItems = entry.folder && <>
       <Item onSelect={() => openDialog("folder", entry)}><FolderPlus size={15} />新建文件夹</Item>
       <Item onSelect={() => openDialog("file", entry)}><FileIcon size={15} />新建文件</Item>
@@ -339,16 +346,15 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
       <Item onSelect={() => void copy(entry.path)}><Copy size={15} />复制路径</Item>
       <Separator />
       <Item className="ifm-danger" onSelect={() => openDialog("delete", entry)}><Trash2 size={15} />删除</Item>
-      {checked.includes(entry.path) && checked.length > 1 && <><Separator /><Item disabled={busy} onSelect={() => void compress(checked)}><Archive size={15} />压缩所选 {checked.length} 项为 ZIP</Item><Item className="ifm-danger" onSelect={() => openDialog("delete", undefined, checked)}><Trash2 size={15} />删除所选 {checked.length} 项</Item></>}
     </>;
   };
   const treeContextMenu = (entry: Entry, content: ReactNode) => <ContextMenu key={entry.path} modal={false}>
     <ContextMenuTrigger asChild onContextMenu={event => { event.stopPropagation(); if (entry.path !== rootDirectory && !checked.includes(entry.path)) setChecked([entry.path]); }}>{content}</ContextMenuTrigger>
-    <ContextMenuContent className="ifm-menu" aria-label={`${baseName(entry.path)} 的目录树操作`}>{entryMenuItems(entry)}</ContextMenuContent>
+    <ContextMenuContent className="ifm-menu" aria-label={checked.includes(entry.path) && checked.length > 1 ? `所选 ${checked.length} 项的批量操作` : `${baseName(entry.path)} 的目录树操作`}>{entryMenuItems(entry)}</ContextMenuContent>
   </ContextMenu>;
   const fileRowContextMenu = (entry: Entry, content: ReactNode) => <ContextMenu key={entry.path} modal={false}>
     <ContextMenuTrigger asChild onContextMenu={event => { event.stopPropagation(); if (!checked.includes(entry.path)) selectEntry(entry.path, {}); }}>{content}</ContextMenuTrigger>
-    <ContextMenuContent className="ifm-menu" aria-label={`${baseName(entry.path)} 的文件操作`}>
+    <ContextMenuContent className="ifm-menu" aria-label={checked.includes(entry.path) && checked.length > 1 ? `所选 ${checked.length} 项的批量操作` : `${baseName(entry.path)} 的文件操作`}>
       {entryMenuItems(entry)}
     </ContextMenuContent>
   </ContextMenu>;

@@ -70,6 +70,8 @@ export function useFileGestures(options: Options) {
   useEffect(() => () => { if (frame.current !== null) cancelAnimationFrame(frame.current); }, []);
   const animate = () => { update(); if (gesture.current?.moved) frame.current = requestAnimationFrame(animate); };
   const onPointerDown = (event: PointerEvent<HTMLElement>) => {
+    // Portaled menus bubble through React, but their clicks are not file-surface gestures.
+    if (!event.currentTarget.contains(event.target as Node)) return;
     if (event.button !== 0 || !event.isPrimary) return;
     suppressClick.current = false;
     if (latest.current.disabled) return;
@@ -121,6 +123,7 @@ export function useFileGestures(options: Options) {
     finish();
   };
   const onClickCapture = (event: MouseEvent<HTMLElement>) => {
+    if (!event.currentTarget.contains(event.target as Node)) return;
     if (suppressClick.current) { suppressClick.current = false; event.preventDefault(); event.stopPropagation(); return; }
     const row = (event.target as Element).closest<HTMLElement>('[data-file-path]');
     if (!row || row.hasAttribute('data-file-root') || (event.target as Element).closest('input, .ifm-tree-toggle, .ifm-row-actions')) return;
@@ -128,6 +131,7 @@ export function useFileGestures(options: Options) {
     latest.current.setSelected([row.dataset.filePath!]);
   };
   const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (!event.currentTarget.contains(event.target as Node)) return;
     if ((event.target as Element).closest('input, textarea')) return;
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') { event.preventDefault(); latest.current.setSelected(visiblePaths(event.currentTarget)); }
     if (event.key === 'Escape') { event.preventDefault(); finish(); latest.current.setSelected([]); }
