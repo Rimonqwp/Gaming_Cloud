@@ -239,8 +239,8 @@ html:has(.gsd-page) { scrollbar-gutter: stable; }
 .gsd-detail-records li > div > span { color: #087bff; flex: none; }
 .gsd-detail-records p { font-size: 10px; line-height: 17px; color: #8191ad; margin: 4px 0 0; }
 .gsd-detail-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 260px; gap: 10px; font-size: 11px; color: #8191ad; }
-.gsd-detail-roles { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-.gsd-detail-role-add { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 21px; height: 21px; padding: 0; border: 1px dashed #a9caff; border-radius: 4px; color: #087bff; background: #f4f8ff; }
+.gsd-detail-roles { display: grid; grid-template-columns: minmax(0, 1fr) 21px; align-items: start; gap: 6px; width: 100%; min-height: 26px; }
+.gsd-detail-role-add { display: inline-flex; align-items: center; justify-content: center; width: 21px; height: 21px; margin-top: 2px; padding: 0; border: 1px dashed #a9caff; border-radius: 4px; color: #087bff; background: #f4f8ff; }
 .gsd-detail-role-add:hover, .gsd-detail-role-add[data-state="open"] { border-style: solid; background: #e8f3ff; }
 .gsd-detail-role-add:focus-visible { outline: 2px solid #087bff; outline-offset: 2px; }
 .gsd-role-menu { width: 220px; border-color: #dce8fb; background: #fff; color: #445d82; box-shadow: 0 8px 24px #2138611a; }
