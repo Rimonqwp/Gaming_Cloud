@@ -1,6 +1,6 @@
 import { lazy, Suspense, useRef, useState, type ReactNode } from "react";
 import { unzip, zip } from "fflate";
-import { ArrowDown, ArrowUp, ArrowUpDown, Archive, ArchiveRestore, Braces, ChevronDown, ChevronRight, ChevronUp, Copy, Download, File as FileIcon, FilePenLine, FileText, Folder, FolderOpen, FolderPlus, House, ListTree, LoaderCircle, RefreshCw, Search, Settings, Terminal, Trash2, Upload, UserRound, X, Scissors, ClipboardPaste, CheckSquare } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Archive, ArchiveRestore, Braces, ChevronDown, ChevronRight, ChevronUp, Copy, Download, File as FileIcon, FileArchive, FilePenLine, FileText, Folder, FolderOpen, FolderPlus, House, ListTree, LoaderCircle, RefreshCw, Search, Settings, Terminal, Trash2, Upload, UserRound, X, Scissors, ClipboardPaste, CheckSquare } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "../../components/ui/context-menu";
@@ -10,7 +10,7 @@ import { archiveBase, createArchiveFiles, selectFilePaths } from "./instanceFile
 import { useFileGestures } from "./useFileGestures";
 import { planFileMove } from "./fileGestureMoves";
 import { captureFileClipboard, containsPath, duplicatePath, planFileTransfer, selectedRoots, validateTransferDestination, type FileClipboard, type TransferDecisions, type TransferConflict, type ConflictChoice } from "./fileClipboard";
-import { fileMenuGroups, contextSelection, isZipEntry, canEditEntry, type FileAction } from "./fileMenuRules";
+import { fileMenuGroups, contextSelection, isArchiveEntry, isZipEntry, canEditEntry, type FileAction } from "./fileMenuRules";
 
 const InstanceFileCodeEditor = lazy(() => import("./InstanceFileCodeEditor"));
 
@@ -42,8 +42,8 @@ const seedEntries: Entry[] = [
   ...["server", "steam", "steamapps", "Palworld", "temp", "scripts"].map((name): Entry => ({ path: `/home/${name}`, folder: true, bytes: 0, modified: "2024-10-26 14:28:12", created: "2024-10-20 16:33:45", permission: "drwxr-xr-x" })),
 ];
 function EntryIcon({ entry, large = false }: { entry: Entry; large?: boolean }) {
-  const ext = entry.path.split(".").pop();
-  const Icon = entry.folder ? Folder : ext === "sh" ? Terminal : ext === "json" ? Braces : ext === "ini" ? Settings : FileText;
+  const ext = entry.path.split(".").pop()?.toLowerCase();
+  const Icon = entry.folder ? Folder : isArchiveEntry(entry) ? FileArchive : ext === "sh" ? Terminal : ext === "json" ? Braces : ext === "ini" ? Settings : FileText;
   return <Icon size={large ? 32 : 23} strokeWidth={1.8} className={`ifm-file-icon ${entry.folder ? "folder" : ext === "sh" ? "shell" : ext === "json" ? "json" : ext === "ini" ? "config" : "document"}`} />;
 }
 
