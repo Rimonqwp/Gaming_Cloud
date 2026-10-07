@@ -1,5 +1,13 @@
 type ArchiveEntry = { path: string; folder: boolean; content?: Uint8Array };
 
+export function archiveBase(paths: string[]) {
+  const parents = paths.map(path => path.slice(0, path.lastIndexOf("/")).split("/"));
+  if (!parents.length) throw new Error("请选择要压缩的项目");
+  let length = 0;
+  while (length < parents[0].length && parents.every(parts => parts[length] === parents[0][length])) length++;
+  return parents[0].slice(0, length).join("/");
+}
+
 export function createArchiveFiles(entries: ArchiveEntry[], paths: string[], base: string) {
   const files: Record<string, Uint8Array> = Object.create(null);
   for (const entry of entries) {

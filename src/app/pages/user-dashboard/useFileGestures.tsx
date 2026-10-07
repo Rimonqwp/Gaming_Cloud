@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type Dispatch, type SetStateAction, type PointerEvent, type MouseEvent, type KeyboardEvent, type MutableRefObject } from "react";
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction, type PointerEvent, type MouseEvent, type KeyboardEvent, type ClipboardEvent, type MutableRefObject } from "react";
 import { createPortal } from "react-dom";
 
 type Point = { x: number; y: number };
@@ -13,6 +13,9 @@ type Options = {
   canMove: (paths: string[], target: string) => boolean;
   onMove: (paths: string[], target: string) => void;
   onDelete: (paths: string[]) => void;
+  onCopy?: (paths: string[]) => void;
+  onCut?: (paths: string[]) => void;
+  onPaste?: (destination: string) => void;
 };
 
 export function useFileGestures(options: Options) {
@@ -132,13 +135,30 @@ export function useFileGestures(options: Options) {
   };
   const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     if (!event.currentTarget.contains(event.target as Node)) return;
-    if ((event.target as Element).closest('input, textarea')) return;
+    if ((event.target as Element).closest('input:not([type="checkbox"]), textarea, [contenteditable="true"], [role="textbox"]')) return;
+    if (latest.current.disabled) return;
+    if (event.ctrlKey || event.metaKey) {
+      const key = event.key.toLowerCase();
+      if (key === 'c' || key === 'x') {
+        event.preventDefault();
+        if (latest.current.selected.length) (key === 'c' ? latest.current.onCopy : latest.current.onCut)?.(latest.current.selected);
+        return;
+      }
+      if (key === 'v') { event.preventDefault(); latest.current.onPaste?.(event.currentTarget.dataset.dropDirectory!); return; }
+    }
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') { event.preventDefault(); latest.current.setSelected(visiblePaths(event.currentTarget)); }
     if (event.key === 'Escape') { event.preventDefault(); finish(); latest.current.setSelected([]); }
     if (event.key === 'Delete' && latest.current.selected.length) { event.preventDefault(); latest.current.onDelete(latest.current.selected); }
   };
+  const onClipboard = (event: ClipboardEvent<HTMLElement>) => {
+    if (!event.currentTarget.contains(event.target as Node) || latest.current.disabled) return;
+    if ((event.target as Element).closest('input:not([type="checkbox"]), textarea, [contenteditable="true"], [role="textbox"]')) return;
+    event.preventDefault();
+    if (event.type === 'paste') latest.current.onPaste?.(event.currentTarget.dataset.dropDirectory!);
+    else if (latest.current.selected.length) (event.type === 'copy' ? latest.current.onCopy : latest.current.onCut)?.(latest.current.selected);
+  };
   return {
-    handlers: { onPointerDown, onPointerMove, onPointerUp, onPointerCancel: finish, onLostPointerCapture: finish, onClickCapture, onKeyDown, onDragStart: (event: MouseEvent<HTMLElement>) => event.preventDefault() },
+    handlers: { onPointerDown, onPointerMove, onPointerUp, onPointerCancel: finish, onLostPointerCapture: finish, onClickCapture, onKeyDown, onCopy: onClipboard, onCut: onClipboard, onPaste: onClipboard, onDragStart: (event: MouseEvent<HTMLElement>) => event.preventDefault() },
     target: moving?.valid ? moving.target : null,
     overlay: box || moving ? createPortal(<>
       {box && <div className="ifm-marquee" style={{ left: box.x, top: box.y, width: box.width, height: box.height }} />}

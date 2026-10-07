@@ -20,6 +20,8 @@
 .ifm-tree-row.active .ifm-tree-label svg { color: #087bff; fill: #b4d8ff; }
 .ifm-tree-row:hover { background: #f0f6ff; }
 .ifm-tree-row.checked, .ifm-tree-row.checked:hover { color: #0068ff; background: #dcecff; box-shadow: inset 0 0 0 1px #9bc5ff; }
+.ifm-tree-row.ifm-cut, .ifm-files-table tr.ifm-cut { opacity: .5; }
+.ifm-conflict-all { display: flex; align-items: center; gap: 8px; margin: 14px 0; font-size: 13px; }
 .ifm-tree-toggle-space { width: 15px; flex: none; }
 .ifm-tree-file .ifm-file-icon { width: 18px; height: 18px; }
 .ifm-tree-row.ifm-tree-file .ifm-tree-label svg { fill: none; }
