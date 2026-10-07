@@ -51,9 +51,35 @@ export function GameServerPluginDetails(props: Props) {
   const layout = useRef<HTMLDivElement>(null);
   const browser = useRef<HTMLElement>(null);
   const browserControls = useRef<HTMLDivElement>(null);
+  const categoryRow = useRef<HTMLElement>(null);
   const pluginList = useRef<HTMLDivElement>(null);
   const listContent = useRef<HTMLDivElement>(null);
   const filters = JSON.stringify([props.query, props.category, props.platform]);
+  useLayoutEffect(() => {
+    const row = categoryRow.current!;
+    let disposed = false;
+    const fitOptions = () => {
+      const options = Array.from(row.children) as HTMLElement[];
+      // 每次先恢复全部选项测量，扩大容器时也能重新显示之前隐藏的项。
+      options.forEach(option => { option.hidden = false; });
+      const gap = Number.parseFloat(getComputedStyle(row).columnGap) || 0;
+      let usedWidth = 0;
+      let fits = true;
+      options.forEach((option, index) => {
+        const width = option.matches('.gsp-select') ? Number.parseFloat(getComputedStyle(option).minWidth) : option.offsetWidth;
+        usedWidth += width + (index ? gap : 0);
+        fits = fits && usedWidth <= row.clientWidth;
+        option.hidden = index > 0 && !fits;
+        if (option.hidden && option.contains(document.activeElement)) options[0].focus({ preventScroll: true });
+      });
+    };
+    fitOptions();
+    const observer = new ResizeObserver(fitOptions);
+    observer.observe(row);
+    window.addEventListener('resize', fitOptions);
+    document.fonts.ready.then(() => { if (!disposed) fitOptions(); });
+    return () => { disposed = true; observer.disconnect(); window.removeEventListener('resize', fitOptions); };
+  }, [props.categories, props.category, props.platform]);
   useLayoutEffect(() => {
     const panel = browser.current!;
     const chrome = panel.closest('.cloud-shell')?.querySelector<HTMLElement>('.cloud-console-chrome');
@@ -110,7 +136,7 @@ export function GameServerPluginDetails(props: Props) {
     <section className="gsd-card gpd-browser" aria-label="插件列表" ref={browser}>
       <div className="gpd-browser-controls" ref={browserControls}>
       <div className="gpd-search-row"><button className="gpd-back" onClick={props.onBack} aria-label="返回插件广场" title="返回插件广场"><ArrowLeft size={17} /></button><label className="gsp-search"><Search size={17} /><input aria-label="搜索插件" placeholder="搜索插件名称、功能或作者，如：Essentials、经济、传送..." value={props.query} onChange={e => props.onQuery(e.target.value)} /></label></div>
-      <nav className="gsp-categories gpd-categories" aria-label="详情页插件分类">{props.categories.slice(0, 5).map(c => <button key={c.name} className={`${c.tone}${props.category === c.name ? ' active' : ''}`} aria-pressed={props.category === c.name} onClick={() => props.onCategory(c.name)}><c.icon size={15} />{c.name}</button>)}<label className="gsp-select"><select aria-label="详情页插件服务端" value={props.platform} onChange={e => props.onPlatform(e.target.value)}><option value="all">全部服务端</option><option>Paper</option><option>Spigot</option></select></label></nav>
+      <nav className="gsp-categories gpd-categories" aria-label="详情页插件分类" ref={categoryRow}>{props.categories.slice(0, 5).map(c => <button key={c.name} className={`${c.tone}${props.category === c.name ? ' active' : ''}`} aria-pressed={props.category === c.name} onClick={() => props.onCategory(c.name)}><c.icon size={15} />{c.name}</button>)}<label className="gsp-select"><select aria-label="详情页插件服务端" value={props.platform} onChange={e => props.onPlatform(e.target.value)}><option value="all">全部服务端</option><option>Paper</option><option>Spigot</option></select></label></nav>
       </div>
       <div className="gpd-plugin-list" ref={pluginList} role="region" aria-label="插件列表内容" tabIndex={0} onScroll={event => { props.listScrollMemory.current = { filters, top: event.currentTarget.scrollTop }; }}>
       <div className="gpd-plugin-list-content" ref={listContent}>{plugins.map(row => <article key={row.id} className={`gpd-list-plugin${row.id === p.id ? ' selected' : ''}`} style={{ viewTransitionName: props.transitioning ? `plugin-card-${row.id}` : undefined }}>
