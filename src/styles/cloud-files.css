@@ -23,6 +23,10 @@
 .ifm-tree-row.ifm-cut, .ifm-files-table tr.ifm-cut { opacity: .5; }
 .ifm-conflict-all { display: flex; align-items: center; gap: 8px; margin: 14px 0; font-size: 13px; }
 .ifm-tree-toggle-space { width: 15px; flex: none; }
+.ifm-tree-name-input { width: 100%; min-width: 0; height: 24px; margin-right: 5px; padding: 1px 4px; border: 1px solid #87baff; border-radius: 3px; background: #fff; color: #0068ff; font: inherit; outline: none; user-select: text; }
+.ifm-tree-name-input:focus { border-color: #087bff; box-shadow: 0 0 0 1px #087bff; }
+.ifm-tree-name-input[aria-invalid="true"] { border-color: #f04451; box-shadow: none; }
+.ifm-folder-error { margin: 4px 0 8px; padding-right: 6px; color: #f04451; font-size: 11px; overflow-wrap: anywhere; }
 .ifm-tree-file .ifm-file-icon { width: 18px; height: 18px; }
 .ifm-tree-row.ifm-tree-file .ifm-tree-label svg { fill: none; }
 .ifm-tree-dirty, .ifm-code-dirty { width: 6px; height: 6px; flex: none; border-radius: 50%; background: #087bff; }
