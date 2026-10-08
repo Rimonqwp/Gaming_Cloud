@@ -1,4 +1,4 @@
-import { lazy, Suspense, useRef, useState, type ReactNode } from "react";
+import { lazy, Suspense, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { unzip, zip } from "fflate";
 import { ArrowDown, ArrowUp, ArrowUpDown, Archive, ArchiveRestore, Braces, ChevronDown, ChevronRight, ChevronUp, Copy, Download, File as FileIcon, FileArchive, FilePenLine, FileText, Folder, FolderOpen, FolderPlus, House, ListTree, LoaderCircle, RefreshCw, Search, Settings, Terminal, Trash2, Upload, UserRound, X, Scissors, ClipboardPaste, CheckSquare } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
@@ -16,7 +16,8 @@ const InstanceFileCodeEditor = lazy(() => import("./InstanceFileCodeEditor"));
 
 type Entry = { path: string; folder: boolean; bytes: number; modified: string; created: string; permission: string; content?: Uint8Array; tags?: string[] };
 type FileDialog = { kind: "rename" | "delete" | "extract"; target?: Entry; paths?: string[]; directory?: string };
-type CreationDraft = { kind: "file" | "folder"; surface: "tree" | "list"; directory: string; name: string; error: string };
+type CreationDraft = { id: number; kind: "file" | "folder"; surface: "tree" | "list"; directory: string; name: string; error: string };
+type CreationRequest = Pick<CreationDraft, "kind" | "surface" | "directory">;
 type PasteRequest = { clipboard: FileClipboard<Entry>; destination: string; decisions: TransferDecisions };
 type FileDraft = { value: string; saved: string; isNew?: boolean };
 const encoder = new TextEncoder();
@@ -68,6 +69,13 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
   const creationDraftRef = useRef(creationDraft);
   creationDraftRef.current = creationDraft;
   const creationInputRef = useRef<HTMLInputElement>(null);
+  const creationSequenceRef = useRef(0);
+  const pendingCreationRef = useRef<CreationRequest | null>(null);
+  useLayoutEffect(() => {
+    if (!creationDraft) return;
+    creationInputRef.current?.focus();
+    creationInputRef.current?.scrollIntoView({ block: "nearest" });
+  }, [creationDraft?.id]);
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -127,11 +135,7 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
       if (destination !== directory) navigate(destination);
       setQuery("");
     }
-    setCreationDraft({ kind, surface, directory: destination, name: "", error: "" });
-    requestAnimationFrame(() => {
-      creationInputRef.current?.focus();
-      creationInputRef.current?.scrollIntoView({ block: "nearest" });
-    });
+    setCreationDraft({ id: ++creationSequenceRef.current, kind, surface, directory: destination, name: "", error: "" });
   };
   const cancelCreation = () => { creationDraftRef.current = null; setCreationDraft(null); };
   const submitCreation = () => {
@@ -155,8 +159,12 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
     onNotice(`已创建${folder ? "文件夹" : "文件"}：${value}（本地演示）`);
   };
   const focusCreationAfterMenu = (event: Event) => {
-    if (!creationInputRef.current) return;
-    event.preventDefault(); creationInputRef.current.focus();
+    const request = pendingCreationRef.current;
+    if (!request) return;
+    // Create after the closing menu releases focus, so its animation cannot blur and cancel the blank input.
+    event.preventDefault();
+    pendingCreationRef.current = null;
+    startCreation(request.kind, request.directory, request.surface);
   };
   const openEditor = (entry: Entry) => {
     if (!isEditable(entry)) { onNotice("此文件类型或大小不支持在线编辑，请下载后查看"); return; }
@@ -492,7 +500,7 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
         case "cut": captureClipboard(paths, "cut"); break;
         case "copy": captureClipboard(paths, "copy"); break;
         case "paste": pasteFiles(destination); break;
-        case "folder": case "file": startCreation(action, destination, surface); break;
+        case "folder": case "file": pendingCreationRef.current = { kind: action, directory: destination, surface }; break;
         case "upload": chooseUpload(destination); break;
         case "compress": void compress(paths); break;
         case "download": if (paths.length > 1) void downloadBatch(paths); else void download(entry!); break;
