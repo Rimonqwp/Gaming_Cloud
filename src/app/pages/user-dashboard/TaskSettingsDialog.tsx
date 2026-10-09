@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode, type RefObject } from "react";
-import { Archive, Bell, CalendarDays, CircleCheck, CircleHelp, Clock3, Code2, Layers, Mail, Play, Puzzle, RotateCcw, Save, Server, Settings, ShieldCheck, Terminal, Timer, TriangleAlert, Users, type LucideIcon } from "lucide-react";
+import { Archive, Bell, BookOpen, CalendarDays, CircleCheck, CircleHelp, Clock3, Code2, ExternalLink, Layers, Mail, Play, Puzzle, RotateCcw, Save, Server, Settings, ShieldCheck, Terminal, Timer, TriangleAlert, Users, type LucideIcon } from "lucide-react";
+import { Link } from "react-router";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
 import { nextTaskRun, parseTaskCron, taskTypes, type ServerTask } from "./gameServerTasksData";
@@ -30,8 +31,12 @@ function visualSchedule(cron: string) {
   return { frequency, minute: valid && single(minute) ? Number(minute) : 0, hour: valid && single(hour) ? Number(hour) : 4, day: valid && single(day) ? Number(day) : 1, weekday: valid && single(weekday) ? Number(weekday) % 7 : 1 };
 }
 
-function Card({ title, description, icon: Icon, children }: { title: string; description?: string; icon: LucideIcon; children: ReactNode }) {
-  return <section className="gstc-card"><header><Icon size={24} /><div><h2>{title}</h2>{description && <p>{description}</p>}</div></header>{children}</section>;
+function DocumentationLink({ label }: { label: string }) {
+  return <Link className="gstc-doc-link" to="/support/article/schedule-restart" target="_blank" rel="noopener noreferrer" aria-label={`${label}（新标签页打开）`}><BookOpen size={17} />查看文档<ExternalLink size={14} /></Link>;
+}
+
+function Card({ title, description, icon: Icon, action, children }: { title: string; description?: string; icon: LucideIcon; action?: ReactNode; children: ReactNode }) {
+  return <section className="gstc-card"><header><Icon size={24} /><div className="gstc-card-heading"><h2>{title}</h2>{description && <p>{description}</p>}</div>{action}</header>{children}</section>;
 }
 
 function SettingRow({ title, description, icon: Icon, children }: { title: string; description?: string; icon: LucideIcon; children: ReactNode }) {
@@ -68,7 +73,7 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
   const reset = () => { onChange({ ...original }); setSelectedTemplateName(templates.find(template => template.command === original.command && template.type === original.type)?.name ?? null); };
   const templateName = selectedTemplate?.name ?? "自定义动作";
   return <form className="gstc-content" onSubmit={event => { event.preventDefault(); onSave(); }}>
-    <header className="gstc-banner"><span className="gstc-banner-icon"><CalendarDays size={30} /></span><div><DialogTitle>{draft.id ? "编辑任务" : "新建任务"}</DialogTitle><DialogDescription>设置执行计划、动作和运行条件，让服务器按时完成日常任务。</DialogDescription></div></header>
+    <header className="gstc-banner"><span className="gstc-banner-icon"><CalendarDays size={30} /></span><div className="gstc-banner-copy"><DialogTitle>{draft.id ? "编辑任务" : "新建任务"}</DialogTitle><DialogDescription>设置执行计划、动作和运行条件，让服务器按时完成日常任务。</DialogDescription></div><DocumentationLink label="查看定时任务文档" /></header>
     <div className="gstc-scroll"><div className="gstc-layout"><main>
       <Card title="基础设置" description="配置任务信息、默认行为和运行环境。" icon={Settings}>
         <div className="gstc-name-fields"><label>任务名称<input autoFocus aria-label="任务名称" value={draft.name} maxLength={60} required onChange={event => update({ name: event.target.value })} placeholder="例如：自动备份世界" /></label><label>任务备注<input aria-label="任务备注" value={draft.description} maxLength={150} onChange={event => update({ description: event.target.value })} placeholder="简要描述任务用途" /></label></div>
@@ -91,7 +96,7 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
           <SettingRow title="下次执行时间预览" icon={Clock3}><output aria-live="polite" className={`gstc-preview${preview ? "" : " invalid"}`}>{!preview ? "请输入有效的执行计划" : draft.enabled ? `${preview}:00` : "任务已暂停，开启后按计划执行"}</output></SettingRow>
         </div>
       </Card>
-      <Card title="执行动作" description="选择动作模板，再按需要调整执行命令。" icon={Play}>
+      <Card title="执行动作" description="选择动作模板，再按需要调整执行命令。" icon={Play} action={<DocumentationLink label="查看执行动作文档" />}>
         <div className="gstc-templates">{templates.map((template, index) => <label key={template.name} className={selectedTemplate?.name === template.name ? "selected" : ""}><input type="radio" name="task-template" value={index} checked={selectedTemplate?.name === template.name} onChange={() => chooseTemplate(index)} /><template.icon size={26} /><span><strong>{template.name}</strong><small>{template.description}</small></span></label>)}</div>
         <div className="gstc-command-fields"><label>执行目录<input aria-label="执行目录" required value={draft.directory} onChange={event => update({ directory: event.target.value })} /></label><div className="gstc-name-fields"><label>任务类型<select aria-label="任务类型" value={draft.type} onChange={event => update({ type: event.target.value as ServerTask["type"] })}>{taskTypes.map(type => <option key={type}>{type}</option>)}</select></label><label>超时时间（分钟）<input aria-label="超时时间" type="number" min={1} max={120} required value={draft.timeout} onChange={event => update({ timeout: Number(event.target.value) })} /></label></div><label>执行命令<textarea aria-label="执行命令" value={draft.command} required onChange={event => update({ command: event.target.value })} placeholder="输入需要执行的命令" /></label></div>
       </Card>
