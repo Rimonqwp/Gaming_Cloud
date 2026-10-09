@@ -73,11 +73,10 @@ export function parseTaskCron(cron: string) {
   return values.every(Boolean) ? { fields, values: values as number[][] } : null;
 }
 
-export function nextTaskRun(cron: string): string | null {
+export function nextTaskRun(cron: string, now: Date = new Date()): string | null {
   const parsed = parseTaskCron(cron);
   if (!parsed) return null;
   const [minutes, hours, days, months, weekdays] = parsed.values;
-  const now = new Date();
   const chinaNow = new Date(now.getTime() + 8 * 60 * 60 * 1000);
   // Iterate calendar days, then allowed hours/minutes; all scheduling previews use Beijing time.
   for (let offset = 0; offset < 366 * 8; offset++) {

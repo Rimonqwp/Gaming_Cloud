@@ -68,7 +68,17 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
   const [selectedTemplateName, setSelectedTemplateName] = useState(() => templates.find(template => template.command === draft.command && template.type === draft.type)?.name ?? null);
   const selectedTemplate = templates.find(template => template.name === selectedTemplateName);
   const schedule = visualSchedule(draft.cron);
-  const preview = useMemo(() => nextTaskRun(draft.cron), [draft.cron]);
+  const [currentMinute, setCurrentMinute] = useState(() => Math.floor(Date.now() / 60000));
+  useEffect(() => {
+    const updateClock = () => setCurrentMinute(Math.floor(Date.now() / 60000));
+    const timer = window.setInterval(updateClock, 1000);
+    document.addEventListener("visibilitychange", updateClock);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", updateClock);
+    };
+  }, []);
+  const preview = useMemo(() => nextTaskRun(draft.cron, new Date(currentMinute * 60000)), [draft.cron, currentMinute]);
   const update = (patch: Partial<ServerTask>) => onChange({ ...draft, ...patch });
   const chooseFrequency = (frequency: Frequency, patch: Partial<typeof schedule> = {}) => {
     const value = { ...schedule, ...patch, frequency };
@@ -112,7 +122,7 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
             {schedule.frequency === "monthly" && <SettingRow title="执行日期" description="当月没有该日期时跳过。" icon={CalendarDays}><div className="gstc-unit"><input aria-label="执行日期" type="number" min={1} max={31} required value={schedule.day} onChange={event => chooseFrequency("monthly", { day: Number(event.target.value) })} /><span>日</span></div></SettingRow>}
           </>}
           <SettingRow title="CRON 表达式" description="分钟 · 小时 · 日期 · 月份 · 星期" icon={Code2}><input aria-label="Cron 表达式" aria-invalid={!preview} value={draft.cron} required onChange={event => update({ cron: event.target.value })} /></SettingRow>
-          <SettingRow title="下次执行时间预览" icon={Clock3}><output aria-live="polite" className={`gstc-preview${preview ? "" : " invalid"}`}>{!preview ? "请输入有效的执行计划" : draft.enabled ? `${preview}:00` : "任务已暂停，开启后按计划执行"}</output></SettingRow>
+          <SettingRow title="下次执行时间预览" description="按默认时区实时计算。" icon={Clock3}><output aria-live="polite" className={`gstc-preview${preview ? "" : " invalid"}`}>{!preview ? "请输入有效的执行计划" : draft.enabled ? `${preview}:00` : "任务已暂停，开启后按计划执行"}</output></SettingRow>
         </div>
       </Card>
       <Card title="执行动作" description="选择动作模板，再按需要调整执行命令。" icon={Play} action={<DocumentationLink label="查看执行动作文档" />}>
