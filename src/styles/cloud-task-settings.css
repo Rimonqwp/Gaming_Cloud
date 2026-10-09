@@ -77,6 +77,7 @@ body:has(.gstc-dialog) [data-slot="dialog-overlay"] { background: #243b5a38; bac
 .gstc-summary svg { color: #304878; }
 .gstc-summary dt { font-size: 13px; color: #57729e; }
 .gstc-summary dd { margin: 0; color: #243d6e; font-weight: 600; overflow-wrap: anywhere; font-size: 13px; }
+.gstc-summary dd code { font-size: 12px; white-space: pre-wrap; }
 .gstc-summary dd small { display: block; color: #7a91b7; font-size: 11px; line-height: 18px; font-weight: 400; margin-top: 4px; }
 .gstc-status { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 15px; background: #e0faf0; color: #00b684; font-size: 11px; white-space: nowrap; font-weight: 600; }
 .gstc-status.off { background: #eef2f9; color: #8497b5; }

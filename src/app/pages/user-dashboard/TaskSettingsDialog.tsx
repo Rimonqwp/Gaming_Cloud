@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode, type RefObject } from "react";
-import { Archive, Bell, BookOpen, CalendarDays, CircleCheck, CircleHelp, Clock3, Code2, ExternalLink, Layers, Mail, Play, Puzzle, RotateCcw, Save, Server, Settings, ShieldCheck, Terminal, Timer, TriangleAlert, Users, type LucideIcon } from "lucide-react";
+import { Archive, Bell, BookOpen, CalendarDays, CircleCheck, CircleHelp, Clock3, Code2, ExternalLink, FileText, FolderOpen, Layers, Mail, Play, Puzzle, RotateCcw, Save, Server, Settings, ShieldCheck, Terminal, Timer, TriangleAlert, Users, type LucideIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
@@ -43,6 +43,10 @@ function SettingRow({ title, description, icon: Icon, children }: { title: strin
   return <div className="gstc-setting-row"><Icon size={24} /><div className="gstc-setting-copy"><strong>{title}</strong>{description && <small>{description}</small>}</div><div className="gstc-setting-control">{children}</div></div>;
 }
 
+function SummaryRow({ title, icon: Icon, children }: { title: string; icon: LucideIcon; children: ReactNode }) {
+  return <div><Icon size={22} /><dt>{title}</dt><dd>{children}</dd></div>;
+}
+
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) {
   return <div className="gstc-toggle"><Switch aria-label={label} checked={checked} onCheckedChange={onChange} /><span>{checked ? "已开启" : "已关闭"}</span></div>;
 }
@@ -72,6 +76,11 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
   };
   const reset = () => { onChange({ ...original }); setSelectedTemplateName(templates.find(template => template.command === original.command && template.type === original.type)?.name ?? null); };
   const templateName = selectedTemplate?.name ?? "自定义动作";
+  const environment = draft.environment ?? selectedTemplate?.environment ?? "server";
+  const validSchedule = !!parseTaskCron(draft.cron);
+  const frequencyLabel = validSchedule ? frequencies.find(option => option.value === schedule.frequency)?.label ?? "自定义 Cron" : "待设置有效计划";
+  const time = `${String(schedule.hour).padStart(2, "0")}:${String(schedule.minute).padStart(2, "0")}`;
+  const executionTime = !validSchedule ? "待设置有效计划" : schedule.frequency === "hourly" ? `每小时第 ${schedule.minute} 分钟` : schedule.frequency === "weekly" ? `${weekdays[schedule.weekday]} ${time}` : schedule.frequency === "monthly" ? `每月 ${schedule.day} 日 ${time}` : schedule.frequency === "daily" ? time : "按 Cron 表达式执行";
   return <form className="gstc-content" onSubmit={event => { event.preventDefault(); onSave(); }}>
     <header className="gstc-banner"><span className="gstc-banner-icon"><CalendarDays size={30} /></span><div className="gstc-banner-copy"><DialogTitle>{draft.id ? "编辑任务" : "新建任务"}</DialogTitle><DialogDescription>设置执行计划、动作和运行条件，让服务器按时完成日常任务。</DialogDescription></div><DocumentationLink label="查看定时任务文档" /></header>
     <div className="gstc-scroll"><div className="gstc-layout"><main>
@@ -80,7 +89,7 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
         <div className="gstc-rows">
           <SettingRow title="定时任务开关" description="开启后按下方配置自动执行定时任务。" icon={ShieldCheck}><Toggle label="定时任务开关" checked={draft.enabled} onChange={enabled => update({ enabled })} /></SettingRow>
           <SettingRow title="默认时区" description="执行时间与 Cron 表达式均使用北京时间。" icon={Clock3}><div className="gstc-static-input">亚洲/上海 (UTC+8)</div></SettingRow>
-          <SettingRow title="任务执行环境" description="选择服务器脚本或游戏控制台指令。" icon={Terminal}><select aria-label="任务执行环境" value={draft.environment ?? selectedTemplate?.environment ?? "server"} onChange={event => update({ environment: event.target.value as "server" | "console" })}><option value="server">服务器内（推荐）</option><option value="console">游戏控制台</option></select></SettingRow>
+          <SettingRow title="任务执行环境" description="选择服务器脚本或游戏控制台指令。" icon={Terminal}><select aria-label="任务执行环境" value={environment} onChange={event => update({ environment: event.target.value as "server" | "console" })}><option value="server">服务器内（推荐）</option><option value="console">游戏控制台</option></select></SettingRow>
           <SettingRow title="失败重试次数" description="失败后每隔 5 分钟重试，0 表示不重试。" icon={RotateCcw}><div className="gstc-unit"><input aria-label="失败重试次数" type="number" min={0} max={10} required value={draft.retries} onChange={event => update({ retries: Number(event.target.value) })} /><span>次</span></div></SettingRow>
         </div>
       </Card>
@@ -104,7 +113,22 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
         <div className="gstc-conditions">{[{ label: "仅在服务器在线时执行", description: "服务器离线时跳过任务。", icon: Server, value: draft.onlyWhenOnline ?? true, onChange: (onlyWhenOnline: boolean) => update({ onlyWhenOnline }) }, { label: "避免玩家在线高峰", description: "仅在没有在线玩家时执行。", icon: Users, value: draft.onlyWhenEmpty ?? false, onChange: (onlyWhenEmpty: boolean) => update({ onlyWhenEmpty }) }, { label: "执行失败发送通知", description: "通过站内信、邮件通知。", icon: Bell, value: draft.notify, onChange: (notify: boolean) => update({ notify }) }].map(condition => <div key={condition.label}><condition.icon size={23} /><span><strong>{condition.label}</strong><small>{condition.description}</small></span><Switch aria-label={condition.label} checked={condition.value} onCheckedChange={condition.onChange} /></div>)}</div>
       </Card>
     </main><aside>
-      <Card title="定时任务概览" icon={Timer}><dl className="gstc-summary"><div><Clock3 size={22} /><dt>定时任务状态</dt><dd><span className={`gstc-status${draft.enabled ? "" : " off"}`}>{draft.enabled ? "已开启" : "已暂停"}</span></dd></div><div><Server size={22} /><dt>所属服务器</dt><dd>{serverName}</dd></div><div><Clock3 size={22} /><dt>当前时区</dt><dd>亚洲/上海 (UTC+8)</dd></div><div><Layers size={22} /><dt>执行动作</dt><dd>{templateName}</dd></div><div><CalendarDays size={22} /><dt>下次执行任务</dt><dd>{draft.name || "未命名任务"}<small>{draft.enabled ? preview ?? "等待有效计划" : "已暂停"}</small></dd></div></dl></Card>
+      <Card title="定时任务概览" icon={Timer}><dl className="gstc-summary" aria-label="定时任务概览">
+        <SummaryRow title="定时任务状态" icon={Clock3}><span className={`gstc-status${draft.enabled ? "" : " off"}`}>{draft.enabled ? "已开启" : "已暂停"}</span></SummaryRow>
+        <SummaryRow title="任务名称" icon={FileText}>{draft.name.trim() || "未命名任务"}</SummaryRow>
+        <SummaryRow title="任务描述" icon={FileText}>{draft.description.trim() || "未填写描述"}</SummaryRow>
+        <SummaryRow title="所属服务器" icon={Server}>{serverName}</SummaryRow>
+        <SummaryRow title="当前时区" icon={Clock3}>亚洲/上海 (UTC+8)</SummaryRow>
+        <SummaryRow title="调度频率" icon={RotateCcw}>{frequencyLabel}</SummaryRow>
+        <SummaryRow title="执行时间" icon={Clock3}>{executionTime}</SummaryRow>
+        <SummaryRow title="Cron 表达式" icon={Code2}><code>{draft.cron.trim() || "未设置"}</code></SummaryRow>
+        <SummaryRow title="执行动作" icon={Layers}>{templateName}</SummaryRow>
+        <SummaryRow title="任务类型" icon={Layers}>{draft.type}</SummaryRow>
+        <SummaryRow title="执行环境" icon={Terminal}>{environment === "server" ? "服务器内" : "游戏控制台"}</SummaryRow>
+        <SummaryRow title="执行目录" icon={FolderOpen}>{draft.directory.trim() || "未设置"}</SummaryRow>
+        <SummaryRow title="执行命令" icon={Terminal}><code>{draft.command.trim() || "未填写命令"}</code></SummaryRow>
+        <SummaryRow title="下次执行时间" icon={CalendarDays}>{draft.enabled ? preview ?? "等待有效计划" : "任务已暂停"}</SummaryRow>
+      </dl></Card>
       <Card title="通知与告警摘要" icon={Bell}><dl className="gstc-summary"><div><Mail size={21} /><dt>失败通知</dt><dd><span className={`gstc-status${draft.notify ? "" : " off"}`}>{draft.notify ? "已开启" : "已关闭"}</span></dd></div><div><TriangleAlert size={21} /><dt>失败重试</dt><dd>{draft.retries ? `最多 ${draft.retries} 次，间隔 5 分钟` : "不自动重试"}</dd></div><div><CircleCheck size={21} /><dt>超时时间</dt><dd>{draft.timeout} 分钟</dd></div><div><Users size={21} /><dt>通知接收人</dt><dd>服务器管理员</dd></div></dl></Card>
       <Card title="使用说明" icon={CircleHelp}><ol className="gstc-help"><li>选择合适的动作模板，设置执行时间和频率。</li><li>建议在服务器空闲时执行占用资源较大的任务。</li><li>高级执行计划可直接填写 5 段 Cron 表达式。</li><li>保存后可在任务列表中编辑、执行或查看日志。</li></ol>{draft.onlyWhenEmpty && players > 0 && <p className="gstc-condition-note">当前有 {players} 位玩家在线，任务将在无人在线时执行。</p>}</Card>
     </aside></div></div>
