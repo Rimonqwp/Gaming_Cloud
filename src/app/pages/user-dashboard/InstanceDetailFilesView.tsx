@@ -168,6 +168,7 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
   };
   const openEditor = (entry: Entry) => {
     if (!isEditable(entry)) { onNotice("此文件类型或大小不支持在线编辑，请下载后查看"); return; }
+    if (!editorMode) setShowTreeFiles(true);
     const value = entry.content ? decoder.decode(entry.content) : "";
     setDrafts(previous => previous[entry.path] ? previous : { ...previous, [entry.path]: { value, saved: value } });
     setEditorTabs(previous => previous.includes(entry.path) ? previous : [...previous, entry.path]);
@@ -175,6 +176,7 @@ export function InstanceDetailFilesView({ onNotice }: { onNotice: (message: stri
     setExpanded(previous => [...new Set([...previous, rootDirectory, parentPath(entry.path)])]);
   };
   const openScratchEditor = () => {
+    if (!editorMode) setShowTreeFiles(true);
     let index = 1;
     let path = `${directory}/.untitled-${index}.txt`;
     while (entries.some(entry => entry.path === path) || editorTabs.includes(path)) path = `${directory}/.untitled-${++index}.txt`;
