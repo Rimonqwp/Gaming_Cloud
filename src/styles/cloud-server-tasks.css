@@ -1,6 +1,5 @@
-.gst-workspace { color: #657da6; min-width: 0; }
+.gst-workspace { color: #657da6; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
 .gst-layout { display: grid; grid-template-columns: minmax(0, 3.22fr) minmax(340px, 1fr); gap: 10px; align-items: stretch; }
-.gst-main { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
 .gst-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .gst-metric { --gst-tone: #087bff; position: relative; min-width: 0; height: 128px; padding: 15px 18px 10px; border: 1px solid #e0eaf7; border-radius: 7px; background: #fff; }
 .gst-metric.green, .gst-enable { --gst-tone: #00bf89; }
@@ -18,7 +17,7 @@
 .gst-sparkline { position: absolute; left: 18px; right: 18px; bottom: 30px; height: 27px; }
 .gst-metric.orange .gst-sparkline { height: 20px; }
 .gst-metric-caption { position: absolute; left: 18px; right: 18px; bottom: 8px; margin: 0; color: #8399ba; font-size: 11px; line-height: 17px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.gst-list { padding: 8px 10px 5px; flex: 1; }
+.gst-list { padding: 8px 10px 5px; min-width: 0; }
 .gst-list > header { margin: 0 4px 4px; min-height: 34px; }
 .gst-list-actions { display: flex; align-items: center; gap: 8px; }
 .gst-list-actions .gsd-button { height: 35px; padding: 0 14px; gap: 8px; }
@@ -69,8 +68,8 @@
 .gst-result.pending { color: #087bff; }
 .gst-result svg { flex: none; stroke-width: 2.5px; }
 .gst-row-actions { display: flex; align-items: center; justify-content: space-between; gap: 7px; }
-.gst-row-actions button, .gst-history header > button, .gst-empty button { padding: 0; border: 0; background: transparent; color: #087bff; font-size: 12px; white-space: nowrap; }
-.gst-row-actions button:hover, .gst-history header > button:hover { color: #005bd7; }
+.gst-row-actions button, .gst-empty button { padding: 0; border: 0; background: transparent; color: #087bff; font-size: 12px; white-space: nowrap; }
+.gst-row-actions button:hover { color: #005bd7; }
 .gst-row-actions button:disabled { opacity: .5; }
 .gst-row-actions .gst-more { display: flex; align-items: center; gap: 2px; }
 .gst-menu { font-family: Inter, "Noto Sans SC", "Microsoft YaHei", sans-serif; background: #fff; color: #4c668e; border-color: #e0eaf7; }
@@ -97,9 +96,6 @@
 .gst-detail-fields .gst-result.pending svg { background: transparent; fill: none; stroke: currentColor; }
 .gst-detail-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: auto; }
 .gst-detail-actions .gsd-button { padding: 0 6px; gap: 7px; font-size: 12px; height: 38px; }
-.gst-history { padding: 10px 14px 6px; margin-top: 10px; }
-.gst-history > header { margin-bottom: 5px; }
-.gst-history header > button { display: flex; align-items: center; gap: 3px; }
 .gst-history-table { min-width: 940px; }
 .gst-history-table th { height: 26px; text-align: left; padding: 0 7px; font-size: 11px; font-weight: 600; }
 .gst-history-table td { height: 26px; border-bottom: 1px solid #e9eff9; padding: 2px 7px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -164,5 +160,4 @@
   .gst-detail-title .gst-icon-tile { width: 46px; height: 46px; }
   .gst-detail-fields > div { min-height: 29px; }
   .gst-detail-fields .gst-last-run { font-size: 10px; }
-  .gst-history { padding: 12px 10px 8px; }
 }
