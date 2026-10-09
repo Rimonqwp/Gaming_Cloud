@@ -25,9 +25,8 @@ function TaskMetric({ title, value, unit, tone, change, caption, subline, icon: 
 }) {
   const color = { blue: "#087bff", green: "#00bf89", purple: "#a146ff", orange: "#ff8709" }[tone];
   return <article className={`gst-metric ${tone}`}>
-    <div className="gst-metric-top"><span className="gst-icon-tile"><Icon size={27} /></span><div><h3>{title}</h3><strong>{value}{unit && <small>{unit}</small>}</strong>{subline && <p>{subline}</p>}</div>{change && <div className="gst-change"><span><ArrowUp size={13} />{change}</span><small>较上周</small></div>}</div>
+    <div className="gst-metric-top"><span className="gst-icon-tile"><Icon size={27} /></span><div className="gst-metric-copy"><h3>{title}</h3><strong>{value}{unit && <small>{unit}</small>}</strong><p className="gst-metric-caption">{caption}</p>{subline && <p>{subline}</p>}</div>{change && <div className="gst-change"><span><ArrowUp size={13} />{change}</span><small>较上周</small></div>}</div>
     <div className="gst-sparkline" aria-hidden="true"><ResponsiveContainer width="100%" height="100%"><AreaChart data={points.map(value => ({ value }))} margin={{ top: 3, bottom: 0, left: 0, right: 0 }}><Area type="monotone" dataKey="value" stroke={color} fill={color} fillOpacity={0.06} strokeWidth={1.4} isAnimationActive={false} /></AreaChart></ResponsiveContainer></div>
-    <p className="gst-metric-caption">{caption}</p>
   </article>;
 }
 

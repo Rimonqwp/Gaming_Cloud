@@ -6,6 +6,7 @@
 .gst-metric.purple, .gst-detail-title.purple { --gst-tone: #a146ff; }
 .gst-metric.orange, .gst-detail-title.orange { --gst-tone: #ff8709; }
 .gst-metric-top { display: flex; gap: 14px; align-items: flex-start; min-height: 51px; }
+.gst-metric-copy { min-width: 0; }
 .gst-icon-tile { display: grid; place-items: center; height: 48px; width: 48px; flex: none; border-radius: 11px; color: var(--gst-tone, #087bff); background: color-mix(in srgb, var(--gst-tone, #087bff) 10%, white); }
 .cloud-shell .gst-metric h3 { font-size: 13px; line-height: 20px; font-weight: 500; color: #5c749c; margin: 0 0 1px; }
 .gst-metric strong { display: block; color: #0b1235; font-size: 25px; font-weight: 700; line-height: 31px; white-space: nowrap; }
@@ -14,9 +15,8 @@
 .gst-change { margin-left: auto; text-align: right; padding-top: 5px; white-space: nowrap; }
 .gst-change > span { display: flex; align-items: center; justify-content: flex-end; gap: 3px; color: #00b985; font-size: 12px; }
 .gst-change small { display: block; color: #889abb; margin-top: 5px; font-size: 11px; }
-.gst-sparkline { position: absolute; left: 18px; right: 18px; bottom: 30px; height: 27px; }
-.gst-metric.orange .gst-sparkline { height: 20px; }
-.gst-metric-caption { position: absolute; left: 18px; right: 18px; bottom: 8px; margin: 0; color: #8399ba; font-size: 11px; line-height: 17px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.gst-sparkline { position: absolute; left: 18px; right: 18px; bottom: 6px; height: 16px; }
+.gst-metric-caption { margin: 0; color: #8399ba; font-size: 11px; line-height: 16px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .gst-list { padding: 8px 10px 5px; min-width: 0; }
 .gst-list > header { margin: 0 4px 4px; min-height: 34px; }
 .gst-list-actions { display: flex; align-items: center; gap: 8px; }
