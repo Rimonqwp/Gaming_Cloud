@@ -61,10 +61,8 @@
 .gdb-status > i { width: 7px; height: 7px; background: currentColor; border-radius: 50%; flex: none; }
 .gdb-status.badge { font-size: 12px; gap: 6px; padding: 3px 9px; border-radius: 16px; background: #dff9ef; }
 .gdb-status.stopped.badge { background: #ffedf0; }
-.gdb-credential { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.gdb-credential > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.gdb-username { gap: 4px; }
-.gdb-username > span { flex: 0 1 auto; }
+.gdb-credential { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.gdb-credential > span { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gdb-success-icon { color: #fff; fill: #00b581; stroke-width: 2.5; flex: none; }
 .gdb-row-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .gdb-row-actions button { display: inline-flex; align-items: center; gap: 4px; padding: 0; background: none; border: 0; color: #087bff; font-size: 13px; white-space: nowrap; }
