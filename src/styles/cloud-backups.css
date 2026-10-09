@@ -1,19 +1,14 @@
 .gsb-workspace { --gsb-blue: #087bff; --gsb-green: #00b985; color: #657da6; font-size: 12px; min-width: 0; }
 .gsb-metrics { display: flex; flex-direction: column; min-width: 0; }
-.gsb-metric { display: flex; align-items: flex-start; gap: 16px; min-height: 112px; padding: 16px 14px; position: relative; }
+.gsb-metric { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 10px 14px; }
 .gsb-metric + .gsb-metric { border-top: 1px solid #e7eef8; }
+.cloud-shell .gsb-metric h3 { margin: 0; color: #627aa3; font-size: 12px; line-height: 20px; font-weight: 500; white-space: nowrap; }
+.gsb-metric strong { color: #172e56; font-size: 12px; line-height: 20px; font-weight: 600; white-space: nowrap; }
+.gsb-auto-controls { display: flex; align-items: center; gap: 8px; }
+.gsb-limit-reached > strong { color: #b27b1c; }
 .gsb-icon { width: 44px; height: 43px; display: inline-flex; align-items: center; justify-content: center; flex: none; border-radius: 10px; color: var(--gsb-blue); background: #e8f3ff; }
-.gsb-metric.green .gsb-icon, .gsb-icon.green { color: var(--gsb-green); background: #e4f9f1; }
+.gsb-icon.green { color: var(--gsb-green); background: #e4f9f1; }
 .gsb-icon.system { color: #53699e; background: #edf0fd; }
-.gsb-metric > div:not(.gsb-auto-controls) { flex: 1; min-width: 0; }
-.cloud-shell .gsb-metric h3 { color: #627aa3; font-size: 13px; font-weight: 600; line-height: 21px; margin: 0; }
-.gsb-metric strong { display: block; color: #091235; font-size: 23px; font-weight: 700; line-height: 28px; white-space: nowrap; }
-.gsb-metric strong small { font-size: 13px; font-weight: 500; color: #536d98; margin-left: 4px; }
-.gsb-metric p { font-size: 12px; line-height: 19px; margin: 3px 0 0; }
-.gsb-metric .gsb-last-time { font-size: 16px; line-height: 26px; }
-.gsb-metric .gsb-auto-value { font-size: 19px; }
-.gsb-success-icon { color: #00b985; position: absolute; right: 16px; top: 33px; fill: #00b985; stroke: white; }
-.gsb-auto-controls { display: flex; align-items: center; gap: 16px; position: absolute; right: 16px; top: 20px; }
 .gsb-auto-controls .gsd-switch { width: 31px; height: 17px; min-height: 17px; }
 .gsb-auto-controls .gsd-switch[data-state="checked"] { background: #00b985; }
 .gsb-auto-controls .gsd-switch [data-slot="switch-thumb"] { width: 13px; height: 13px; translate: none; }
@@ -112,17 +107,8 @@
 .gsb-error { color: #d94353; font-size: 12px; margin: 0; }
 .gsb-confirm-list { padding-left: 18px; margin: 0; overflow-wrap: anywhere; }
 
-.cloud-shell .gsb-metric h3 small { margin-left: 10px; font-size: 11px; font-weight: 400; color: #8396b4; }
-.gsb-limit-reached .gsb-icon { color: #d18b16; background: #fff6df; }
-.gsb-limit-reached p { color: #b27b1c; }
-.gsb-backup-state > div:not(.gsb-auto-controls) { padding-right: 70px; }
 @media (max-width: 1450px) {
   .gsb-layout { grid-template-columns: minmax(0, 3fr) minmax(325px, 1fr); }
-  .gsb-metric { gap: 11px; padding-left: 12px; }
-  .gsb-metric p { font-size: 10px; }
-  .gsb-metric .gsb-last-time { font-size: 14px; }
-  .gsb-success-icon { right: 10px; }
-  .gsb-auto-controls { right: 12px; gap: 9px; }
   .gsb-filters { flex-wrap: wrap; }
   .gsb-properties > div { grid-template-columns: 94px minmax(0, 1fr); }
   .gsb-detail-title { gap: 10px; }
@@ -131,23 +117,14 @@
 }
 @media (max-width: 1200px) {
   .gsb-layout { grid-template-columns: minmax(0, 1fr); }
-  .gsb-metric p { font-size: 12px; }
-  .gsb-metric .gsb-last-time { font-size: 16px; }
   .gsb-detail { padding-bottom: 16px; }
   .gsb-detail-title h3 { padding-right: 75px; }
   .gsb-properties > div { grid-template-columns: 125px minmax(0, 1fr); }
   .gsb-detail-actions { margin-bottom: 28px; }
 }
 @media (max-width: 760px) {
-  .gsb-metric { min-height: 98px; height: auto; padding: 10px; gap: 8px; }
   .gsb-icon { width: 32px; height: 34px; border-radius: 8px; }
   .gsb-icon svg { width: 20px; }
-  .cloud-shell .gsb-metric h3 { font-size: 11px; }
-  .gsb-metric strong { font-size: 21px; }
-  .gsb-metric p { font-size: 10px; white-space: normal; }
-  .gsb-metric .gsb-last-time { font-size: 16px; white-space: normal; line-height: 20px; }
-  .gsb-success-icon { right: 10px; top: auto; bottom: 12px; width: 17px; }
-  .gsb-auto-controls { top: 15px; right: 10px; }
   .gsb-list { padding: 10px; }
   .gsb-list > header { flex-wrap: wrap; gap: 8px; }
   .gsb-toolbar { flex-wrap: wrap; gap: 6px; width: 100%; }
