@@ -28,7 +28,7 @@ body:has(.gstc-dialog) [data-slot="dialog-overlay"] { background: #243b5a38; bac
 .gstc-content textarea { height: 61px; resize: vertical; }
 .gstc-content label { color: #405d88; }
 .gstc-name-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 11px; }
-.gstc-name-fields label, .gstc-command-fields > label { display: flex; flex-direction: column; gap: 5px; font-weight: 600; font-size: 13px; }
+.gstc-name-fields label, .gstc-action-reveal-content > label { display: flex; flex-direction: column; gap: 5px; font-weight: 600; font-size: 13px; }
 .gstc-name-fields input, .gstc-command-fields :is(input,select,textarea) { font-weight: 400; font-size: 14px; }
 .gstc-rows { border: 1px solid #e3edfc; border-radius: 5px; }
 .gstc-setting-row { display: grid; grid-template-columns: 27px minmax(0, 1fr) minmax(0, 52%); align-items: center; gap: 13px; padding: 8px 16px; min-height: 49px; }
@@ -66,8 +66,10 @@ body:has(.gstc-dialog) [data-slot="dialog-overlay"] { background: #243b5a38; bac
 .gstc-templates svg { flex: none; color: #087bff; }
 .gstc-templates strong { display: block; color: #111c40; font-size: 14px; font-weight: 650; line-height: 20px; }
 .gstc-templates small { display: block; color: #7b91b6; font-size: 12px; line-height: 18px; }
-.gstc-command-fields { margin-top: 12px; display: grid; grid-template-columns: 1fr; gap: 11px 12px; }
-.gstc-command-fields > label:last-child { grid-column: 1 / -1; }
+.gstc-command-fields { margin-top: 12px; display: grid; grid-template-columns: 1fr; }
+.gstc-action-options { overflow: hidden; }
+.gstc-action-reveal { border: 0; margin: 0; padding: 0; min-width: 0; }
+.gstc-action-reveal-content { padding: 3px 2px 11px; }
 .gstc-command-fields .gstc-name-fields { margin: 0; }
 .gstc-advanced { border: 1px solid #e1eafa; border-radius: 5px; }
 .gstc-advanced > summary { display: flex; align-items: center; gap: 7px; padding: 10px 12px; list-style: none; cursor: pointer; color: #405d88; font-size: 13px; font-weight: 600; }

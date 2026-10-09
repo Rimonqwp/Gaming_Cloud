@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { AnimatePresence, motion, useIsPresent, useReducedMotion } from "motion/react";
 import { Archive, Bell, BookOpen, CalendarDays, ChevronRight, CircleCheck, Clock3, Code2, ExternalLink, FileText, Layers, Mail, Play, Power, Puzzle, RotateCcw, Save, Server, Settings, ShieldCheck, Terminal, Timer, TriangleAlert, Users, type LucideIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
@@ -58,6 +59,21 @@ function SummaryRow({ title, icon: Icon, children }: { title: string; icon: Luci
 
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) {
   return <div className="gstc-toggle"><Switch aria-label={label} checked={checked} onCheckedChange={onChange} /><span>{checked ? "已开启" : "已关闭"}</span></div>;
+}
+
+function ActionOptionsReveal({ children }: { children: ReactNode }) {
+  const present = useIsPresent();
+  const reducedMotion = useReducedMotion();
+  const ref = useRef<HTMLFieldSetElement>(null);
+  useLayoutEffect(() => { if (ref.current) ref.current.inert = !present; }, [present]);
+  return <motion.fieldset ref={ref} className="gstc-action-reveal" disabled={!present} aria-hidden={!present}
+    initial={{ height: 0, opacity: 0, x: reducedMotion ? 0 : 32 }}
+    animate={{ height: "auto", opacity: 1, x: 0 }}
+    exit={{ height: 0, opacity: 0, x: reducedMotion ? 0 : -24 }}
+    transition={{ duration: reducedMotion ? 0 : 0.24, ease: [0.22, 1, 0.36, 1] }}
+    style={{ overflow: "hidden", pointerEvents: present ? "auto" : "none" }}>
+    <div className="gstc-action-reveal-content">{children}</div>
+  </motion.fieldset>;
 }
 
 function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName }: {
@@ -141,8 +157,10 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
       <Card title="执行动作" description="选择动作模板，再按需要调整执行选项。" icon={Play} action={<DocumentationLink label="查看执行动作文档" />}>
         <div className="gstc-templates">{templates.map((template, index) => <label key={template.name} className={selectedTemplate?.name === template.name ? "selected" : ""}><input type="radio" name="task-template" value={index} checked={selectedTemplate?.name === template.name} onChange={() => chooseTemplate(index)} /><template.icon size={26} /><span><strong>{template.name}</strong><small>{template.description}</small></span></label>)}</div>
         <div className="gstc-command-fields">
-          {isInstanceAction && <div className="gstc-rows"><SettingRow title="实例操作" description="选择到达执行时间时要调整的实例状态。" icon={Power}><div className="gstc-frequency gstc-instance-actions" role="group" aria-label="实例操作"><span className="gstc-instance-indicator" aria-hidden="true" style={{ transform: `translateX(calc(${instanceActions.findIndex(option => option.value === instanceAction)} * (100% + 3px)))` }} />{instanceActions.map(option => <button type="button" key={option.value} aria-pressed={instanceAction === option.value} onClick={() => update({ instanceAction: option.value, command: option.value, ...(option.value === "start" ? { onlyWhenOnline: false } : {}) })}>{option.label}</button>)}</div></SettingRow></div>}
-          {showCommandInput && <label>执行命令<textarea aria-label="执行命令" value={draft.command} required onChange={event => update({ command: event.target.value })} placeholder="输入需要执行的命令" /></label>}
+          <div className="gstc-action-options"><AnimatePresence initial={false}>
+            {isInstanceAction && <ActionOptionsReveal key="instance"><div className="gstc-rows"><SettingRow title="实例操作" description="选择到达执行时间时要调整的实例状态。" icon={Power}><div className="gstc-frequency gstc-instance-actions" role="group" aria-label="实例操作"><span className="gstc-instance-indicator" aria-hidden="true" style={{ transform: `translateX(calc(${instanceActions.findIndex(option => option.value === instanceAction)} * (100% + 3px)))` }} />{instanceActions.map(option => <button type="button" key={option.value} aria-pressed={instanceAction === option.value} onClick={() => update({ instanceAction: option.value, command: option.value, ...(option.value === "start" ? { onlyWhenOnline: false } : {}) })}>{option.label}</button>)}</div></SettingRow></div></ActionOptionsReveal>}
+            {showCommandInput && <ActionOptionsReveal key="command"><label>执行命令<textarea aria-label="执行命令" value={draft.command} required onChange={event => update({ command: event.target.value })} placeholder="输入需要执行的命令" /></label></ActionOptionsReveal>}
+          </AnimatePresence></div>
           <details className="gstc-advanced"><summary><ChevronRight size={17} />高级设定</summary><div className="gstc-name-fields"><label>任务类型<select aria-label="任务类型" value={draft.type} onChange={event => update({ type: event.target.value as ServerTask["type"] })}>{taskTypes.map(type => <option key={type}>{type}</option>)}</select></label><label>超时时间（分钟）<input aria-label="超时时间" type="number" min={1} max={120} required value={draft.timeout} onInvalid={event => { const panel = event.currentTarget.closest("details"); if (panel) panel.open = true; }} onChange={event => update({ timeout: Number(event.target.value) })} /></label></div></details>
         </div>
       </Card>
