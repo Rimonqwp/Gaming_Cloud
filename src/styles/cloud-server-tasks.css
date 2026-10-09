@@ -1,5 +1,6 @@
 .gst-workspace { color: #657da6; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
-.gst-layout { display: grid; grid-template-columns: minmax(0, 3.22fr) minmax(340px, 1fr); gap: 10px; align-items: stretch; }
+.gst-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; align-items: stretch; }
+.gst-layout:has(.gst-detail) { grid-template-columns: minmax(0, 3.22fr) minmax(340px, 1fr); }
 .gst-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .gst-metric { --gst-tone: #087bff; position: relative; min-width: 0; height: 128px; padding: 15px 18px 10px; border: 1px solid #e0eaf7; border-radius: 7px; background: #fff; }
 .gst-metric.green, .gst-enable { --gst-tone: #00bf89; }
@@ -43,6 +44,7 @@
 .gst-task-table tr.active td:last-child, .gst-history-table .highlight td:last-child { border-radius: 0 5px 5px 0; }
 .gst-task-table tr.checked td { background: #f3f8ff; }
 .gst-task-table tbody tr:hover td { background: #f2f7ff; }
+.gst-task-table tbody tr { cursor: pointer; }
 .gst-task-table input[type="checkbox"], .gst-task-form input[type="checkbox"] { width: 13px; height: 13px; accent-color: #087bff; vertical-align: middle; cursor: pointer; }
 .gst-task-name { --gst-tone: #087bff; display: flex; align-items: center; gap: 8px; width: 100%; padding: 0; border: 0; background: transparent; text-align: left; }
 .gst-task-name.purple { --gst-tone: #00bf89; }
@@ -80,6 +82,8 @@
 .gst-detail-controls .gst-status { background: #e0f9ef; border-radius: 16px; padding: 4px 10px; font-size: 10px; gap: 6px; }
 .gst-detail-controls .gst-status.paused { background: #fff2e2; }
 .gst-icon-button { padding: 0; border: 0; background: transparent; color: #5b7ba8; display: inline-flex; }
+.gst-detail-close { width: 28px; height: 28px; justify-content: center; align-items: center; border-radius: 5px; }
+.gst-detail-close:hover { background: #edf5ff; }
 .gst-detail-title { --gst-tone: #087bff; display: flex; align-items: center; gap: 13px; margin-bottom: 19px; }
 .cloud-shell .gst-detail-title h3 { margin: 0 0 4px; font-size: 16px; line-height: 23px; font-weight: 650; color: #0b1235; }
 .gst-detail-title > div { min-width: 0; }
@@ -123,7 +127,7 @@
 .gst-form-error { margin: 0; color: #d94351; font-size: 12px; }
 .gst-workspace button:focus-visible, .gst-workspace select:focus-visible, .gst-workspace input:focus-visible, .gst-task-form input:focus-visible, .gst-task-form textarea:focus-visible, .gst-task-form select:focus-visible { outline: 2px solid #6aaaff; outline-offset: 2px; }
 @media (max-width: 1550px) {
-  .gst-layout { grid-template-columns: minmax(0, 1fr) 340px; }
+  .gst-layout:has(.gst-detail) { grid-template-columns: minmax(0, 1fr) 340px; }
   .gst-metric { padding: 14px 12px 10px; }
   .gst-metric-top { gap: 9px; }
   .gst-icon-tile { width: 42px; height: 46px; }
@@ -135,7 +139,7 @@
   .gst-task-table { min-width: 1080px; }
 }
 @media (max-width: 1280px) {
-  .gst-layout { grid-template-columns: minmax(0, 1fr); }
+  .gst-layout:has(.gst-detail) { grid-template-columns: minmax(0, 1fr); }
   .gst-detail-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px 20px; }
   .gst-detail-actions { max-width: 440px; }
 }
