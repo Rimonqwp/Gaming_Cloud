@@ -12,6 +12,9 @@ export type ServerTask = {
   retries: number;
   timeout: number;
   notify: boolean;
+  environment?: "server" | "console";
+  onlyWhenOnline?: boolean;
+  onlyWhenEmpty?: boolean;
   created: string;
   lastRun: string;
   nextRun: string;
