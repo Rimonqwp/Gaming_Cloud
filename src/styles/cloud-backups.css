@@ -1,6 +1,7 @@
 .gsb-workspace { --gsb-blue: #087bff; --gsb-green: #00b985; color: #657da6; font-size: 12px; min-width: 0; }
-.gsb-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 11px; }
-.gsb-metric { display: flex; align-items: flex-start; gap: 16px; min-height: 94px; padding: 12px 14px; position: relative; }
+.gsb-metrics { display: flex; flex-direction: column; min-width: 0; }
+.gsb-metric { display: flex; align-items: flex-start; gap: 16px; min-height: 112px; padding: 16px 14px; position: relative; }
+.gsb-metric + .gsb-metric { border-top: 1px solid #e7eef8; }
 .gsb-icon { width: 44px; height: 43px; display: inline-flex; align-items: center; justify-content: center; flex: none; border-radius: 10px; color: var(--gsb-blue); background: #e8f3ff; }
 .gsb-metric.green .gsb-icon, .gsb-icon.green { color: var(--gsb-green); background: #e4f9f1; }
 .gsb-icon.system { color: #53699e; background: #edf0fd; }
@@ -20,7 +21,7 @@
 .gsb-auto-controls .gsd-switch [data-slot="switch-thumb"][data-state="unchecked"] { transform: translateX(1px); }
 .gsb-icon-button { padding: 0; border: 0; background: transparent; color: #5677aa; display: inline-flex; align-items: center; flex: none; }
 .gsb-icon-button:hover { color: #087bff; }
-.gsb-layout { display: grid; grid-template-columns: minmax(0, 3.26fr) minmax(340px, 1fr); gap: 10px; align-items: stretch; }
+.gsb-layout { display: grid; grid-template-columns: minmax(0, 3.26fr) minmax(340px, 1fr); gap: 10px; align-items: start; }
 .gsb-main { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
 .gsb-list { padding: 6px 14px 3px; flex: 1; display: flex; flex-direction: column; }
 .gsb-list > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -74,6 +75,7 @@
 .gsb-pagination nav button:disabled { color: #a6bbda; }
 .gsb-pagination select { height: 30px; font-size: 11px; }
 .gsb-detail { padding: 8px 16px 29px; display: flex; flex-direction: column; }
+.gsb-detail[hidden] { display: none; }
 .gsb-detail-title { display: flex; align-items: center; gap: 16px; position: relative; margin: 13px 0 11px; }
 .gsb-detail-title > .gsb-icon { width: 49px; height: 49px; }
 .gsb-detail-title > div { flex: 1; min-width: 0; }
@@ -137,7 +139,6 @@
   .gsb-detail-actions { margin-bottom: 28px; }
 }
 @media (max-width: 760px) {
-  .gsb-metrics { gap: 8px; grid-template-columns: minmax(0, 1fr); }
   .gsb-metric { min-height: 98px; height: auto; padding: 10px; gap: 8px; }
   .gsb-icon { width: 32px; height: 34px; border-radius: 8px; }
   .gsb-icon svg { width: 20px; }
