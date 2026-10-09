@@ -17,6 +17,7 @@ import { GameServerMachineSettings } from "./GameServerMachineSettings";
 import { GameServerBackups, type GameServerBackupsHandle } from "./GameServerBackups";
 import { Box } from "lucide-react";
 import { GameServerPlugins } from "./GameServerPlugins";
+import { GameServerDatabases } from "./GameServerDatabases";
 import { minecraftPlayerProfiles, type MinecraftPlayerProfile } from "./minecraftPlayerProfiles";
 import { GameServerPlayerDetails, PlayerRoleBadges, type ServerPlayer as Player, type PlayerStatus, type PlayerRole } from "./GameServerPlayerDetails";
 import { BulkPlayerActions, PlayerRowContextMenu, eligiblePlayers, type PlayerAction } from "./PlayerActionMenus";
@@ -45,13 +46,14 @@ function comparePlayers(a: Player, b: Player, sort: PlayerSort, minecraft: boole
   }
   return (difference || playerCollator.compare(a.id, b.id)) * (sort.direction === "ascending" ? 1 : -1);
 }
-type DetailTab = "overview" | "players" | "files" | "plugins" | "backups" | "logs" | "tasks" | "machine";
+type DetailTab = "overview" | "players" | "files" | "databases" | "plugins" | "backups" | "logs" | "tasks" | "machine";
 type Mode = "whitelist" | "pvp" | "autosave" | "maintenance";
 const tabs = [
   { id: "overview", label: "概览", icon: House },
   { id: "players", label: "玩家管理", icon: Users },
   { id: "plugins", label: "插件广场", icon: Box },
   { id: "files", label: "文件管理", icon: ClipboardList },
+  { id: "databases", label: "数据库", icon: Box },
   { id: "backups", label: "文件备份", icon: FolderClosed },
   { id: "tasks", label: "定时任务", icon: Timer },
   { id: "logs", label: "日志", icon: FileText },
@@ -154,9 +156,10 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
 }) {
   const { user } = useUserAuth();
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<DetailTab>(() => server.game === "Minecraft" && (searchParams.has("plugin") || searchParams.get("view") === "plugins") ? "plugins" : "overview");
+  const [activeTab, setActiveTab] = useState<DetailTab>(() => searchParams.get("view") === "databases" ? "databases" : server.game === "Minecraft" && (searchParams.has("plugin") || searchParams.get("view") === "plugins") ? "plugins" : "overview");
   useEffect(() => {
-    if (server.game === "Minecraft" && (searchParams.has("plugin") || searchParams.get("view") === "plugins")) setActiveTab("plugins");
+    if (searchParams.get("view") === "databases") setActiveTab("databases");
+    else if (server.game === "Minecraft" && (searchParams.has("plugin") || searchParams.get("view") === "plugins")) setActiveTab("plugins");
   }, [searchParams, server.game]);
   const minecraft = server.game === "Minecraft";
   const displayPlayerId = (player: Player) => minecraft ? player.gameId : player.name;
@@ -319,9 +322,9 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
     <form className="gsd-command" onSubmit={event => { event.preventDefault(); sendCommand(); }}><input ref={inputRef} aria-label="控制台指令" value={command} onChange={event => setCommand(event.target.value)} placeholder="输入指令并发送（如：save、kick 玩家名、ban 玩家名...）" /><button className="gsd-button primary" type="submit"><Send size={17} />发送</button></form>
   </section>;
 
-  return <div className="gsd-page">
+  return <div className={`gsd-page${activeTab === "databases" ? " gsd-databases-page" : ""}`}>
     <nav className="gsd-breadcrumb" aria-label="面包屑">{["控制台", "实例", "游戏服务器"].map(label => <span key={label}><button onClick={onBack}>{label}</button><ChevronRight size={13} /></span>)}<strong>实例详情</strong></nav>
-    <header className="gsd-hero"><div className="gsd-identity"><span className="gsd-game-icon">{server.game === "Minecraft" ? <img src="/console/minecraft/grass-block.png" alt="Minecraft 草方块" /> : <Gamepad2 size={30} />}</span><div><div className="gsd-title"><h1>{server.name}</h1><span className={`gsd-running${server.running ? "" : " stopped"}`}><i />{server.running ? "运行中" : "已停止"}</span></div><p><span>实例 ID：{server.id === "srv-pal-01" ? "ins-8f3a2d1c" : server.id}</span><i /><span>连接地址：{server.ip}:{server.port}</span><button aria-label="复制连接地址" onClick={onCopy}><Copy size={14} /></button></p></div></div><div className="gsd-actions"><button className="gsd-button" onClick={() => server.running ? setShutdownMode("graceful") : onNotice("服务器已停止")}><Power size={17} />关机</button><button className="gsd-button danger" onClick={() => server.running ? setShutdownMode("force") : onNotice("服务器已停止")}><Zap size={17} />硬关机</button><button className="gsd-button" onClick={onRestart}><RefreshCw size={18} />{server.running ? "重启实例" : "启动实例"}</button><button className="gsd-button" onClick={save}><Archive size={18} />备份数据</button></div></header>
+    <header className="gsd-hero"><div className="gsd-identity"><span className="gsd-game-icon">{server.game === "Minecraft" ? <img src="/console/minecraft/grass-block.png" alt="Minecraft 草方块" /> : <Gamepad2 size={30} />}</span><div><div className="gsd-title"><h1>{server.name}</h1><span className={`gsd-running${server.running ? "" : " stopped"}`}><i />{server.running ? "运行中" : "已停止"}</span></div><p><span>实例 ID：{server.id === "srv-pal-01" ? "ins-8f3a2d1c" : server.id}</span><i /><span>连接地址：{server.ip}:{server.port}</span><button aria-label="复制连接地址" onClick={onCopy}><Copy size={14} /></button></p></div></div><div className="gsd-actions"><button className="gsd-button" onClick={() => server.running ? setShutdownMode("graceful") : onNotice("服务器已停止")}><Power size={17} />关机</button><button className="gsd-button danger" onClick={() => server.running ? setShutdownMode("force") : onNotice("服务器已停止")}><Zap size={17} />硬关机</button><button className="gsd-button" onClick={onRestart}><RefreshCw size={18} />{server.running ? "重启实例" : "启动实例"}</button><button className="gsd-button" onClick={save}><Archive size={18} />备份数据</button>{activeTab === "databases" && <button className="gsd-button dark" onClick={() => setTerminalOpen(true)}><SquareTerminal size={18} />打开终端</button>}</div></header>
     <nav className="gsd-tabs" role="tablist" aria-label="实例详情导航">{availableTabs.map((tab, index) => <button key={tab.id} id={`gsd-tab-${tab.id}`} role="tab" aria-selected={activeTab === tab.id} aria-controls="gsd-panel" tabIndex={activeTab === tab.id ? 0 : -1} className={activeTab === tab.id ? "active" : ""} onClick={() => setActiveTab(tab.id)} onKeyDown={event => {
       const next = event.key === "ArrowRight" ? (index + 1) % availableTabs.length : event.key === "ArrowLeft" ? (index + availableTabs.length - 1) % availableTabs.length : event.key === "Home" ? 0 : event.key === "End" ? availableTabs.length - 1 : -1;
       if (next >= 0) { event.preventDefault(); setActiveTab(availableTabs[next].id); document.getElementById(`gsd-tab-${availableTabs[next].id}`)?.focus(); }
@@ -333,8 +336,9 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
       <div hidden={activeTab !== "overview"}><GameServerOverview server={server} onStart={onStart} onStop={onStop} onRestart={onRestart} onBackup={save} onOpen={setActiveTab} onNotice={onNotice} terminal={consolePanel} /></div>
       <div hidden={activeTab !== "tasks"}><GameServerTasks server={server} autosaveEnabled={modes.autosave} onAutosaveChange={checked => toggleMode("autosave", checked)} onNotice={onNotice} onLog={log} /></div>
       <div hidden={activeTab !== "backups"}><GameServerBackups ref={backupsRef} server={server} onBackup={backupCompleted} onCountChange={onBackup} onNotice={onNotice} /></div>
+      <div hidden={activeTab !== "databases"}><GameServerDatabases server={server} onNotice={onNotice} /></div>
       {activeTab === "plugins" && <GameServerPlugins server={server} onNotice={onNotice} />}
-      {activeTab === "files" || activeTab === "overview" || activeTab === "tasks" || activeTab === "plugins" || activeTab === "backups" || activeTab === "machine" ? null : activeTab === "players" ? <div className={`gsd-layout gsd-players-layout${playerDetail ? " gsd-player-selected" : ""}`}>
+      {activeTab === "files" || activeTab === "overview" || activeTab === "tasks" || activeTab === "plugins" || activeTab === "backups" || activeTab === "machine" || activeTab === "databases" ? null : activeTab === "players" ? <div className={`gsd-layout gsd-players-layout${playerDetail ? " gsd-player-selected" : ""}`}>
         <div className="gsd-metrics gsd-player-metrics" role="region" aria-label="玩家统计">
           <Metric title="在线玩家" value={Math.max(0, server.running ? server.players + onlineDelta : 0)} description="当前服务器在线人数" tone="green" icon={Users} points={[7, 9, 9, 9, 15, 15, 13, 14, 24, 24, 24, 22, 29, 29, 30, 31, 32]} />
           <Metric title="白名单" value={40 + players.filter(player => player.roles.includes("白名单")).length - initialPlayers.filter(player => player.roles.includes("白名单")).length} description="已加入白名单的玩家" tone="blue" icon={ClipboardList} points={[5, 12, 16, 18, 17, 15, 16, 21, 27, 32, 36, 38, 40]} />
