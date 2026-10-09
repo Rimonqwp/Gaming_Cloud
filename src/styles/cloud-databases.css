@@ -93,9 +93,8 @@
 .gdb-detail-fields dd > .gdb-icon-button, .gdb-field-actions { margin-left: auto; }
 .gdb-field-actions { display: flex; align-items: center; gap: 20px; }
 .gdb-password { font-family: inherit; overflow-wrap: anywhere; min-width: 0; }
-.gdb-detail-actions { display: grid; grid-template-columns: 1.1fr 1fr; gap: 8px; }
+.gdb-detail-actions { display: grid; grid-template-columns: minmax(0, 1fr); }
 .gdb-detail-actions .gsd-button { height: 44px; border-color: #087bff; font-size: 14px; gap: 10px; padding: 0 8px; }
-.gdb-detail-actions > button:last-child { grid-column: 1 / -1; }
 .gdb-empty { min-height: 170px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; }.gdb-empty p { margin: 0; }
 .gdb-menu { min-width: 190px; color: #4e6993; border-color: #dbe7fa; }.gdb-menu [role="menuitem"] { gap: 8px; cursor: pointer; font-size: 13px; }.gdb-menu [data-highlighted] { background: #edf5ff; color: #087bff; }.gdb-menu .gdb-danger { color: #ff4351; }
 .gdb-workspace :is(button, input, select):focus-visible { outline: 2px solid #087bff; outline-offset: 3px; }
