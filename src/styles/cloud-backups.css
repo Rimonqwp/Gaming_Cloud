@@ -17,6 +17,7 @@
 .gsb-icon-button { padding: 0; border: 0; background: transparent; color: #5677aa; display: inline-flex; align-items: center; flex: none; }
 .gsb-icon-button:hover { color: #087bff; }
 .gsb-layout { display: grid; grid-template-columns: minmax(0, 3.26fr) minmax(340px, 1fr); gap: 10px; align-items: start; }
+.gsb-sidebar { min-width: 0; overflow: hidden; }
 .gsb-main { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
 .gsb-list { padding: 12px 16px 8px; flex: 1; display: flex; flex-direction: column; }
 .gsb-list > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -73,7 +74,10 @@
 .gsb-pagination nav button:disabled { color: #a6bbda; }
 .gsb-pagination select { height: 32px; font-size: 12px; }
 .gsb-detail { padding: 8px 16px 29px; display: flex; flex-direction: column; }
-.gsb-detail[hidden] { display: none; }
+.gsb-detail > header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.gsb-detail-close { justify-content: center; width: 28px; height: 28px; border-radius: 5px; }
+.gsb-detail-close:hover { background: #edf5ff; }
+.gsb-detail-close:focus-visible { outline: 2px solid #087bff; outline-offset: 2px; }
 .gsb-detail-title { display: flex; align-items: center; gap: 16px; position: relative; margin: 13px 0 11px; }
 .gsb-detail-title > .gsb-icon { width: 49px; height: 49px; }
 .gsb-detail-title > div { flex: 1; min-width: 0; }
