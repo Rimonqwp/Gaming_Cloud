@@ -13,6 +13,7 @@ export type ServerTask = {
   timeout: number;
   notify: boolean;
   environment?: "server" | "console";
+  instanceAction?: "stop" | "restart" | "start";
   onlyWhenOnline?: boolean;
   onlyWhenEmpty?: boolean;
   created: string;

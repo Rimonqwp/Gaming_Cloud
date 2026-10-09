@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
-import { Archive, Bell, BookOpen, CalendarDays, CircleCheck, Clock3, Code2, ExternalLink, FileText, Layers, Mail, Play, Puzzle, RotateCcw, Save, Server, Settings, ShieldCheck, Terminal, Timer, TriangleAlert, Users, type LucideIcon } from "lucide-react";
+import { Archive, Bell, BookOpen, CalendarDays, CircleCheck, Clock3, Code2, ExternalLink, FileText, Layers, Mail, Play, Power, Puzzle, RotateCcw, Save, Server, Settings, ShieldCheck, Terminal, Timer, TriangleAlert, Users, type LucideIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
@@ -8,10 +8,19 @@ import "../../../styles/cloud-task-settings.css";
 
 const templates: { name: string; description: string; icon: LucideIcon; command: string; type: ServerTask["type"] }[] = [
   { name: "自动备份", description: "备份服务器文件与世界存档，防止数据丢失。", icon: Archive, command: "bash /scripts/backup.sh", type: "备份" },
-  { name: "自动重启", description: "定时重启服务器，释放内存并保持稳定运行。", icon: RotateCcw, command: "restart", type: "系统" },
+  { name: "实例状态", description: "按计划关机、重启或开机，调整实例运行状态。", icon: Power, command: "restart", type: "系统" },
   { name: "自动更新插件", description: "按计划更新服务器插件，保持插件版本最新。", icon: Puzzle, command: "bash /scripts/update_plugins.sh", type: "维护" },
   { name: "执行控制台指令", description: "按计划执行自定义控制台命令。", icon: Terminal, command: "", type: "其他" },
 ];
+
+const instanceActions: { value: NonNullable<ServerTask["instanceAction"]>; label: string }[] = [
+  { value: "stop", label: "关机" }, { value: "restart", label: "重启" }, { value: "start", label: "开机" },
+];
+
+function taskTemplateName(task: ServerTask) {
+  if (task.instanceAction) return "实例状态";
+  return templates.find(template => template.command === task.command && template.type === task.type)?.name ?? null;
+}
 
 type Frequency = "hourly" | "daily" | "weekly" | "monthly" | "custom";
 const frequencies: { value: Frequency; label: string }[] = [{ value: "hourly", label: "每小时" }, { value: "daily", label: "每天" }, { value: "weekly", label: "每周" }, { value: "monthly", label: "每月" }];
@@ -65,8 +74,11 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
     return () => observer.disconnect();
   }, []);
   const [original] = useState(() => ({ ...draft }));
-  const [selectedTemplateName, setSelectedTemplateName] = useState(() => templates.find(template => template.command === draft.command && template.type === draft.type)?.name ?? null);
-  const selectedTemplate = templates.find(template => template.name === selectedTemplateName);
+  const [selectedTemplateName, setSelectedTemplateName] = useState(() => taskTemplateName(draft));
+  const selectedTemplate = templates.find(template => template.name === (selectedTemplateName === "自动重启" ? "实例状态" : selectedTemplateName));
+  const isInstanceAction = selectedTemplate?.name === "实例状态";
+  const instanceAction = draft.instanceAction ?? "restart";
+  const instanceActionLabel = instanceActions.find(option => option.value === instanceAction)?.label;
   const schedule = visualSchedule(draft.cron);
   const [currentMinute, setCurrentMinute] = useState(() => Math.floor(Date.now() / 60000));
   useEffect(() => {
@@ -92,9 +104,9 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
   const chooseTemplate = (index: number) => {
     const template = templates[index];
     setSelectedTemplateName(template.name);
-    update({ command: template.command, type: template.type, environment: "server" });
+    update({ command: template.command, type: template.type, environment: "server", instanceAction: template.name === "实例状态" ? "restart" : undefined });
   };
-  const reset = () => { onChange({ ...original, environment: "server" }); setSelectedTemplateName(templates.find(template => template.command === original.command && template.type === original.type)?.name ?? null); };
+  const reset = () => { onChange({ ...original, environment: "server" }); setSelectedTemplateName(taskTemplateName(original)); };
   const templateName = selectedTemplate?.name ?? "自定义动作";
   const validSchedule = !!parseTaskCron(draft.cron);
   const frequencyLabel = validSchedule ? frequencies.find(option => option.value === schedule.frequency)?.label ?? "自定义 Cron" : "待设置有效计划";
@@ -127,7 +139,11 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
       </Card>
       <Card title="执行动作" description="选择动作模板，再按需要调整执行命令。" icon={Play} action={<DocumentationLink label="查看执行动作文档" />}>
         <div className="gstc-templates">{templates.map((template, index) => <label key={template.name} className={selectedTemplate?.name === template.name ? "selected" : ""}><input type="radio" name="task-template" value={index} checked={selectedTemplate?.name === template.name} onChange={() => chooseTemplate(index)} /><template.icon size={26} /><span><strong>{template.name}</strong><small>{template.description}</small></span></label>)}</div>
-        <div className="gstc-command-fields"><div className="gstc-name-fields"><label>任务类型<select aria-label="任务类型" value={draft.type} onChange={event => update({ type: event.target.value as ServerTask["type"] })}>{taskTypes.map(type => <option key={type}>{type}</option>)}</select></label><label>超时时间（分钟）<input aria-label="超时时间" type="number" min={1} max={120} required value={draft.timeout} onChange={event => update({ timeout: Number(event.target.value) })} /></label></div><label>执行命令<textarea aria-label="执行命令" value={draft.command} required onChange={event => update({ command: event.target.value })} placeholder="输入需要执行的命令" /></label></div>
+        <div className="gstc-command-fields">
+          {isInstanceAction && <div className="gstc-rows"><SettingRow title="实例操作" description="选择到达执行时间时要调整的实例状态。" icon={Power}><div className="gstc-frequency" role="group" aria-label="实例操作">{instanceActions.map(option => <button type="button" key={option.value} aria-pressed={instanceAction === option.value} onClick={() => update({ instanceAction: option.value, command: option.value, ...(option.value === "start" ? { onlyWhenOnline: false } : {}) })}>{option.label}</button>)}</div></SettingRow></div>}
+          <div className="gstc-name-fields"><label>任务类型<select aria-label="任务类型" value={draft.type} onChange={event => update({ type: event.target.value as ServerTask["type"] })}>{taskTypes.map(type => <option key={type}>{type}</option>)}</select></label><label>超时时间（分钟）<input aria-label="超时时间" type="number" min={1} max={120} required value={draft.timeout} onChange={event => update({ timeout: Number(event.target.value) })} /></label></div>
+          {!isInstanceAction && <label>执行命令<textarea aria-label="执行命令" value={draft.command} required onChange={event => update({ command: event.target.value })} placeholder="输入需要执行的命令" /></label>}
+        </div>
       </Card>
       <Card title="运行条件" description="设置执行条件，避免在不合适的情况下运行。" icon={ShieldCheck}>
         <div className="gstc-conditions">{[{ label: "仅在服务器在线时执行", description: "服务器离线时跳过任务。", icon: Server, value: draft.onlyWhenOnline ?? true, onChange: (onlyWhenOnline: boolean) => update({ onlyWhenOnline }) }, { label: "避免玩家在线高峰", description: "仅在没有在线玩家时执行。", icon: Users, value: draft.onlyWhenEmpty ?? false, onChange: (onlyWhenEmpty: boolean) => update({ onlyWhenEmpty }) }, { label: "执行失败发送通知", description: "通过站内信、邮件通知。", icon: Bell, value: draft.notify, onChange: (notify: boolean) => update({ notify }) }].map(condition => <div key={condition.label}><condition.icon size={23} /><span><strong>{condition.label}</strong><small>{condition.description}</small></span><Switch aria-label={condition.label} checked={condition.value} onCheckedChange={condition.onChange} /></div>)}</div>
@@ -142,7 +158,7 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
         <SummaryRow title="调度计划" icon={RotateCcw}>{scheduleSummary}</SummaryRow>
         <SummaryRow title="执行动作" icon={Layers}>{templateName}</SummaryRow>
         <SummaryRow title="任务类型" icon={Layers}>{draft.type}</SummaryRow>
-        <SummaryRow title="执行命令" icon={Terminal}><code>{draft.command.trim() || "未填写命令"}</code></SummaryRow>
+        {isInstanceAction ? <SummaryRow title="实例操作" icon={Power}>{instanceActionLabel}</SummaryRow> : <SummaryRow title="执行命令" icon={Terminal}><code>{draft.command.trim() || "未填写命令"}</code></SummaryRow>}
         <SummaryRow title="下次执行时间" icon={CalendarDays}>{draft.enabled ? preview ?? "等待有效计划" : "任务已暂停"}</SummaryRow>
       </dl></Card>
       <Card title="通知与告警摘要" icon={Bell}><dl className="gstc-summary"><div><Mail size={21} /><dt>失败通知</dt><dd><span className={`gstc-status${draft.notify ? "" : " off"}`}>{draft.notify ? "已开启" : "已关闭"}</span></dd></div><div><TriangleAlert size={21} /><dt>失败重试</dt><dd>{draft.retries ? `最多 ${draft.retries} 次，间隔 5 分钟` : "不自动重试"}</dd></div><div><CircleCheck size={21} /><dt>超时时间</dt><dd>{draft.timeout} 分钟</dd></div><div><Users size={21} /><dt>通知接收人</dt><dd>服务器管理员</dd></div></dl></Card>
