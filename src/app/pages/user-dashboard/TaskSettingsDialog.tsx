@@ -6,11 +6,11 @@ import { Switch } from "../../components/ui/switch";
 import { nextTaskRun, parseTaskCron, taskTypes, type ServerTask } from "./gameServerTasksData";
 import "../../../styles/cloud-task-settings.css";
 
-const templates: { name: string; description: string; icon: LucideIcon; command: string; type: ServerTask["type"]; environment: "server" | "console" }[] = [
-  { name: "自动备份", description: "备份服务器文件与世界存档，防止数据丢失。", icon: Archive, command: "bash /scripts/backup.sh", type: "备份", environment: "server" },
-  { name: "自动重启", description: "定时重启服务器，释放内存并保持稳定运行。", icon: RotateCcw, command: "restart", type: "系统", environment: "console" },
-  { name: "自动更新插件", description: "按计划更新服务器插件，保持插件版本最新。", icon: Puzzle, command: "bash /scripts/update_plugins.sh", type: "维护", environment: "server" },
-  { name: "执行控制台指令", description: "按计划执行自定义控制台命令。", icon: Terminal, command: "", type: "其他", environment: "console" },
+const templates: { name: string; description: string; icon: LucideIcon; command: string; type: ServerTask["type"] }[] = [
+  { name: "自动备份", description: "备份服务器文件与世界存档，防止数据丢失。", icon: Archive, command: "bash /scripts/backup.sh", type: "备份" },
+  { name: "自动重启", description: "定时重启服务器，释放内存并保持稳定运行。", icon: RotateCcw, command: "restart", type: "系统" },
+  { name: "自动更新插件", description: "按计划更新服务器插件，保持插件版本最新。", icon: Puzzle, command: "bash /scripts/update_plugins.sh", type: "维护" },
+  { name: "执行控制台指令", description: "按计划执行自定义控制台命令。", icon: Terminal, command: "", type: "其他" },
 ];
 
 type Frequency = "hourly" | "daily" | "weekly" | "monthly" | "custom";
@@ -82,11 +82,10 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
   const chooseTemplate = (index: number) => {
     const template = templates[index];
     setSelectedTemplateName(template.name);
-    update({ command: template.command, type: template.type, environment: template.environment });
+    update({ command: template.command, type: template.type, environment: "server" });
   };
-  const reset = () => { onChange({ ...original }); setSelectedTemplateName(templates.find(template => template.command === original.command && template.type === original.type)?.name ?? null); };
+  const reset = () => { onChange({ ...original, environment: "server" }); setSelectedTemplateName(templates.find(template => template.command === original.command && template.type === original.type)?.name ?? null); };
   const templateName = selectedTemplate?.name ?? "自定义动作";
-  const environment = draft.environment ?? selectedTemplate?.environment ?? "server";
   const validSchedule = !!parseTaskCron(draft.cron);
   const frequencyLabel = validSchedule ? frequencies.find(option => option.value === schedule.frequency)?.label ?? "自定义 Cron" : "待设置有效计划";
   const time = `${String(schedule.hour).padStart(2, "0")}:${String(schedule.minute).padStart(2, "0")}`;
@@ -100,7 +99,7 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
         <div className="gstc-rows">
           <SettingRow title="定时任务开关" description="开启后按下方配置自动执行定时任务。" icon={ShieldCheck}><Toggle label="定时任务开关" checked={draft.enabled} onChange={enabled => update({ enabled })} /></SettingRow>
           <SettingRow title="默认时区" description="执行时间与 Cron 表达式均使用北京时间。" icon={Clock3}><div className="gstc-static-input">亚洲/上海 (UTC+8)</div></SettingRow>
-          <SettingRow title="任务执行环境" description="选择服务器脚本或游戏控制台指令。" icon={Terminal}><select aria-label="任务执行环境" value={environment} onChange={event => update({ environment: event.target.value as "server" | "console" })}><option value="server">服务器内（推荐）</option><option value="console">游戏控制台</option></select></SettingRow>
+          <SettingRow title="任务执行环境" description="任务统一在服务器内执行。" icon={Terminal}><div className="gstc-static-input">服务器内</div></SettingRow>
           <SettingRow title="失败重试次数" description="失败后每隔 5 分钟重试，0 表示不重试。" icon={RotateCcw}><div className="gstc-unit"><input aria-label="失败重试次数" type="number" min={0} max={10} required value={draft.retries} onChange={event => update({ retries: Number(event.target.value) })} /><span>次</span></div></SettingRow>
         </div>
       </Card>

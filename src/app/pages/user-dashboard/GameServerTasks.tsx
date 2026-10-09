@@ -92,7 +92,7 @@ export function GameServerTasks({ server, autosaveEnabled, onAutosaveChange, onN
     if (ids.includes("task-004")) onAutosaveChange(enabled);
     onNotice(`${ids.length} 项任务已${enabled ? "启用" : "暂停"}（演示操作）`);
   };
-  const edit = (task?: ServerTask) => { formTriggerRef.current = document.activeElement as HTMLElement; setDraft(task ? { ...task } : blankTask()); setFormError(""); };
+  const edit = (task?: ServerTask) => { formTriggerRef.current = document.activeElement as HTMLElement; setDraft(task ? { ...task, environment: "server" } : blankTask()); setFormError(""); };
   const showLogs = (task: ServerTask) => { setLogTask(task); };
   const execute = (task: ServerTask) => {
     if (runningTasks.current.has(task.id)) return;
@@ -124,7 +124,7 @@ export function GameServerTasks({ server, autosaveEnabled, onAutosaveChange, onN
     const nextRun = nextTaskRun(draft.cron);
     if (!nextRun) { setFormError("此 Cron 表达式没有可执行的日期，请检查日期与月份。"); return; }
     const id = draft.id || `task-${String(sequence.current++).padStart(3, "0")}`;
-    const saved = { ...draft, id, name: draft.name.trim(), command: draft.command.trim(), directory: draft.directory.trim() || "/home/server/", cron: draft.cron.trim().replace(/\s+/g, " "), nextRun };
+    const saved: ServerTask = { ...draft, environment: "server", id, name: draft.name.trim(), command: draft.command.trim(), directory: draft.directory.trim() || "/home/server/", cron: draft.cron.trim().replace(/\s+/g, " "), nextRun };
     setTasks(previous => draft.id ? previous.map(task => task.id === id ? saved : task) : [...previous, saved]);
     if (id === "task-004") onAutosaveChange(saved.enabled);
     setActiveId(id);
@@ -135,7 +135,7 @@ export function GameServerTasks({ server, autosaveEnabled, onAutosaveChange, onN
     try { await navigator.clipboard.writeText(value); onNotice("已复制到剪贴板"); }
     catch { onNotice("复制失败，请手动选择并复制文本"); }
   };
-  const menu = (task: ServerTask, detail = false) => <DropdownMenu><DropdownMenuTrigger asChild><button className={detail ? "gst-icon-button" : "gst-more"} aria-label={`${task.name}更多操作`}>{detail ? <MoreVertical size={17} /> : <>更多<ChevronDown size={12} /></>}</button></DropdownMenuTrigger><DropdownMenuContent className="gst-menu" align="end"><DropdownMenuItem onSelect={() => focusTask(task)}><Archive size={14} />查看任务详情</DropdownMenuItem><DropdownMenuItem onSelect={() => showLogs(task)}><FolderClosed size={14} />查看日志</DropdownMenuItem><DropdownMenuItem disabled={task.result === "执行中"} onSelect={() => setEnabled([task.id], !task.enabled)}>{task.enabled ? <Square size={14} /> : <Play size={14} />}{task.enabled ? "暂停任务" : "启用任务"}</DropdownMenuItem><DropdownMenuItem onSelect={() => { formTriggerRef.current = document.activeElement as HTMLElement; setDraft({ ...task, id: "", name: `${task.name}（副本）`, lastRun: "-", duration: "-", created: taskTime(new Date()), result: "成功" }); setFormError(""); }}><Copy size={14} />复制任务</DropdownMenuItem><DropdownMenuItem variant="destructive" disabled={task.result === "执行中"} onSelect={() => setDeleteTask(task)}><Trash2 size={14} />删除任务</DropdownMenuItem></DropdownMenuContent></DropdownMenu>;
+  const menu = (task: ServerTask, detail = false) => <DropdownMenu><DropdownMenuTrigger asChild><button className={detail ? "gst-icon-button" : "gst-more"} aria-label={`${task.name}更多操作`}>{detail ? <MoreVertical size={17} /> : <>更多<ChevronDown size={12} /></>}</button></DropdownMenuTrigger><DropdownMenuContent className="gst-menu" align="end"><DropdownMenuItem onSelect={() => focusTask(task)}><Archive size={14} />查看任务详情</DropdownMenuItem><DropdownMenuItem onSelect={() => showLogs(task)}><FolderClosed size={14} />查看日志</DropdownMenuItem><DropdownMenuItem disabled={task.result === "执行中"} onSelect={() => setEnabled([task.id], !task.enabled)}>{task.enabled ? <Square size={14} /> : <Play size={14} />}{task.enabled ? "暂停任务" : "启用任务"}</DropdownMenuItem><DropdownMenuItem onSelect={() => { formTriggerRef.current = document.activeElement as HTMLElement; setDraft({ ...task, environment: "server", id: "", name: `${task.name}（副本）`, lastRun: "-", duration: "-", created: taskTime(new Date()), result: "成功" }); setFormError(""); }}><Copy size={14} />复制任务</DropdownMenuItem><DropdownMenuItem variant="destructive" disabled={task.result === "执行中"} onSelect={() => setDeleteTask(task)}><Trash2 size={14} />删除任务</DropdownMenuItem></DropdownMenuContent></DropdownMenu>;
 
   const executionTable = (runs: TaskExecution[], expanded = false) => <div className="gst-table-scroll"><table className={`gst-history-table${expanded ? " expanded" : ""}`}><colgroup><col style={{ width: "14%" }} /><col style={{ width: "15.5%" }} /><col style={{ width: "9%" }} /><col style={{ width: "10%" }} /><col /></colgroup><thead><tr><th>执行时间</th><th>任务名称</th><th>结果</th><th>耗时</th><th>输出摘要</th></tr></thead><tbody>{runs.map((run, index) => <tr key={run.id} className={index === 0 ? "highlight" : undefined}><td>{run.time}</td><td>{run.name}</td><td><Result result={run.result} /></td><td>{run.duration}</td><td title={run.output}>{run.output}</td></tr>)}{!runs.length && <tr><td colSpan={5} className="gst-no-records">该任务还没有执行记录。</td></tr>}</tbody></table></div>;
 
@@ -163,7 +163,7 @@ export function GameServerTasks({ server, autosaveEnabled, onAutosaveChange, onN
       </motion.aside>}</AnimatePresence>
     </div>
 
-    <TaskSettingsDialog draft={draft} onChange={value => { setDraft(value); setFormError(""); }} onClose={() => setDraft(null)} onSave={saveTask} error={formError} triggerRef={formTriggerRef} fallbackRef={newTaskRef} serverName={server.name} />
+    <TaskSettingsDialog draft={draft} onChange={value => { setDraft({ ...value, environment: "server" }); setFormError(""); }} onClose={() => setDraft(null)} onSave={saveTask} error={formError} triggerRef={formTriggerRef} fallbackRef={newTaskRef} serverName={server.name} />
     <Dialog open={!!logTask} onOpenChange={open => { if (!open) setLogTask(null); }}><DialogContent className="cloud-modal gsd-dialog gst-log-dialog"><DialogTitle>{logTask?.name} · 执行日志</DialogTitle><DialogDescription>查看任务执行结果与输出摘要（演示记录，北京时间）。</DialogDescription>{executionTable(executions.filter(run => run.taskId === logTask?.id), true)}</DialogContent></Dialog>
     <Dialog open={!!deleteTask} onOpenChange={open => { if (!open) setDeleteTask(null); }}><DialogContent className="cloud-modal gsd-dialog"><DialogTitle>删除定时任务</DialogTitle><DialogDescription>确定删除「{deleteTask?.name}」？执行记录会保留。</DialogDescription><button className="gsd-button danger" onClick={() => { if (!deleteTask) return; setTasks(previous => previous.filter(task => task.id !== deleteTask.id)); setSelected(previous => previous.filter(id => id !== deleteTask.id)); if (deleteTask.id === "task-004") onAutosaveChange(false); if (deleteTask.id === activeId) setActiveId(null); setDeleteTask(null); onNotice("任务已删除（演示操作）"); }}><Trash2 size={16} />确认删除</button></DialogContent></Dialog>
   </div>;
