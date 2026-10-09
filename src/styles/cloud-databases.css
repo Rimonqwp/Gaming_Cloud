@@ -1,7 +1,7 @@
 /* 数据库页的容器、标题、图标、操作按钮和标签栏沿用实例详情公共尺寸。 */
-.gdb-workspace { --gdb-blue: #0866ff; --gdb-green: #00b581; color: #607ba7; display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: 12px; font-size: 14px; min-width: 0; }
-.gdb-workspace:has(.gdb-details) { grid-template-columns: minmax(0, 3.19fr) minmax(350px, 1fr); }
-.gdb-main { display: flex; flex-direction: column; gap: 13px; min-width: 0; }
+.gdb-workspace { --gdb-blue: #0866ff; --gdb-green: #00b581; color: #607ba7; display: flex; flex-direction: column; gap: 13px; font-size: 14px; min-width: 0; }
+.gdb-main { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: 12px; min-width: 0; }
+.gdb-main:has(.gdb-details) { grid-template-columns: minmax(0, 3.19fr) minmax(350px, 1fr); }
 .gdb-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .gdb-metric { display: flex; align-items: flex-start; gap: 18px; padding: 12px 18px; height: 111px; }
 .gdb-icon { width: 51px; height: 51px; flex: none; display: inline-flex; justify-content: center; align-items: center; color: #087bff; background: #e8f3ff; border-radius: 10px; }
@@ -103,10 +103,10 @@
 .gdb-admin-summary { display: flex; align-items: center; gap: 14px; color: #087bff; }.gdb-admin-summary > div { flex: 1; }.gdb-admin-summary strong { color: #0b1235; }.gdb-admin-summary p { margin: 4px 0 0; color: #607ba7; }
 @media (prefers-reduced-motion: reduce) { .gdb-progress > span { transition: none; } }
 @media (max-width: 1500px) {
-  .gdb-workspace:has(.gdb-details) { grid-template-columns: minmax(0, 1fr) 350px; }.gdb-metric { gap: 10px; padding: 12px 10px; }.gdb-metric .gdb-icon { width: 42px; height: 46px; }.gdb-metric p { font-size: 11px; }.gdb-metric strong.gdb-backup-time { font-size: 13px; }.gdb-detail-fields dd { font-size: 13px; }
+  .gdb-main:has(.gdb-details) { grid-template-columns: minmax(0, 1fr) 350px; }.gdb-metric { gap: 10px; padding: 12px 10px; }.gdb-metric .gdb-icon { width: 42px; height: 46px; }.gdb-metric p { font-size: 11px; }.gdb-metric strong.gdb-backup-time { font-size: 13px; }.gdb-detail-fields dd { font-size: 13px; }
 }
 @media (max-width: 1200px) {
-  .gdb-workspace:has(.gdb-details) { grid-template-columns: minmax(0, 1fr); }.gdb-metric p { font-size: 12px; }.gdb-detail-fields dd { font-size: 14px; }
+  .gdb-main:has(.gdb-details) { grid-template-columns: minmax(0, 1fr); }.gdb-metric p { font-size: 12px; }.gdb-detail-fields dd { font-size: 14px; }
 }
 @media (max-width: 760px) {
   .gsd-databases-page .gsd-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }

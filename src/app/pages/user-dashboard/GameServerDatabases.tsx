@@ -141,7 +141,6 @@ export function GameServerDatabases({ server, onNotice }: { server: ConsoleInsta
   const connection = active ? `主机：${server.ip}\n端口：3306\n数据库：${active.name}\n用户名：${active.username}\n字符集：utf8mb4` : "";
 
   return <div className="gdb-workspace">
-    <main className="gdb-main">
       <section className="gdb-metrics" aria-label="数据库统计">
         <article className="gsd-card gdb-metric"><span className="gdb-icon"><Database size={26} /></span><div><h3>数据库总数</h3><strong>{databases.length}<small>个</small></strong><p>包含 {runningCount} 个可用，{databases.length - runningCount} 个已停止</p></div></article>
         <article className="gsd-card gdb-metric"><span className="gdb-icon"><PieChart size={26} /></span><div><h3>已用存储</h3><strong>{usedGB} GB<small>/ 10 GB</small></strong><div className="gdb-mini-storage"><div className="gdb-progress"><span style={{ width: `${Math.min(100, usedPercent)}%` }} /></div><b>{usedPercent}%</b></div></div></article>
@@ -149,6 +148,7 @@ export function GameServerDatabases({ server, onNotice }: { server: ConsoleInsta
         <article className="gsd-card gdb-metric"><span className="gdb-icon purple"><Clock3 size={26} /></span><div><h3>最近备份</h3><strong className="gdb-backup-time">{latestBackup ? latestBackup.slice(0, 16) : "暂无备份"}{latestBackup && <CircleCheck size={16} className="gdb-success-icon" />}</strong><p>最近一次数据库备份</p></div></article>
       </section>
 
+    <main className="gdb-main">
       <section className="gsd-card gdb-list" aria-label="数据库列表">
         <header><h2><Database size={21} />数据库列表</h2><div className="gdb-toolbar">
           <button className="gsd-button primary" onClick={() => open("create")}><CirclePlus size={16} />新建数据库</button>
@@ -181,9 +181,7 @@ export function GameServerDatabases({ server, onNotice }: { server: ConsoleInsta
         <footer className="gdb-pagination"><span>共 {databases.length} 个数据库，当前显示 {rows.length} 个{selected.length ? `，已选 ${selected.length} 个` : ""}</span><nav aria-label="数据库分页"><button aria-label="数据库上一页" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}><ChevronLeft size={17} /></button>{Array.from({ length: Math.max(2, pageCount) }, (_, index) => <button key={index} className={currentPage === index + 1 ? "current" : ""} disabled={index + 1 > pageCount} aria-label={`数据库第 ${index + 1} 页`} aria-current={currentPage === index + 1 ? "page" : undefined} onClick={() => setPage(index + 1)}>{index + 1}</button>)}<button aria-label="数据库下一页" disabled={currentPage === pageCount} onClick={() => setPage(currentPage + 1)}><ChevronRight size={17} /></button><label className="gdb-select"><select aria-label="每页数据库数量" value={pageSize} onChange={event => { setPageSize(Number(event.target.value)); setPage(1); }}><option value="5">5 条/页</option><option value="10">10 条/页</option><option value="20">20 条/页</option></select><ChevronDown size={14} /></label></nav></footer>
       </section>
 
-    </main>
-
-    <AnimatePresence initial={false} mode="wait">{active && <motion.aside key={active.id} {...sidebarAnimation} id="gdb-database-details" className="gsd-card gdb-details" aria-label="数据库详情" onKeyDown={event => { if (event.key === "Escape") { event.stopPropagation(); closeDetails(); } }}>
+      <AnimatePresence initial={false} mode="wait">{active && <motion.aside key={active.id} {...sidebarAnimation} id="gdb-database-details" className="gsd-card gdb-details" aria-label="数据库详情" onKeyDown={event => { if (event.key === "Escape") { event.stopPropagation(); closeDetails(); } }}>
       <header><h2><Database size={22} />数据库详情</h2><button autoFocus className="gdb-icon-button gdb-detail-close" aria-label="关闭数据库详情" onClick={closeDetails}><X size={18} /></button></header>
       <div className="gdb-detail-profile"><span className="gdb-icon"><Database size={27} /></span><div><div className="gdb-detail-title"><strong>{active.name}</strong><DatabaseStatus running={active.running} badge /></div><p>{active.description}</p></div><DropdownMenu><DropdownMenuTrigger asChild><button className="gdb-icon-button" aria-label="当前数据库更多操作"><MoreVertical size={18} /></button></DropdownMenuTrigger>{rowMenu(active)}</DropdownMenu></div>
       <dl className="gdb-detail-fields">
@@ -195,6 +193,7 @@ export function GameServerDatabases({ server, onNotice }: { server: ConsoleInsta
         <div><dt>最大连接数</dt><dd>100</dd></div><div><dt>创建时间</dt><dd>{active.created}</dd></div><div><dt>最后备份</dt><dd>{active.backup || "暂无备份"}{active.backup && <CircleCheck size={16} className="gdb-success-icon" />}</dd></div>
       </dl><div className="gdb-detail-actions"><button className="gsd-button" onClick={() => open("connection")}><CodeXml size={18} />查看连接信息</button><button className="gsd-button" onClick={() => open("password")}><KeyRound size={18} />重置密码</button><button className="gsd-button primary" onClick={() => open("admin")}><ExternalLink size={17} />打开 phpMyAdmin</button></div>
       </motion.aside>}</AnimatePresence>
+    </main>
 
     <Dialog open={dialog !== null} onOpenChange={value => { if (!value && !busy) setDialog(null); }}><DialogContent className="cloud-modal gsd-dialog gdb-dialog"><DialogTitle>{{ create: "新建数据库", import: "导入 SQL", delete: "删除数据库", connection: "数据库连接信息", password: "重置数据库密码", admin: "phpMyAdmin 管理" }[dialog ?? "create"]}</DialogTitle><DialogDescription>本页面使用演示数据，操作仅影响当前页面会话。</DialogDescription>
       {dialog === "create" && <form onSubmit={event => { event.preventDefault(); createDatabase(); }}><label>数据库名称<input autoFocus value={form.name} onChange={event => setForm(previous => ({ ...previous, name: event.target.value }))} placeholder="例如：minecraft_survival" maxLength={64} /></label><label>描述<input value={form.description} onChange={event => setForm(previous => ({ ...previous, description: event.target.value }))} placeholder="数据库用途" maxLength={60} /></label><label>数据库类型<select aria-label="数据库类型" value={form.type} onChange={event => setForm(previous => ({ ...previous, type: event.target.value }))}><option>MySQL</option><option>MariaDB</option></select></label>{error && <p className="gdb-error" role="alert">{error}</p>}<footer><button type="button" className="gsd-button" onClick={() => setDialog(null)}>取消</button><button className="gsd-button primary" type="submit">创建数据库</button></footer></form>}
