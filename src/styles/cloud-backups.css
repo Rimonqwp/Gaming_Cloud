@@ -28,9 +28,11 @@
 .gsb-toolbar .gsd-button { height: 36px; padding: 0 12px; gap: 7px; font-size: 13px; font-weight: 500; }
 .gsb-toolbar .gsd-button:disabled { color: #879dc1; }
 .gsb-filters { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 13px; }
-.gsb-filters .gsd-search { flex: 0 1 323px; min-width: 160px; height: 36px; }
+.gsb-filters .gsd-search { flex: 1 1 260px; min-width: 160px; height: 36px; }
 .gsb-filters .gsd-search input { font-size: 13px; }
 .gsb-filters select { width: 120px; height: 36px; font-size: 13px; }
+.gsb-refresh { flex: none; height: 36px; padding: 0 12px; gap: 7px; font-size: 13px; }
+.gsb-date-filter, .gsb-filters select { flex-shrink: 0; }
 .gsb-date-filter { display: flex; align-items: center; gap: 8px; border: 1px solid #dbe5f4; border-radius: 5px; height: 36px; padding: 0 11px; color: #7993bb; }
 .gsb-date-filter input { min-width: 0; width: 106px; border: 0; outline: 0; color: #728ab0; background: transparent; font: inherit; }
 .gsb-date-filter label { display: block; position: relative; min-width: 0; }
@@ -129,6 +131,7 @@
   .gsb-toolbar .gsd-button { height: 34px; padding: 0 10px; font-size: 11px; }
   .gsb-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 10px; }
   .gsb-filters .gsd-search { grid-column: 1 / -1; }
+  .gsb-refresh { grid-column: 1 / -1; width: 100%; }
   .gsb-filters select { width: 100%; }
   .gsb-date-filter { grid-column: 1 / -1; padding: 0 9px; gap: 6px; }
   .gsb-date-filter label { flex: 1; }
