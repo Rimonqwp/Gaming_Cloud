@@ -164,7 +164,7 @@ export function GameServerTasks({ server, autosaveEnabled, onAutosaveChange, onN
       </motion.aside>}</AnimatePresence>
     </div>
 
-    <TaskSettingsDialog draft={draft} onChange={value => { setDraft(value); setFormError(""); }} onClose={() => setDraft(null)} onSave={saveTask} error={formError} triggerRef={formTriggerRef} fallbackRef={newTaskRef} serverName={server.name} players={server.running ? server.players : 0} />
+    <TaskSettingsDialog draft={draft} onChange={value => { setDraft(value); setFormError(""); }} onClose={() => setDraft(null)} onSave={saveTask} error={formError} triggerRef={formTriggerRef} fallbackRef={newTaskRef} serverName={server.name} />
     <Dialog open={!!logTask} onOpenChange={open => { if (!open) setLogTask(null); }}><DialogContent className="cloud-modal gsd-dialog gst-log-dialog"><DialogTitle>{logTask?.name} · 执行日志</DialogTitle><DialogDescription>查看任务执行结果与输出摘要（演示记录，北京时间）。</DialogDescription>{executionTable(executions.filter(run => run.taskId === logTask?.id), true)}</DialogContent></Dialog>
     <Dialog open={!!deleteTask} onOpenChange={open => { if (!open) setDeleteTask(null); }}><DialogContent className="cloud-modal gsd-dialog"><DialogTitle>删除定时任务</DialogTitle><DialogDescription>确定删除「{deleteTask?.name}」？执行记录会保留。</DialogDescription><button className="gsd-button danger" onClick={() => { if (!deleteTask) return; setTasks(previous => previous.filter(task => task.id !== deleteTask.id)); setSelected(previous => previous.filter(id => id !== deleteTask.id)); if (deleteTask.id === "task-004") onAutosaveChange(false); if (deleteTask.id === activeId) setActiveId(null); setDeleteTask(null); onNotice("任务已删除（演示操作）"); }}><Trash2 size={16} />确认删除</button></DialogContent></Dialog>
   </div>;

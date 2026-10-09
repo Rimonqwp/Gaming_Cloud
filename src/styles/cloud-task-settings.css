@@ -81,10 +81,6 @@ body:has(.gstc-dialog) [data-slot="dialog-overlay"] { background: #243b5a38; bac
 .gstc-summary dd small { display: block; color: #7a91b7; font-size: 11px; line-height: 18px; font-weight: 400; margin-top: 4px; }
 .gstc-status { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 15px; background: #e0faf0; color: #00b684; font-size: 11px; white-space: nowrap; font-weight: 600; }
 .gstc-status.off { background: #eef2f9; color: #8497b5; }
-.gstc-help { padding: 0; margin: 0; list-style: none; counter-reset: help; }
-.gstc-help li { counter-increment: help; display: flex; gap: 10px; align-items: flex-start; color: #7790b8; font-size: 12px; margin-top: 7px; line-height: 19px; }
-.gstc-help li::before { content: counter(help); display: grid; place-items: center; width: 21px; height: 21px; background: #edf4ff; border-radius: 50%; flex: none; color: #7291bc; }
-.gstc-card .gstc-condition-note { padding: 9px; background: #fff8eb; border-radius: 5px; color: #b27a2f; font-size: 12px; margin-top: 12px; }
 .gstc-footer { margin-top: 13px; padding-top: 12px; border-top: 1px solid #dfeafa; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; flex: none; }
 .gstc-footer > div { display: flex; gap: 8px; }
 .gstc-footer > small { color: #8296b8; font-size: 12px; margin-left: auto; }

@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode, type RefObject } from "react";
-import { Archive, Bell, BookOpen, CalendarDays, CircleCheck, CircleHelp, Clock3, Code2, ExternalLink, FileText, FolderOpen, Layers, Mail, Play, Puzzle, RotateCcw, Save, Server, Settings, ShieldCheck, Terminal, Timer, TriangleAlert, Users, type LucideIcon } from "lucide-react";
+import { Archive, Bell, BookOpen, CalendarDays, CircleCheck, Clock3, Code2, ExternalLink, FileText, FolderOpen, Layers, Mail, Play, Puzzle, RotateCcw, Save, Server, Settings, ShieldCheck, Terminal, Timer, TriangleAlert, Users, type LucideIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
@@ -51,8 +51,8 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   return <div className="gstc-toggle"><Switch aria-label={label} checked={checked} onCheckedChange={onChange} /><span>{checked ? "已开启" : "已关闭"}</span></div>;
 }
 
-function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName, players }: {
-  draft: ServerTask; onChange: (draft: ServerTask) => void; error: string; onSave: () => void; onCancel: () => void; serverName: string; players: number;
+function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName }: {
+  draft: ServerTask; onChange: (draft: ServerTask) => void; error: string; onSave: () => void; onCancel: () => void; serverName: string;
 }) {
   const [original] = useState(() => ({ ...draft }));
   const [selectedTemplateName, setSelectedTemplateName] = useState(() => templates.find(template => template.command === draft.command && template.type === draft.type)?.name ?? null);
@@ -130,15 +130,14 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
         <SummaryRow title="下次执行时间" icon={CalendarDays}>{draft.enabled ? preview ?? "等待有效计划" : "任务已暂停"}</SummaryRow>
       </dl></Card>
       <Card title="通知与告警摘要" icon={Bell}><dl className="gstc-summary"><div><Mail size={21} /><dt>失败通知</dt><dd><span className={`gstc-status${draft.notify ? "" : " off"}`}>{draft.notify ? "已开启" : "已关闭"}</span></dd></div><div><TriangleAlert size={21} /><dt>失败重试</dt><dd>{draft.retries ? `最多 ${draft.retries} 次，间隔 5 分钟` : "不自动重试"}</dd></div><div><CircleCheck size={21} /><dt>超时时间</dt><dd>{draft.timeout} 分钟</dd></div><div><Users size={21} /><dt>通知接收人</dt><dd>服务器管理员</dd></div></dl></Card>
-      <Card title="使用说明" icon={CircleHelp}><ol className="gstc-help"><li>选择合适的动作模板，设置执行时间和频率。</li><li>建议在服务器空闲时执行占用资源较大的任务。</li><li>高级执行计划可直接填写 5 段 Cron 表达式。</li><li>保存后可在任务列表中编辑、执行或查看日志。</li></ol>{draft.onlyWhenEmpty && players > 0 && <p className="gstc-condition-note">当前有 {players} 位玩家在线，任务将在无人在线时执行。</p>}</Card>
     </aside></div></div>
     <footer className="gstc-footer">{error && <p className="gstc-error" role="alert">{error}</p>}<div><button type="submit" className="gstc-button primary"><Save size={17} />{draft.id ? "保存任务" : "创建任务"}</button><button type="button" className="gstc-button" onClick={reset}><RotateCcw size={16} />{draft.id ? "还原修改" : "恢复默认"}</button><button type="button" className="gstc-button" onClick={onCancel}>取消</button></div><small>当前为演示环境，任务在本次页面会话中保存。</small></footer>
   </form>;
 }
 
-export function TaskSettingsDialog({ draft, onChange, onClose, onSave, error, triggerRef, fallbackRef, serverName, players }: {
+export function TaskSettingsDialog({ draft, onChange, onClose, onSave, error, triggerRef, fallbackRef, serverName }: {
   draft: ServerTask | null; onChange: (draft: ServerTask) => void; onClose: () => void; onSave: () => void; error: string;
-  triggerRef: RefObject<HTMLElement | null>; fallbackRef: RefObject<HTMLButtonElement | null>; serverName: string; players: number;
+  triggerRef: RefObject<HTMLElement | null>; fallbackRef: RefObject<HTMLButtonElement | null>; serverName: string;
 }) {
-  return <Dialog open={!!draft} onOpenChange={open => { if (!open) onClose(); }}><DialogContent className="gstc-dialog" onCloseAutoFocus={event => { event.preventDefault(); (triggerRef.current?.isConnected ? triggerRef.current : fallbackRef.current)?.focus({ preventScroll: true }); }}>{draft && <TaskSettingsForm key={draft.id || "new-task"} draft={draft} onChange={onChange} onCancel={onClose} onSave={onSave} error={error} serverName={serverName} players={players} />}</DialogContent></Dialog>;
+  return <Dialog open={!!draft} onOpenChange={open => { if (!open) onClose(); }}><DialogContent className="gstc-dialog" onCloseAutoFocus={event => { event.preventDefault(); (triggerRef.current?.isConnected ? triggerRef.current : fallbackRef.current)?.focus({ preventScroll: true }); }}>{draft && <TaskSettingsForm key={draft.id || "new-task"} draft={draft} onChange={onChange} onCancel={onClose} onSave={onSave} error={error} serverName={serverName} />}</DialogContent></Dialog>;
 }
