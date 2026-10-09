@@ -24,7 +24,7 @@ body:has(.gstc-dialog) [data-slot="dialog-overlay"] { background: #243b5a38; bac
 .gstc-card p { margin: 3px 0 0; color: #7b91b6; font-size: 13px; line-height: 19px; }
 .gstc-content :is(input:not([type="radio"]),select,textarea), .gstc-static-input { width: 100%; min-width: 0; height: 37px; border: 1px solid #dbe7fa; border-radius: 5px; background: white; color: #263c69; padding: 6px 12px; font: inherit; }
 .gstc-content input::placeholder, .gstc-content textarea::placeholder { color: #94a6c2; }
-.gstc-static-input { display: flex; align-items: center; }
+.gstc-static-input { display: flex; align-items: center; color: #858b96; }
 .gstc-content textarea { height: 61px; resize: vertical; }
 .gstc-content label { color: #405d88; }
 .gstc-name-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 11px; }
