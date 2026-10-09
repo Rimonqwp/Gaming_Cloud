@@ -11,7 +11,7 @@ import "../../../styles/cloud-server-tasks.css";
 
 const taskIcons = [CalendarDays, CirclePlay, CalendarCheck2, Clock3, Megaphone, Settings2];
 const iconFor = (task: ServerTask) => taskIcons[Number(task.id.replace("task-", "")) - 1] ?? CalendarDays;
-const blankTask = (): ServerTask => ({ id: "", name: "", description: "", command: "bash /scripts/backup.sh", cron: "0 4 * * *", type: "备份", enabled: true, directory: "/home/server/", retries: 3, timeout: 30, notify: true, environment: "server", onlyWhenOnline: true, onlyWhenEmpty: true, created: taskTime(new Date()), lastRun: "-", nextRun: "", duration: "-", result: "成功" });
+const blankTask = (): ServerTask => ({ id: "", name: "", description: "", command: "bash /scripts/backup.sh", cron: "0 4 * * *", type: "备份", enabled: true, directory: "/home/server/", retries: 3, timeout: 30, notify: true, environment: "server", onlyWhenOnline: false, onlyWhenEmpty: false, created: taskTime(new Date()), lastRun: "-", nextRun: "", duration: "-", result: "成功" });
 
 function Result({ result, detailed = false }: { result: TaskResult; detailed?: boolean }) {
   const Icon = result === "成功" ? (detailed ? Check : CircleCheck) : result === "失败" ? CircleX : Timer;
