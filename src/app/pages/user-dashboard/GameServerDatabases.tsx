@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowDown, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, CircleCheck, CirclePlus, Clock3, CodeXml, Copy, Database, Download, ExternalLink, Eye, EyeOff, KeyRound, MoreHorizontal, MoreVertical, Network, PieChart, RefreshCw, Search, Trash2, X } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
@@ -37,6 +37,7 @@ export function GameServerDatabases({ server, onNotice }: { server: ConsoleInsta
     exit: { opacity: 0, x: reducedMotion ? 0 : 16 },
     transition: { duration: reducedMotion ? 0 : 0.2 },
   };
+  const detailText = (text: ReactNode) => <motion.span key={active?.id} className="gdb-detail-value" initial={{ opacity: reducedMotion ? 1 : 0 }} animate={{ opacity: 1 }} transition={{ duration: reducedMotion ? 0 : 0.18 }}>{text}</motion.span>;
   const [selected, setSelected] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [type, setType] = useState("all");
@@ -181,16 +182,16 @@ export function GameServerDatabases({ server, onNotice }: { server: ConsoleInsta
         <footer className="gdb-pagination"><span>共 {databases.length} 个数据库，当前显示 {rows.length} 个{selected.length ? `，已选 ${selected.length} 个` : ""}</span><nav aria-label="数据库分页"><button aria-label="数据库上一页" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}><ChevronLeft size={17} /></button>{Array.from({ length: Math.max(2, pageCount) }, (_, index) => <button key={index} className={currentPage === index + 1 ? "current" : ""} disabled={index + 1 > pageCount} aria-label={`数据库第 ${index + 1} 页`} aria-current={currentPage === index + 1 ? "page" : undefined} onClick={() => setPage(index + 1)}>{index + 1}</button>)}<button aria-label="数据库下一页" disabled={currentPage === pageCount} onClick={() => setPage(currentPage + 1)}><ChevronRight size={17} /></button><label className="gdb-select"><select aria-label="每页数据库数量" value={pageSize} onChange={event => { setPageSize(Number(event.target.value)); setPage(1); }}><option value="5">5 条/页</option><option value="10">10 条/页</option><option value="20">20 条/页</option></select><ChevronDown size={14} /></label></nav></footer>
       </section>
 
-      <AnimatePresence initial={false} mode="wait">{active && <motion.aside key={active.id} {...sidebarAnimation} id="gdb-database-details" className="gsd-card gdb-details" aria-label="数据库详情" onKeyDown={event => { if (event.key === "Escape") { event.stopPropagation(); closeDetails(); } }}>
+      <AnimatePresence initial={false} mode="wait">{active && <motion.aside key="database-details" {...sidebarAnimation} id="gdb-database-details" className="gsd-card gdb-details" aria-label="数据库详情" onKeyDown={event => { if (event.key === "Escape") { event.stopPropagation(); closeDetails(); } }}>
       <header><h2><Database size={22} />数据库详情</h2><button autoFocus className="gdb-icon-button gdb-detail-close" aria-label="关闭数据库详情" onClick={closeDetails}><X size={18} /></button></header>
-      <div className="gdb-detail-profile"><span className="gdb-icon"><Database size={27} /></span><div><div className="gdb-detail-title"><strong>{active.name}</strong><DatabaseStatus running={active.running} badge /></div><p>{active.description}</p></div><DropdownMenu><DropdownMenuTrigger asChild><button className="gdb-icon-button" aria-label="当前数据库更多操作"><MoreVertical size={18} /></button></DropdownMenuTrigger>{rowMenu(active)}</DropdownMenu></div>
+      <div className="gdb-detail-profile"><span className="gdb-icon"><Database size={27} /></span><div><div className="gdb-detail-title"><strong>{detailText(active.name)}</strong>{detailText(<DatabaseStatus running={active.running} badge />)}</div><p>{detailText(active.description)}</p></div><DropdownMenu><DropdownMenuTrigger asChild><button className="gdb-icon-button" aria-label="当前数据库更多操作"><MoreVertical size={18} /></button></DropdownMenuTrigger>{rowMenu(active)}</DropdownMenu></div>
       <dl className="gdb-detail-fields">
-        <div><dt>数据库类型</dt><dd>{active.type}</dd></div><div><dt>数据库版本</dt><dd>{active.version}</dd></div><div><dt>数据库大小</dt><dd>{databaseSize(active.sizeMB)} ({(active.sizeMB * 1024 * 1024).toLocaleString("en-US")} 字节)</dd></div>
+        <div><dt>数据库类型</dt><dd>{detailText(active.type)}</dd></div><div><dt>数据库版本</dt><dd>{detailText(active.version)}</dd></div><div><dt>数据库大小</dt><dd>{detailText(`${databaseSize(active.sizeMB)} (${(active.sizeMB * 1024 * 1024).toLocaleString("en-US")} 字节)`)}</dd></div>
         <div><dt>字符集</dt><dd>utf8mb4</dd></div><div><dt>排序规则</dt><dd>utf8mb4_general_ci</dd></div>
         <div><dt>连接地址</dt><dd>{server.ip}<button className="gdb-icon-button" aria-label="复制数据库连接地址" onClick={() => copy(server.ip)}><Copy size={16} /></button></dd></div>
-        <div><dt>端口</dt><dd>3306</dd></div><div><dt>用户名</dt><dd>{active.username}<button className="gdb-icon-button" aria-label="复制数据库用户名" onClick={() => copy(active.username)}><Copy size={16} /></button></dd></div>
-        <div><dt>密码</dt><dd><span className="gdb-password">{showPassword ? active.password : "********"}</span><div className="gdb-field-actions"><button className="gdb-icon-button" aria-label={showPassword ? "隐藏数据库密码" : "显示数据库密码"} onClick={() => setShowPassword(!showPassword)}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button><button className="gdb-icon-button" aria-label="复制数据库密码" onClick={() => copy(active.password)}><Copy size={16} /></button></div></dd></div>
-        <div><dt>最大连接数</dt><dd>100</dd></div><div><dt>创建时间</dt><dd>{active.created}</dd></div><div><dt>最后备份</dt><dd>{active.backup || "暂无备份"}{active.backup && <CircleCheck size={16} className="gdb-success-icon" />}</dd></div>
+        <div><dt>端口</dt><dd>3306</dd></div><div><dt>用户名</dt><dd>{detailText(active.username)}<button className="gdb-icon-button" aria-label="复制数据库用户名" onClick={() => copy(active.username)}><Copy size={16} /></button></dd></div>
+        <div><dt>密码</dt><dd><span className="gdb-password">{detailText(showPassword ? active.password : "********")}</span><div className="gdb-field-actions"><button className="gdb-icon-button" aria-label={showPassword ? "隐藏数据库密码" : "显示数据库密码"} onClick={() => setShowPassword(!showPassword)}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button><button className="gdb-icon-button" aria-label="复制数据库密码" onClick={() => copy(active.password)}><Copy size={16} /></button></div></dd></div>
+        <div><dt>最大连接数</dt><dd>100</dd></div><div><dt>创建时间</dt><dd>{detailText(active.created)}</dd></div><div><dt>最后备份</dt><dd>{detailText(active.backup || "暂无备份")}{active.backup && <CircleCheck size={16} className="gdb-success-icon" />}</dd></div>
       </dl><div className="gdb-detail-actions"><button className="gsd-button" onClick={() => open("connection")}><CodeXml size={18} />查看连接信息</button><button className="gsd-button" onClick={() => open("password")}><KeyRound size={18} />重置密码</button><button className="gsd-button primary" onClick={() => open("admin")}><ExternalLink size={17} />打开 phpMyAdmin</button></div>
       </motion.aside>}</AnimatePresence>
     </main>
