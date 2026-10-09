@@ -17,7 +17,7 @@ export type GameServerBackupsHandle = { createBackup: () => boolean };
 export const GameServerBackups = forwardRef<GameServerBackupsHandle, { server: ConsoleInstance; onBackup: () => void; onCountChange: (count: number) => void; onNotice: (message: string) => void }>(function GameServerBackups({ server, onBackup, onCountChange, onNotice }, ref) {
   const [backups, setBackups] = useState(() => initialBackups(server.game, server.backups));
   const recordsRef = useRef(backups);
-  const [activeId, setActiveId] = useState(backups[0]?.id || "");
+  const [activeId, setActiveId] = useState("");
   const [detailId, setDetailId] = useState<string | null>(null);
   const detailTriggerRef = useRef<HTMLElement | null>(null);
   const rowTriggers = useRef(new Map<string, HTMLButtonElement>());
