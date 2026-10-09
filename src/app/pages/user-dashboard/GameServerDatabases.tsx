@@ -191,7 +191,7 @@ export function GameServerDatabases({ server, onNotice }: { server: ConsoleInsta
         <div><dt>连接地址</dt><dd>{server.ip}<button className="gdb-icon-button" aria-label="复制数据库连接地址" onClick={() => copy(server.ip)}><Copy size={16} /></button></dd></div>
         <div><dt>端口</dt><dd>3306</dd></div><div><dt>用户名</dt><dd>{detailText(active.username)}<button className="gdb-icon-button" aria-label="复制数据库用户名" onClick={() => copy(active.username)}><Copy size={16} /></button></dd></div>
         <div><dt>密码</dt><dd><span className="gdb-password">{detailText(showPassword ? active.password : "********")}</span><div className="gdb-field-actions"><button className="gdb-icon-button" aria-label={showPassword ? "隐藏数据库密码" : "显示数据库密码"} onClick={() => setShowPassword(!showPassword)}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button><button className="gdb-icon-button" aria-label="复制数据库密码" onClick={() => copy(active.password)}><Copy size={16} /></button></div></dd></div>
-        <div><dt>最大连接数</dt><dd>100</dd></div><div><dt>创建时间</dt><dd>{detailText(active.created)}</dd></div><div><dt>最后备份</dt><dd>{detailText(active.backup || "暂无备份")}{active.backup && <CircleCheck size={16} className="gdb-success-icon" />}</dd></div>
+        <div><dt>创建时间</dt><dd>{detailText(active.created)}</dd></div><div><dt>最后备份</dt><dd>{detailText(active.backup || "暂无备份")}{active.backup && <CircleCheck size={16} className="gdb-success-icon" />}</dd></div>
       </dl><div className="gdb-detail-actions"><button className="gsd-button primary" onClick={() => open("admin")}><ExternalLink size={17} />打开 phpMyAdmin</button></div>
       </motion.aside>}</AnimatePresence>
     </main>
