@@ -73,7 +73,7 @@
 .gst-result.pending { color: #087bff; }
 .gst-result svg { flex: none; stroke-width: 2.5px; }
 .gst-task-table :is(.gst-status, .gst-result) { font-size: 13px; }
-.gst-row-actions { display: flex; align-items: center; justify-content: space-between; gap: 7px; }
+.gst-row-actions { display: flex; align-items: center; justify-content: flex-start; gap: 7px; }
 .gst-row-actions button, .gst-empty button { padding: 0; border: 0; background: transparent; color: #087bff; font-size: 12px; white-space: nowrap; }
 .gst-row-actions button { font-size: 13px; }
 .gst-row-actions button:hover { color: #005bd7; }
