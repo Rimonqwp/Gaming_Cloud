@@ -61,12 +61,12 @@ body:has(.gstc-dialog) [data-slot="dialog-overlay"] { background: #243b5a38; bac
 .gstc-command-fields { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 11px 12px; }
 .gstc-command-fields > label:last-child { grid-column: 1 / -1; }
 .gstc-command-fields .gstc-name-fields { margin: 0; }
-.gstc-conditions { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
-.gstc-conditions > div { display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid #e1eafa; border-radius: 5px; min-width: 0; }
+.gstc-conditions { display: grid; grid-template-columns: minmax(0,1fr); gap: 10px; }
+.gstc-conditions > div { display: flex; align-items: center; gap: 12px; padding: 10px 14px; min-height: 60px; border: 1px solid #e1eafa; border-radius: 5px; min-width: 0; }
 .gstc-conditions svg { color: #087bff; flex: none; }
 .gstc-conditions > div > span { flex: 1; min-width: 0; }
-.gstc-conditions strong { display: block; color: #111c40; font-size: 11px; line-height: 17px; }
-.gstc-conditions small { display: block; color: #8096b7; font-size: 10px; line-height: 16px; }
+.gstc-conditions strong { display: block; color: #111c40; font-size: 14px; line-height: 21px; }
+.gstc-conditions small { display: block; color: #8096b7; font-size: 12px; line-height: 18px; }
 .gstc-summary { border: 1px solid #e3edfc; border-radius: 5px; padding: 0 12px; margin: 0; }
 .gstc-summary > div { display: grid; grid-template-columns: 25px minmax(90px,.85fr) minmax(0,1.4fr); align-items: start; gap: 10px; padding: 9px 0; }
 .gstc-summary > div + div { border-top: 1px solid #edf2fa; }
