@@ -14,7 +14,7 @@ import "../../../styles/cloud-server-detail.css";
 import { GameServerOverview } from "./GameServerOverview";
 import { GameServerTasks } from "./GameServerTasks";
 import { GameServerMachineSettings } from "./GameServerMachineSettings";
-import { GameServerBackups } from "./GameServerBackups";
+import { GameServerBackups, type GameServerBackupsHandle } from "./GameServerBackups";
 import { Box } from "lucide-react";
 import { GameServerPlugins } from "./GameServerPlugins";
 import { minecraftPlayerProfiles, type MinecraftPlayerProfile } from "./minecraftPlayerProfiles";
@@ -149,7 +149,7 @@ function PlayerSidebarReveal({ children, placement }: { children: ReactNode; pla
 }
 
 export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, onBackup, notice, onNotice, onStart, onStop, onForceStop }: {
-  server: ConsoleInstance; onBack: () => void; onCopy: () => void; onRestart: () => void; onBackup: () => void;
+  server: ConsoleInstance; onBack: () => void; onCopy: () => void; onRestart: () => void; onBackup: (count: number) => void;
   notice: string; onNotice: (message: string) => void; onStart: () => void; onStop: () => void; onForceStop: () => void;
 }) {
   const { user } = useUserAuth();
@@ -161,7 +161,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
   const minecraft = server.game === "Minecraft";
   const displayPlayerId = (player: Player) => minecraft ? player.gameId : player.name;
   const playerAvatar = (player: Player) => minecraft ? player.skinAvatar : `/console/players/${player.avatar}.png`;
-  const [backupRequest, setBackupRequest] = useState(0);
+  const backupsRef = useRef<GameServerBackupsHandle>(null);
   const availableTabs = tabs.filter(tab => tab.id !== "plugins" || server.game === "Minecraft");
   const [players, setPlayers] = useState(() => initialPlayers.map(player => ({ ...player, status: !server.running && player.status === "在线" ? "离线" as PlayerStatus : player.status })));
   const [query, setQuery] = useState("");
@@ -279,7 +279,8 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
     setManagementRecords(previous => [{ id: crypto.randomUUID(), playerId: player.id, text: `权限组被设为${groups}`, action: "权限变更", actor: user?.displayName || user?.username || "本地管理员", time: timeFormat.format(new Date()) }, ...previous]);
     log(`Player: ${text}（演示操作）`); addEvent(text, banned); onNotice(`${text}（演示操作）`);
   };
-  const save = () => { onBackup(); setBackupRequest(previous => previous + 1); log("Save: 世界存档备份已完成（演示操作）"); addEvent("已创建世界存档备份"); };
+  const save = () => { backupsRef.current?.createBackup(); };
+  const backupCompleted = () => { log("Save: 世界存档备份已完成（演示操作）"); addEvent("已创建世界存档备份"); };
   const sendCommand = () => {
     const value = command.trim();
     if (!value) return;
@@ -331,7 +332,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
       <div hidden={activeTab !== "logs"}><InstanceDetailLogsView serverName={server.name} onNotice={onNotice} /></div>
       <div hidden={activeTab !== "overview"}><GameServerOverview server={server} onStart={onStart} onStop={onStop} onRestart={onRestart} onBackup={save} onOpen={setActiveTab} onNotice={onNotice} terminal={consolePanel} /></div>
       <div hidden={activeTab !== "tasks"}><GameServerTasks server={server} autosaveEnabled={modes.autosave} onAutosaveChange={checked => toggleMode("autosave", checked)} onNotice={onNotice} onLog={log} /></div>
-      <div hidden={activeTab !== "backups"}><GameServerBackups server={server} backupRequest={backupRequest} onBackup={save} onNotice={onNotice} /></div>
+      <div hidden={activeTab !== "backups"}><GameServerBackups ref={backupsRef} server={server} onBackup={backupCompleted} onCountChange={onBackup} onNotice={onNotice} /></div>
       {activeTab === "plugins" && <GameServerPlugins server={server} onNotice={onNotice} />}
       {activeTab === "files" || activeTab === "overview" || activeTab === "tasks" || activeTab === "plugins" || activeTab === "backups" || activeTab === "machine" ? null : activeTab === "players" ? <div className={`gsd-layout gsd-players-layout${playerDetail ? " gsd-player-selected" : ""}`}>
         <div className="gsd-metrics gsd-player-metrics" role="region" aria-label="玩家统计">
