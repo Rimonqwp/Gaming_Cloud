@@ -1,7 +1,8 @@
 /* 数据库页的容器、标题、图标、操作按钮和标签栏沿用实例详情公共尺寸。 */
-.gdb-workspace { --gdb-blue: #0866ff; --gdb-green: #00b581; color: #607ba7; display: grid; grid-template-columns: minmax(0, 3.19fr) minmax(350px, 1fr); gap: 12px; font-size: 14px; min-width: 0; }
-.gdb-main, .gdb-sidebar { display: flex; flex-direction: column; gap: 13px; min-width: 0; }
-.gdb-metrics { display: grid; grid-template-columns: 1fr 1.21fr .7fr .79fr; gap: 12px; }
+.gdb-workspace { --gdb-blue: #0866ff; --gdb-green: #00b581; color: #607ba7; display: flex; flex-direction: column; gap: 13px; font-size: 14px; min-width: 0; }
+.gdb-main { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: 12px; min-width: 0; }
+.gdb-main:has(.gdb-details) { grid-template-columns: minmax(0, 3.19fr) minmax(350px, 1fr); }
+.gdb-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .gdb-metric { display: flex; align-items: flex-start; gap: 18px; padding: 12px 18px; height: 111px; }
 .gdb-icon { width: 51px; height: 51px; flex: none; display: inline-flex; justify-content: center; align-items: center; color: #087bff; background: #e8f3ff; border-radius: 10px; }
 .gdb-icon.green { color: #00b581; background: #e0f8ef; }
@@ -13,19 +14,19 @@
 .gdb-metric p { font-size: 14px; line-height: 21px; color: #8094b6; margin: 4px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .gdb-metric strong.gdb-backup-time { font-size: 17px; align-items: center; gap: 4px; }
 .gdb-metric .gdb-positive { display: inline-flex; align-items: center; gap: 4px; color: var(--gdb-green); font-size: 14px; margin-left: 3px; font-weight: 600; }
-.gdb-metric:nth-child(3) p { margin-left: -34px; width: calc(100% + 44px); font-size: 13px; }
-.gdb-metric:last-child { gap: 18px; padding-left: 12px; padding-right: 12px; }
 .gdb-mini-storage { display: flex; align-items: center; gap: 16px; margin-top: 5px; }
 .gdb-mini-storage b { font-size: 13px; color: #087bff; font-weight: 500; }
 .gdb-progress { flex: 1; height: 8px; background: #e1ebfd; border-radius: 20px; overflow: hidden; }
 .gdb-progress > span { display: block; height: 100%; background: #0866ff; border-radius: inherit; transition: width .2s; }
-.gdb-list { padding: 8px 14px 14px; }
-.gdb-list > header, .gdb-history > header, .gdb-auto > header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.gdb-list { padding: 8px 14px 14px; min-width: 0; }
+.gdb-list > header, .gdb-details > header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .cloud-shell .gdb-workspace h2 { font-size: 18px; line-height: 23px; font-weight: 650; gap: 12px; }
 .gdb-toolbar { display: flex; align-items: center; gap: 9px; }
 .gdb-toolbar .gsd-button { height: 38px; padding: 0 14px; gap: 8px; font-size: 13px; }
 .gdb-toolbar .gsd-button.danger { color: #ff4351; border-color: #ffbec6; }
-.gdb-filters { display: flex; align-items: center; gap: 10px; margin: 7px 0 5px; }
+.gdb-filters { display: grid; grid-template-columns: minmax(180px, 2fr) repeat(2, minmax(105px, 1fr)) minmax(160px, 1.3fr) auto; align-items: center; gap: 10px; margin: 7px 0 5px; }
+.gdb-filters > :is(.gdb-search, .gdb-select) { width: 100%; min-width: 0; }
+.gdb-refresh { height: 39px; padding: 0 14px; font-size: 13px; }
 .gdb-search { display: flex; align-items: center; gap: 12px; width: 319px; height: 39px; padding: 0 14px; border: 1px solid #d3e2fb; border-radius: 6px; }
 .gdb-search svg { flex: none; }
 .gdb-search input { width: 100%; min-width: 0; outline: none; background: transparent; border: 0; font-size: 13px; color: #486897; }
@@ -63,30 +64,17 @@
 .gdb-table-backup { display: inline-flex; align-items: center; gap: 9px; font-size: 14px; }
 .gdb-success-icon { color: #fff; fill: #00b581; stroke-width: 2.5; flex: none; }
 .gdb-row-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.gdb-row-actions button, .gdb-link { display: inline-flex; align-items: center; gap: 4px; padding: 0; background: none; border: 0; color: #087bff; font-size: 13px; white-space: nowrap; }
-.gdb-row-actions button:hover, .gdb-link:hover { color: #0053cf; text-decoration: underline; }
+.gdb-row-actions button { display: inline-flex; align-items: center; gap: 4px; padding: 0; background: none; border: 0; color: #087bff; font-size: 13px; white-space: nowrap; }
+.gdb-row-actions button:hover { color: #0053cf; text-decoration: underline; }
 .gdb-pagination { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 15px 4px 0; font-size: 13px; color: #8296b7; }
 .gdb-pagination nav { display: flex; align-items: center; gap: 6px; }
 .gdb-pagination nav > button { display: grid; place-items: center; width: 39px; height: 39px; border: 1px solid #dce8fc; border-radius: 6px; color: #607ba7; background: #fff; font-size: 16px; }
 .gdb-pagination nav > button:disabled { color: #a4bbdc; border-color: #e5edfc; }
 .gdb-pagination nav > button.current { background: #0866ff; color: #fff; border-color: #0866ff; }
 .gdb-pagination .gdb-select { width: 105px; margin-left: 3px; }
-.gdb-bottom { display: grid; grid-template-columns: 1.5fr 1fr; gap: 12px; }
-.gdb-history, .gdb-storage { height: 190px; padding: 14px 16px; }
-.gdb-history ul { list-style: none; padding: 0; margin: 10px 0 0; }
-.gdb-history li { display: flex; align-items: center; gap: 20px; min-height: 26px; font-size: 15px; }
-.gdb-history li > i { display: block; width: 9px; height: 9px; border-radius: 50%; flex: none; }
-.gdb-history li > i.green { background: #00b581; }.gdb-history li > i.blue { background: #0866ff; }.gdb-history li > i.red { background: #ff4351; }
-.gdb-history li > span { min-width: 0; color: #455f8e; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.gdb-history time { color: #748cb4; margin-left: auto; white-space: nowrap; }
-.gdb-storage { padding-left: 21px; padding-right: 21px; }
-.gdb-storage-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 18px; color: #425e91; margin: 21px 0 12px; }
-.gdb-storage-label strong { font-weight: 650; color: #0b1235; }.gdb-storage-label b { color: #087bff; font-weight: 500; }
-.gdb-storage > .gdb-progress { height: 18px; }
-.gdb-storage-legend { display: flex; gap: 28px; margin-top: 16px; }
-.gdb-storage-legend > span { display: flex; align-items: center; gap: 12px; font-size: 15px; white-space: nowrap; }
-.gdb-storage-legend i { width: 15px; height: 15px; border-radius: 50%; background: #0866ff; }.gdb-storage-legend > span:last-child i { background: #d8e6ff; }
-.gdb-details { padding: 14px 17px 16px; }
+.gdb-details { padding: 8px 17px 16px; min-width: 0; }
+.gdb-detail-close { width: 28px; height: 28px; border-radius: 5px; }
+.gdb-detail-close:hover { background: #edf5ff; }
 .gdb-detail-profile { display: flex; align-items: center; gap: 20px; border: 1px solid #e4edfb; border-radius: 8px; padding: 8px 13px; margin: 14px 0 9px; min-height: 78px; }
 .gdb-detail-profile .gdb-icon { width: 56px; height: 56px; }
 .gdb-detail-profile > div { min-width: 0; flex: 1; }.gdb-detail-profile > button { margin-left: auto; }
@@ -105,32 +93,22 @@
 .gdb-detail-actions { display: grid; grid-template-columns: 1.1fr 1fr; gap: 8px; }
 .gdb-detail-actions .gsd-button { height: 44px; border-color: #087bff; font-size: 14px; gap: 10px; padding: 0 8px; }
 .gdb-detail-actions > button:last-child { grid-column: 1 / -1; }
-.gdb-auto { padding: 15px 18px 18px; min-height: 139px; }
-.gdb-auto > header > label { display: flex; align-items: center; gap: 13px; font-size: 13px; }
-.gdb-auto > header > label > span.enabled { color: #00b581; background: #e4f9f1; padding: 3px 7px; border-radius: 5px; }
-.gdb-auto .gsd-switch { width: 41px; height: 23px; min-width: 41px; }
-.gdb-auto .gsd-switch[data-state="checked"] { background: #00b581; }
-.gdb-auto .gsd-switch [data-slot="switch-thumb"] { width: 19px; height: 19px; }.gdb-auto .gsd-switch [data-slot="switch-thumb"][data-state="checked"] { transform: translateX(20px); }
-.gdb-auto dl { margin: 10px 0 0; }.gdb-auto dl > div { display: grid; grid-template-columns: 85px minmax(0, 1fr) 22px; gap: 0; align-items: center; min-height: 33px; font-size: 15px; }
-.gdb-auto dt { color: #7f94b7; }.gdb-auto dd { margin: 0; color: #758db4; }
 .gdb-empty { min-height: 170px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; }.gdb-empty p { margin: 0; }
 .gdb-menu { min-width: 190px; color: #4e6993; border-color: #dbe7fa; }.gdb-menu [role="menuitem"] { gap: 8px; cursor: pointer; font-size: 13px; }.gdb-menu [data-highlighted] { background: #edf5ff; color: #087bff; }.gdb-menu .gdb-danger { color: #ff4351; }
 .gdb-workspace :is(button, input, select):focus-visible { outline: 2px solid #087bff; outline-offset: 3px; }
 .gdb-dialog { font-size: 14px; }.gdb-dialog form { display: flex; flex-direction: column; gap: 15px; }.gdb-dialog form > label { display: flex; flex-direction: column; gap: 7px; }.gdb-dialog :is(input, select) { width: 100%; min-height: 39px; padding: 8px 10px; border: 1px solid #d4e1f4; background: #fff; border-radius: 6px; color: #445d82; font: inherit; }.gdb-dialog p { line-height: 1.7; }
 .gdb-dialog footer { display: flex; justify-content: flex-end; gap: 9px; margin-top: 8px; }.gdb-dialog pre { padding: 15px; background: #f3f8ff; border: 1px solid #e0eaf7; border-radius: 6px; color: #445d82; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; }.gdb-dialog .gdb-error { color: #dc3545; margin: 0; }
-.gdb-all-history { list-style: none; margin: 0; padding: 0; max-height: 380px; overflow-y: auto; }.gdb-all-history li { display: flex; justify-content: space-between; gap: 15px; padding: 10px 0; border-bottom: 1px solid #e7effb; }.gdb-all-history time { white-space: nowrap; color: #7f94b7; }.gdb-admin-summary { display: flex; align-items: center; gap: 14px; color: #087bff; }.gdb-admin-summary > div { flex: 1; }.gdb-admin-summary strong { color: #0b1235; }.gdb-admin-summary p { margin: 4px 0 0; color: #607ba7; }
+.gdb-admin-summary { display: flex; align-items: center; gap: 14px; color: #087bff; }.gdb-admin-summary > div { flex: 1; }.gdb-admin-summary strong { color: #0b1235; }.gdb-admin-summary p { margin: 4px 0 0; color: #607ba7; }
 @media (prefers-reduced-motion: reduce) { .gdb-progress > span { transition: none; } }
 @media (max-width: 1500px) {
-  .gdb-metric:nth-child(3) p { margin-left: 0; width: auto; font-size: 11px; }
-  .gdb-workspace { grid-template-columns: minmax(0, 1fr) 350px; }.gdb-metrics { grid-template-columns: 1fr 1.15fr .95fr 1fr; }.gdb-metric { gap: 10px; padding: 12px 10px; }.gdb-metric:last-child { gap: 10px; }.gdb-metric .gdb-icon { width: 42px; height: 46px; }.gdb-metric p { font-size: 11px; }.gdb-metric strong.gdb-backup-time { font-size: 13px; }.gdb-detail-fields dd { font-size: 13px; }.gdb-history li { gap: 12px; font-size: 12px; }.gdb-storage-legend { gap: 18px; }
+  .gdb-main:has(.gdb-details) { grid-template-columns: minmax(0, 1fr) 350px; }.gdb-metric { gap: 10px; padding: 12px 10px; }.gdb-metric .gdb-icon { width: 42px; height: 46px; }.gdb-metric p { font-size: 11px; }.gdb-metric strong.gdb-backup-time { font-size: 13px; }.gdb-detail-fields dd { font-size: 13px; }
 }
 @media (max-width: 1200px) {
-  .gdb-workspace { grid-template-columns: minmax(0, 1fr); }.gdb-sidebar { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); align-items: start; }.gdb-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }.gdb-metric p { font-size: 12px; }.gdb-detail-fields dd { font-size: 14px; }
+  .gdb-main:has(.gdb-details) { grid-template-columns: minmax(0, 1fr); }.gdb-metric p { font-size: 12px; }.gdb-detail-fields dd { font-size: 14px; }
 }
 @media (max-width: 760px) {
   .gsd-databases-page .gsd-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .gdb-metric:nth-child(3) p { font-size: 10px; }
-  .gdb-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }.gdb-metric { height: 110px; gap: 9px; padding: 12px 8px; }.cloud-shell .gdb-metric h3 { font-size: 12px; }.gdb-metric strong { font-size: 20px; }.gdb-metric strong small { font-size: 12px; }.gdb-metric strong.gdb-backup-time { font-size: 11px; }.gdb-metric p { font-size: 10px; white-space: normal; line-height: 16px; }.gdb-metric .gdb-icon { width: 33px; height: 36px; }.gdb-metric .gdb-icon svg { width: 21px; }.gdb-metric:last-child { gap: 7px; padding: 12px 8px; }.gdb-mini-storage { gap: 7px; }.gdb-mini-storage b { font-size: 11px; }
-  .gdb-list { padding: 12px 10px; }.gdb-list > header { align-items: flex-start; flex-direction: column; gap: 12px; }.gdb-toolbar { display: flex; flex-wrap: wrap; gap: 6px; }.gdb-toolbar .gsd-button { padding: 0 8px; gap: 5px; font-size: 11px; height: 34px; }.gdb-filters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 8px; }.gdb-search { width: 100%; grid-column: 1 / -1; }.gdb-select { width: 100%; }.gdb-sort { grid-column: 1 / -1; }.gdb-pagination { flex-wrap: wrap; padding-top: 12px; }.gdb-pagination nav { margin-left: auto; }.gdb-pagination nav > button { width: 33px; height: 35px; }.gdb-pagination .gdb-select { height: 35px; }
-  .gdb-bottom, .gdb-sidebar { display: flex; flex-direction: column; }.gdb-history, .gdb-storage { height: auto; min-height: 185px; }.gdb-history li { font-size: 11px; gap: 8px; line-height: 22px; }.gdb-history li > i { width: 6px; height: 6px; }.gdb-details, .gdb-auto { width: 100%; }.gdb-details { padding: 14px 12px; }.gdb-detail-profile { gap: 12px; padding: 8px; }.gdb-detail-title { gap: 8px; }.gdb-detail-title strong { font-size: 17px; }.gdb-detail-fields dt { font-size: 12px; }.gdb-detail-fields dd { font-size: 12px; }.gdb-detail-actions .gsd-button { font-size: 12px; }.cloud-shell .gdb-auto h2 { font-size: 15px; }.gdb-all-history li { flex-direction: column; gap: 4px; }
+  .gdb-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }.gdb-metric { height: 110px; gap: 9px; padding: 12px 8px; }.cloud-shell .gdb-metric h3 { font-size: 12px; }.gdb-metric strong { font-size: 20px; }.gdb-metric strong small { font-size: 12px; }.gdb-metric strong.gdb-backup-time { font-size: 11px; }.gdb-metric p { font-size: 10px; white-space: normal; line-height: 16px; }.gdb-metric .gdb-icon { width: 33px; height: 36px; }.gdb-metric .gdb-icon svg { width: 21px; }.gdb-mini-storage { gap: 7px; }.gdb-mini-storage b { font-size: 11px; }
+  .gdb-list { padding: 12px 10px; }.gdb-list > header { align-items: flex-start; flex-direction: column; gap: 12px; }.gdb-toolbar { display: flex; flex-wrap: wrap; gap: 6px; }.gdb-toolbar .gsd-button { padding: 0 8px; gap: 5px; font-size: 11px; height: 34px; }.gdb-filters { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin: 12px 0 8px; }.gdb-search { width: 100%; grid-column: 1 / -1; }.gdb-select { width: 100%; }.gdb-sort { grid-column: 1 / -1; }.gdb-refresh { grid-column: 1 / -1; width: 100%; }.gdb-pagination { flex-wrap: wrap; padding-top: 12px; }.gdb-pagination nav { margin-left: auto; }.gdb-pagination nav > button { width: 33px; height: 35px; }.gdb-pagination .gdb-select { height: 35px; }
+  .gdb-details { width: 100%; padding: 14px 12px; }.gdb-detail-profile { gap: 12px; padding: 8px; }.gdb-detail-title { gap: 8px; }.gdb-detail-title strong { font-size: 17px; }.gdb-detail-fields dt { font-size: 12px; }.gdb-detail-fields dd { font-size: 12px; }.gdb-detail-actions .gsd-button { font-size: 12px; }
 }
