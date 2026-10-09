@@ -88,6 +88,8 @@
 .cloud-shell .gst-detail-title h3 { margin: 0 0 4px; font-size: 16px; line-height: 23px; font-weight: 650; color: #0b1235; }
 .gst-detail-title > div { min-width: 0; }
 .gst-detail-title p { margin: 0; color: #8095b7; font-size: 11px; line-height: 18px; }
+.gst-detail-value { display: inline-block; min-width: 0; max-width: 100%; vertical-align: top; }
+.gst-detail-title h3, .gst-detail-title p, .gst-detail-fields dd { overflow: hidden; }
 .gst-detail-fields { margin: 0 0 17px; }
 .gst-detail-fields > div { display: grid; grid-template-columns: 100px minmax(0, 1fr); align-items: start; gap: 11px; min-height: 28px; }
 .gst-detail-fields dt { color: #7c91b4; font-size: 13px; line-height: 21px; }
