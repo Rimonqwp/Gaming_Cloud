@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
-import { Archive, Bell, BookOpen, CalendarDays, CircleCheck, Clock3, Code2, ExternalLink, FileText, FolderOpen, Layers, Mail, Play, Puzzle, RotateCcw, Save, Server, Settings, ShieldCheck, Terminal, Timer, TriangleAlert, Users, type LucideIcon } from "lucide-react";
+import { Archive, Bell, BookOpen, CalendarDays, CircleCheck, Clock3, Code2, ExternalLink, FileText, Layers, Mail, Play, Puzzle, RotateCcw, Save, Server, Settings, ShieldCheck, Terminal, Timer, TriangleAlert, Users, type LucideIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
@@ -91,6 +91,7 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
   const frequencyLabel = validSchedule ? frequencies.find(option => option.value === schedule.frequency)?.label ?? "自定义 Cron" : "待设置有效计划";
   const time = `${String(schedule.hour).padStart(2, "0")}:${String(schedule.minute).padStart(2, "0")}`;
   const executionTime = !validSchedule ? "待设置有效计划" : schedule.frequency === "hourly" ? `每小时第 ${schedule.minute} 分钟` : schedule.frequency === "weekly" ? `${weekdays[schedule.weekday]} ${time}` : schedule.frequency === "monthly" ? `每月 ${schedule.day} 日 ${time}` : schedule.frequency === "daily" ? time : "按 Cron 表达式执行";
+  const scheduleSummary = schedule.frequency === "daily" || schedule.frequency === "weekly" ? `${frequencyLabel} ${executionTime}` : schedule.frequency === "custom" ? frequencyLabel : executionTime;
   return <form className="gstc-content" onSubmit={event => { event.preventDefault(); onSave(); }}>
     <header className="gstc-banner"><span className="gstc-banner-icon"><CalendarDays size={30} /></span><div className="gstc-banner-copy"><DialogTitle>{draft.id ? "编辑任务" : "新建任务"}</DialogTitle><DialogDescription>设置执行计划、动作和运行条件，让服务器按时完成日常任务。</DialogDescription></div><DocumentationLink label="查看定时任务文档" /></header>
     <div className="gstc-scroll" ref={scrollRef}><div className="gstc-layout"><main>
@@ -111,13 +112,13 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
             {schedule.frequency === "weekly" && <SettingRow title="执行星期" icon={CalendarDays}><select aria-label="执行星期" value={schedule.weekday} onChange={event => chooseFrequency("weekly", { weekday: Number(event.target.value) })}>{weekdays.map((day, index) => <option key={day} value={index}>{day}</option>)}</select></SettingRow>}
             {schedule.frequency === "monthly" && <SettingRow title="执行日期" description="当月没有该日期时跳过。" icon={CalendarDays}><div className="gstc-unit"><input aria-label="执行日期" type="number" min={1} max={31} required value={schedule.day} onChange={event => chooseFrequency("monthly", { day: Number(event.target.value) })} /><span>日</span></div></SettingRow>}
           </>}
-          <SettingRow title="CRON 表达式" description="分钟 · 小时 · 日期 · 月份 · 星期" icon={Code2}><div className="gstc-cron"><input aria-label="Cron 表达式" aria-invalid={!preview} value={draft.cron} required onChange={event => update({ cron: event.target.value })} /><button type="button" className="gstc-button" onClick={() => chooseFrequency(schedule.frequency === "custom" ? "daily" : schedule.frequency)}><RotateCcw size={16} />使用可视化选择</button></div></SettingRow>
+          <SettingRow title="CRON 表达式" description="分钟 · 小时 · 日期 · 月份 · 星期" icon={Code2}><input aria-label="Cron 表达式" aria-invalid={!preview} value={draft.cron} required onChange={event => update({ cron: event.target.value })} /></SettingRow>
           <SettingRow title="下次执行时间预览" icon={Clock3}><output aria-live="polite" className={`gstc-preview${preview ? "" : " invalid"}`}>{!preview ? "请输入有效的执行计划" : draft.enabled ? `${preview}:00` : "任务已暂停，开启后按计划执行"}</output></SettingRow>
         </div>
       </Card>
       <Card title="执行动作" description="选择动作模板，再按需要调整执行命令。" icon={Play} action={<DocumentationLink label="查看执行动作文档" />}>
         <div className="gstc-templates">{templates.map((template, index) => <label key={template.name} className={selectedTemplate?.name === template.name ? "selected" : ""}><input type="radio" name="task-template" value={index} checked={selectedTemplate?.name === template.name} onChange={() => chooseTemplate(index)} /><template.icon size={26} /><span><strong>{template.name}</strong><small>{template.description}</small></span></label>)}</div>
-        <div className="gstc-command-fields"><label>执行目录<input aria-label="执行目录" required value={draft.directory} onChange={event => update({ directory: event.target.value })} /></label><div className="gstc-name-fields"><label>任务类型<select aria-label="任务类型" value={draft.type} onChange={event => update({ type: event.target.value as ServerTask["type"] })}>{taskTypes.map(type => <option key={type}>{type}</option>)}</select></label><label>超时时间（分钟）<input aria-label="超时时间" type="number" min={1} max={120} required value={draft.timeout} onChange={event => update({ timeout: Number(event.target.value) })} /></label></div><label>执行命令<textarea aria-label="执行命令" value={draft.command} required onChange={event => update({ command: event.target.value })} placeholder="输入需要执行的命令" /></label></div>
+        <div className="gstc-command-fields"><div className="gstc-name-fields"><label>任务类型<select aria-label="任务类型" value={draft.type} onChange={event => update({ type: event.target.value as ServerTask["type"] })}>{taskTypes.map(type => <option key={type}>{type}</option>)}</select></label><label>超时时间（分钟）<input aria-label="超时时间" type="number" min={1} max={120} required value={draft.timeout} onChange={event => update({ timeout: Number(event.target.value) })} /></label></div><label>执行命令<textarea aria-label="执行命令" value={draft.command} required onChange={event => update({ command: event.target.value })} placeholder="输入需要执行的命令" /></label></div>
       </Card>
       <Card title="运行条件" description="设置执行条件，避免在不合适的情况下运行。" icon={ShieldCheck}>
         <div className="gstc-conditions">{[{ label: "仅在服务器在线时执行", description: "服务器离线时跳过任务。", icon: Server, value: draft.onlyWhenOnline ?? true, onChange: (onlyWhenOnline: boolean) => update({ onlyWhenOnline }) }, { label: "避免玩家在线高峰", description: "仅在没有在线玩家时执行。", icon: Users, value: draft.onlyWhenEmpty ?? false, onChange: (onlyWhenEmpty: boolean) => update({ onlyWhenEmpty }) }, { label: "执行失败发送通知", description: "通过站内信、邮件通知。", icon: Bell, value: draft.notify, onChange: (notify: boolean) => update({ notify }) }].map(condition => <div key={condition.label}><condition.icon size={23} /><span><strong>{condition.label}</strong><small>{condition.description}</small></span><Switch aria-label={condition.label} checked={condition.value} onCheckedChange={condition.onChange} /></div>)}</div>
@@ -129,13 +130,9 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
         <SummaryRow title="任务描述" icon={FileText}>{draft.description.trim() || "未填写描述"}</SummaryRow>
         <SummaryRow title="所属服务器" icon={Server}>{serverName}</SummaryRow>
         <SummaryRow title="当前时区" icon={Clock3}>亚洲/上海 (UTC+8)</SummaryRow>
-        <SummaryRow title="调度频率" icon={RotateCcw}>{frequencyLabel}</SummaryRow>
-        <SummaryRow title="执行时间" icon={Clock3}>{executionTime}</SummaryRow>
-        <SummaryRow title="Cron 表达式" icon={Code2}><code>{draft.cron.trim() || "未设置"}</code></SummaryRow>
+        <SummaryRow title="调度计划" icon={RotateCcw}>{scheduleSummary}</SummaryRow>
         <SummaryRow title="执行动作" icon={Layers}>{templateName}</SummaryRow>
         <SummaryRow title="任务类型" icon={Layers}>{draft.type}</SummaryRow>
-        <SummaryRow title="执行环境" icon={Terminal}>{environment === "server" ? "服务器内" : "游戏控制台"}</SummaryRow>
-        <SummaryRow title="执行目录" icon={FolderOpen}>{draft.directory.trim() || "未设置"}</SummaryRow>
         <SummaryRow title="执行命令" icon={Terminal}><code>{draft.command.trim() || "未填写命令"}</code></SummaryRow>
         <SummaryRow title="下次执行时间" icon={CalendarDays}>{draft.enabled ? preview ?? "等待有效计划" : "任务已暂停"}</SummaryRow>
       </dl></Card>

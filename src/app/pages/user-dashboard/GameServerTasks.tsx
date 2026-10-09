@@ -118,14 +118,13 @@ export function GameServerTasks({ server, autosaveEnabled, onAutosaveChange, onN
   };
   const saveTask = () => {
     if (!draft) return;
-    if (!draft.name.trim() || !draft.command.trim() || !draft.directory.trim()) { setFormError("请填写任务名称、执行命令和执行目录。"); return; }
-    if (!draft.directory.trim().startsWith("/")) { setFormError("执行目录必须是绝对路径，例如 /home/server/。"); return; }
+    if (!draft.name.trim() || !draft.command.trim()) { setFormError("请填写任务名称和执行命令。"); return; }
     if (!Number.isInteger(draft.retries) || draft.retries < 0 || draft.retries > 10 || !Number.isInteger(draft.timeout) || draft.timeout < 1 || draft.timeout > 120) { setFormError("重试次数应为 0–10，超时时间应为 1–120 分钟的整数。"); return; }
     if (!parseTaskCron(draft.cron)) { setFormError("请输入有效的 5 段 Cron 表达式，例如 0 3 * * *。"); return; }
     const nextRun = nextTaskRun(draft.cron);
     if (!nextRun) { setFormError("此 Cron 表达式没有可执行的日期，请检查日期与月份。"); return; }
     const id = draft.id || `task-${String(sequence.current++).padStart(3, "0")}`;
-    const saved = { ...draft, id, name: draft.name.trim(), command: draft.command.trim(), directory: draft.directory.trim(), cron: draft.cron.trim().replace(/\s+/g, " "), nextRun };
+    const saved = { ...draft, id, name: draft.name.trim(), command: draft.command.trim(), directory: draft.directory.trim() || "/home/server/", cron: draft.cron.trim().replace(/\s+/g, " "), nextRun };
     setTasks(previous => draft.id ? previous.map(task => task.id === id ? saved : task) : [...previous, saved]);
     if (id === "task-004") onAutosaveChange(saved.enabled);
     setActiveId(id);
