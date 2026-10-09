@@ -165,7 +165,10 @@ export function GameServerDatabases({ server, onNotice }: { server: ConsoleInsta
         </div>
         <div className="gdb-table-scroll"><table className="gdb-table"><colgroup><col className="gdb-col-check" /><col className="gdb-col-name" /><col className="gdb-col-type" /><col className="gdb-col-version" /><col className="gdb-col-size" /><col className="gdb-col-charset" /><col className="gdb-col-status" /><col className="gdb-col-username" /><col className="gdb-col-password" /><col className="gdb-col-actions" /></colgroup>
           <thead><tr><th><input type="checkbox" aria-label="选择当前页全部数据库" checked={allChecked} ref={element => { if (element) element.indeterminate = !allChecked && rows.some(record => selected.includes(record.id)); }} onChange={() => setSelected(previous => allChecked ? previous.filter(id => !rows.some(record => record.id === id)) : [...new Set([...previous, ...rows.map(record => record.id)])])} /></th><th>数据库名称</th><th>类型</th><th>版本</th><th>大小</th><th>字符集</th><th>状态</th><th>用户名</th><th>密码</th><th>操作</th></tr></thead>
-          <tbody>{rows.map(record => <tr key={record.id} className={active?.id === record.id ? "active" : ""}>
+          <tbody>{rows.map(record => <tr key={record.id} onClick={event => {
+            if ((event.target as Element).closest("button, input, .gdb-menu, [role=menuitem]")) return;
+            focusDatabase(record, event.currentTarget.querySelector<HTMLButtonElement>(".gdb-database-name") ?? undefined);
+          }} className={active?.id === record.id ? "active" : ""}>
             <td><input type="checkbox" aria-label={`选择 ${record.name}`} checked={selected.includes(record.id)} onChange={() => toggleSelection(record.id)} /></td>
             <td><button className="gdb-database-name" onClick={event => focusDatabase(record, event.currentTarget)} aria-label={`查看 ${record.name} 详情`} aria-expanded={active?.id === record.id} aria-controls={active?.id === record.id ? "gdb-database-details" : undefined}><span><Database size={21} /></span><div><strong>{record.name}</strong><small>{record.description}</small></div></button></td>
             <td><span className="gdb-type">{record.type}</span></td><td>{record.version}</td><td>{databaseSize(record.sizeMB)}</td><td>utf8mb4</td><td><DatabaseStatus running={record.running} /></td>

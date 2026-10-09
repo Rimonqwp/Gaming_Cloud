@@ -47,6 +47,7 @@
 .gdb-table td { height: 51px; font-size: 15px; color: #607ba7; border-bottom: 1px solid #e7effb; }
 .gdb-table th, .gdb-table td { padding: 0 7px; white-space: nowrap; }
 .gdb-table th:first-child, .gdb-table td:first-child { padding-left: 14px; }
+.gdb-table tbody tr { cursor: pointer; }
 .gdb-table tbody tr.active { background: #eaf4ff; }
 .gdb-table tbody tr:hover { background: #f3f8ff; }
 .gdb-table input[type="checkbox"] { width: 16px; height: 16px; accent-color: #0866ff; cursor: pointer; vertical-align: middle; }
