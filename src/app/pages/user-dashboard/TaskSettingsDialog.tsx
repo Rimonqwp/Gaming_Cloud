@@ -77,6 +77,7 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
   const [selectedTemplateName, setSelectedTemplateName] = useState(() => taskTemplateName(draft));
   const selectedTemplate = templates.find(template => template.name === (selectedTemplateName === "自动重启" ? "实例状态" : selectedTemplateName));
   const isInstanceAction = selectedTemplate?.name === "实例状态";
+  const showCommandInput = !isInstanceAction && selectedTemplate?.name !== "自动备份" && selectedTemplate?.name !== "自动更新插件";
   const instanceAction = draft.instanceAction ?? "restart";
   const instanceActionLabel = instanceActions.find(option => option.value === instanceAction)?.label;
   const schedule = visualSchedule(draft.cron);
@@ -137,11 +138,11 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
           <SettingRow title="下次执行时间预览" description="按默认时区实时计算。" icon={Clock3}><output aria-live="polite" className={`gstc-preview${preview ? "" : " invalid"}`}>{!preview ? "请输入有效的执行计划" : draft.enabled ? `${preview}:00` : "任务已暂停，开启后按计划执行"}</output></SettingRow>
         </div>
       </Card>
-      <Card title="执行动作" description="选择动作模板，再按需要调整执行命令。" icon={Play} action={<DocumentationLink label="查看执行动作文档" />}>
+      <Card title="执行动作" description="选择动作模板，再按需要调整执行选项。" icon={Play} action={<DocumentationLink label="查看执行动作文档" />}>
         <div className="gstc-templates">{templates.map((template, index) => <label key={template.name} className={selectedTemplate?.name === template.name ? "selected" : ""}><input type="radio" name="task-template" value={index} checked={selectedTemplate?.name === template.name} onChange={() => chooseTemplate(index)} /><template.icon size={26} /><span><strong>{template.name}</strong><small>{template.description}</small></span></label>)}</div>
         <div className="gstc-command-fields">
           {isInstanceAction && <div className="gstc-rows"><SettingRow title="实例操作" description="选择到达执行时间时要调整的实例状态。" icon={Power}><div className="gstc-frequency" role="group" aria-label="实例操作">{instanceActions.map(option => <button type="button" key={option.value} aria-pressed={instanceAction === option.value} onClick={() => update({ instanceAction: option.value, command: option.value, ...(option.value === "start" ? { onlyWhenOnline: false } : {}) })}>{option.label}</button>)}</div></SettingRow></div>}
-          {!isInstanceAction && <label>执行命令<textarea aria-label="执行命令" value={draft.command} required onChange={event => update({ command: event.target.value })} placeholder="输入需要执行的命令" /></label>}
+          {showCommandInput && <label>执行命令<textarea aria-label="执行命令" value={draft.command} required onChange={event => update({ command: event.target.value })} placeholder="输入需要执行的命令" /></label>}
           <details className="gstc-advanced"><summary><ChevronRight size={17} />高级设定</summary><div className="gstc-name-fields"><label>任务类型<select aria-label="任务类型" value={draft.type} onChange={event => update({ type: event.target.value as ServerTask["type"] })}>{taskTypes.map(type => <option key={type}>{type}</option>)}</select></label><label>超时时间（分钟）<input aria-label="超时时间" type="number" min={1} max={120} required value={draft.timeout} onInvalid={event => { const panel = event.currentTarget.closest("details"); if (panel) panel.open = true; }} onChange={event => update({ timeout: Number(event.target.value) })} /></label></div></details>
         </div>
       </Card>
