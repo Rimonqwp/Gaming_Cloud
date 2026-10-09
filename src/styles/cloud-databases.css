@@ -1,10 +1,4 @@
-.cloud-container:has(.gsd-databases-page) { max-width: 1684px; }
-.gsd-databases-page .gsd-hero { margin-bottom: 12.5px; }
-.cloud-shell .gsd-databases-page .gsd-title h1 { font-size: 30px; }
-.gsd-databases-page .gsd-game-icon { width: 58px; height: 58px; }
-.gsd-databases-page .gsd-actions .gsd-button { height: 40px; font-size: 14px; }
-.gsd-databases-page .gsd-tabs { height: 48px; margin-bottom: 14px; }
-.gsd-databases-page .gsd-tabs button { font-size: 14px; }
+/* 数据库页的容器、标题、图标、操作按钮和标签栏沿用实例详情公共尺寸。 */
 .gdb-workspace { --gdb-blue: #0866ff; --gdb-green: #00b581; color: #607ba7; display: grid; grid-template-columns: minmax(0, 3.19fr) minmax(350px, 1fr); gap: 12px; font-size: 14px; min-width: 0; }
 .gdb-main, .gdb-sidebar { display: flex; flex-direction: column; gap: 13px; min-width: 0; }
 .gdb-metrics { display: grid; grid-template-columns: 1fr 1.21fr .7fr .79fr; gap: 12px; }
@@ -134,9 +128,7 @@
   .gdb-workspace { grid-template-columns: minmax(0, 1fr); }.gdb-sidebar { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); align-items: start; }.gdb-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }.gdb-metric p { font-size: 12px; }.gdb-detail-fields dd { font-size: 14px; }
 }
 @media (max-width: 760px) {
-  .cloud-shell .gsd-databases-page .gsd-title h1 { font-size: 21px; }
   .gsd-databases-page .gsd-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .gsd-databases-page .gsd-actions .gsd-button { height: 35px; font-size: 11px; }
   .gdb-metric:nth-child(3) p { font-size: 10px; }
   .gdb-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }.gdb-metric { height: 110px; gap: 9px; padding: 12px 8px; }.cloud-shell .gdb-metric h3 { font-size: 12px; }.gdb-metric strong { font-size: 20px; }.gdb-metric strong small { font-size: 12px; }.gdb-metric strong.gdb-backup-time { font-size: 11px; }.gdb-metric p { font-size: 10px; white-space: normal; line-height: 16px; }.gdb-metric .gdb-icon { width: 33px; height: 36px; }.gdb-metric .gdb-icon svg { width: 21px; }.gdb-metric:last-child { gap: 7px; padding: 12px 8px; }.gdb-mini-storage { gap: 7px; }.gdb-mini-storage b { font-size: 11px; }
   .gdb-list { padding: 12px 10px; }.gdb-list > header { align-items: flex-start; flex-direction: column; gap: 12px; }.gdb-toolbar { display: flex; flex-wrap: wrap; gap: 6px; }.gdb-toolbar .gsd-button { padding: 0 8px; gap: 5px; font-size: 11px; height: 34px; }.gdb-filters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 8px; }.gdb-search { width: 100%; grid-column: 1 / -1; }.gdb-select { width: 100%; }.gdb-sort { grid-column: 1 / -1; }.gdb-pagination { flex-wrap: wrap; padding-top: 12px; }.gdb-pagination nav { margin-left: auto; }.gdb-pagination nav > button { width: 33px; height: 35px; }.gdb-pagination .gdb-select { height: 35px; }
