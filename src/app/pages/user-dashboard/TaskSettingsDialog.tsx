@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode, type RefObject } from "react";
-import { Archive, Bell, CalendarDays, Check, CircleCheck, CircleHelp, Clock3, Code2, FileText, Layers, Mail, Megaphone, Play, RotateCcw, Save, Server, Settings, ShieldCheck, Terminal, Timer, TriangleAlert, Users, Wrench, type LucideIcon } from "lucide-react";
+import { Archive, Bell, CalendarDays, CircleCheck, CircleHelp, Clock3, Code2, FileText, Layers, Mail, Megaphone, Play, RotateCcw, Save, Server, Settings, ShieldCheck, Terminal, Timer, TriangleAlert, Users, Wrench, type LucideIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
 import { nextTaskRun, parseTaskCron, taskTypes, type ServerTask } from "./gameServerTasksData";
@@ -101,7 +101,6 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
       </Card>
     </main><aside>
       <Card title="定时任务概览" icon={Timer}><dl className="gstc-summary"><div><Clock3 size={22} /><dt>定时任务状态</dt><dd><span className={`gstc-status${draft.enabled ? "" : " off"}`}>{draft.enabled ? "已开启" : "已暂停"}</span></dd></div><div><Server size={22} /><dt>所属服务器</dt><dd>{serverName}</dd></div><div><Clock3 size={22} /><dt>当前时区</dt><dd>亚洲/上海 (UTC+8)</dd></div><div><Layers size={22} /><dt>执行动作</dt><dd>{templateName}</dd></div><div><CalendarDays size={22} /><dt>下次执行任务</dt><dd>{draft.name || "未命名任务"}<small>{draft.enabled ? preview ?? "等待有效计划" : "已暂停"}</small></dd></div></dl></Card>
-      <Card title="动作模板" description="快速切换任务的执行动作。" icon={Layers}><div className="gstc-template-summary">{templates.map((template, index) => <button type="button" key={template.name} aria-label={`使用${template.name}模板`} aria-pressed={templateIndex === index} onClick={() => chooseTemplate(index)}><template.icon size={24} /><span><strong>{template.name}</strong><small>{template.description}</small></span>{templateIndex === index ? <span className="gstc-status"><Check size={12} />使用中</span> : <span className="gstc-template-select">选择</span>}</button>)}</div></Card>
       <Card title="通知与告警摘要" icon={Bell}><dl className="gstc-summary"><div><Mail size={21} /><dt>失败通知</dt><dd><span className={`gstc-status${draft.notify ? "" : " off"}`}>{draft.notify ? "已开启" : "已关闭"}</span></dd></div><div><TriangleAlert size={21} /><dt>失败重试</dt><dd>{draft.retries ? `最多 ${draft.retries} 次，间隔 5 分钟` : "不自动重试"}</dd></div><div><CircleCheck size={21} /><dt>超时时间</dt><dd>{draft.timeout} 分钟</dd></div><div><Users size={21} /><dt>通知接收人</dt><dd>服务器管理员</dd></div></dl></Card>
       <Card title="使用说明" icon={CircleHelp}><ol className="gstc-help"><li>选择合适的动作模板，设置执行时间和频率。</li><li>建议在服务器空闲时执行占用资源较大的任务。</li><li>高级执行计划可直接填写 5 段 Cron 表达式。</li><li>保存后可在任务列表中编辑、执行或查看日志。</li></ol>{draft.onlyWhenEmpty && players > 0 && <p className="gstc-condition-note">当前有 {players} 位玩家在线，任务将在无人在线时执行。</p>}</Card>
     </aside></div></div>
