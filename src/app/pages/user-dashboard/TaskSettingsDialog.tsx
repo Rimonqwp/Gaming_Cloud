@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { Archive, Bell, BookOpen, CalendarDays, CircleCheck, Clock3, Code2, ExternalLink, FileText, FolderOpen, Layers, Mail, Play, Puzzle, RotateCcw, Save, Server, Settings, ShieldCheck, Terminal, Timer, TriangleAlert, Users, type LucideIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
@@ -54,6 +54,16 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
 function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName }: {
   draft: ServerTask; onChange: (draft: ServerTask) => void; error: string; onSave: () => void; onCancel: () => void; serverName: string;
 }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const scroll = scrollRef.current;
+    if (!scroll) return;
+    const observer = new ResizeObserver(([entry]) => {
+      scroll.style.setProperty("--gstc-scroll-height", `${entry.contentRect.height}px`);
+    });
+    observer.observe(scroll);
+    return () => observer.disconnect();
+  }, []);
   const [original] = useState(() => ({ ...draft }));
   const [selectedTemplateName, setSelectedTemplateName] = useState(() => templates.find(template => template.command === draft.command && template.type === draft.type)?.name ?? null);
   const selectedTemplate = templates.find(template => template.name === selectedTemplateName);
@@ -83,7 +93,7 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
   const executionTime = !validSchedule ? "待设置有效计划" : schedule.frequency === "hourly" ? `每小时第 ${schedule.minute} 分钟` : schedule.frequency === "weekly" ? `${weekdays[schedule.weekday]} ${time}` : schedule.frequency === "monthly" ? `每月 ${schedule.day} 日 ${time}` : schedule.frequency === "daily" ? time : "按 Cron 表达式执行";
   return <form className="gstc-content" onSubmit={event => { event.preventDefault(); onSave(); }}>
     <header className="gstc-banner"><span className="gstc-banner-icon"><CalendarDays size={30} /></span><div className="gstc-banner-copy"><DialogTitle>{draft.id ? "编辑任务" : "新建任务"}</DialogTitle><DialogDescription>设置执行计划、动作和运行条件，让服务器按时完成日常任务。</DialogDescription></div><DocumentationLink label="查看定时任务文档" /></header>
-    <div className="gstc-scroll"><div className="gstc-layout"><main>
+    <div className="gstc-scroll" ref={scrollRef}><div className="gstc-layout"><main>
       <Card title="基础设置" description="配置任务信息、默认行为和运行环境。" icon={Settings}>
         <div className="gstc-name-fields"><label>任务名称<input autoFocus aria-label="任务名称" value={draft.name} maxLength={60} required onChange={event => update({ name: event.target.value })} placeholder="例如：自动备份世界" /></label><label>任务备注<input aria-label="任务备注" value={draft.description} maxLength={150} onChange={event => update({ description: event.target.value })} placeholder="简要描述任务用途" /></label></div>
         <div className="gstc-rows">
