@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode, type RefObject } from "react";
-import { Archive, Bell, CalendarDays, CircleCheck, CircleHelp, Clock3, Code2, FileText, Layers, Mail, Megaphone, Play, RotateCcw, Save, Server, Settings, ShieldCheck, Terminal, Timer, TriangleAlert, Users, Wrench, type LucideIcon } from "lucide-react";
+import { Archive, Bell, CalendarDays, CircleCheck, CircleHelp, Clock3, Code2, Layers, Mail, Play, Puzzle, RotateCcw, Save, Server, Settings, ShieldCheck, Terminal, Timer, TriangleAlert, Users, type LucideIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
 import { nextTaskRun, parseTaskCron, taskTypes, type ServerTask } from "./gameServerTasksData";
@@ -8,10 +8,8 @@ import "../../../styles/cloud-task-settings.css";
 const templates: { name: string; description: string; icon: LucideIcon; command: string; type: ServerTask["type"]; environment: "server" | "console" }[] = [
   { name: "自动备份", description: "备份服务器文件与世界存档，防止数据丢失。", icon: Archive, command: "bash /scripts/backup.sh", type: "备份", environment: "server" },
   { name: "自动重启", description: "定时重启服务器，释放内存并保持稳定运行。", icon: RotateCcw, command: "restart", type: "系统", environment: "console" },
-  { name: "清理日志", description: "清理过期的日志文件，释放磁盘空间。", icon: FileText, command: "find logs -type f -mtime +30 -delete", type: "维护", environment: "server" },
-  { name: "广播消息", description: "向所有在线玩家发送服务器消息。", icon: Megaphone, command: "say 欢迎来到服务器！", type: "其他", environment: "console" },
+  { name: "自动更新插件", description: "按计划更新服务器插件，保持插件版本最新。", icon: Puzzle, command: "bash /scripts/update_plugins.sh", type: "维护", environment: "server" },
   { name: "执行控制台指令", description: "按计划执行自定义控制台命令。", icon: Terminal, command: "", type: "其他", environment: "console" },
-  { name: "世界维护", description: "保存世界存档，定期维护服务器。", icon: Wrench, command: "save-all", type: "系统", environment: "console" },
 ];
 
 type Frequency = "hourly" | "daily" | "weekly" | "monthly" | "custom";
@@ -48,7 +46,8 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
   draft: ServerTask; onChange: (draft: ServerTask) => void; error: string; onSave: () => void; onCancel: () => void; serverName: string; players: number;
 }) {
   const [original] = useState(() => ({ ...draft }));
-  const [templateIndex, setTemplateIndex] = useState(() => templates.findIndex(template => template.command === draft.command && template.type === draft.type));
+  const [selectedTemplateName, setSelectedTemplateName] = useState(() => templates.find(template => template.command === draft.command && template.type === draft.type)?.name ?? null);
+  const selectedTemplate = templates.find(template => template.name === selectedTemplateName);
   const schedule = visualSchedule(draft.cron);
   const preview = useMemo(() => nextTaskRun(draft.cron), [draft.cron]);
   const update = (patch: Partial<ServerTask>) => onChange({ ...draft, ...patch });
@@ -62,12 +61,12 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
     chooseFrequency(schedule.frequency, { hour, minute });
   };
   const chooseTemplate = (index: number) => {
-    setTemplateIndex(index);
     const template = templates[index];
+    setSelectedTemplateName(template.name);
     update({ command: template.command, type: template.type, environment: template.environment });
   };
-  const reset = () => { onChange({ ...original }); setTemplateIndex(templates.findIndex(template => template.command === original.command && template.type === original.type)); };
-  const templateName = templates[templateIndex]?.name ?? "自定义动作";
+  const reset = () => { onChange({ ...original }); setSelectedTemplateName(templates.find(template => template.command === original.command && template.type === original.type)?.name ?? null); };
+  const templateName = selectedTemplate?.name ?? "自定义动作";
   return <form className="gstc-content" onSubmit={event => { event.preventDefault(); onSave(); }}>
     <header className="gstc-banner"><span className="gstc-banner-icon"><CalendarDays size={30} /></span><div><DialogTitle>{draft.id ? "编辑任务" : "新建任务"}</DialogTitle><DialogDescription>设置执行计划、动作和运行条件，让服务器按时完成日常任务。</DialogDescription></div></header>
     <div className="gstc-scroll"><div className="gstc-layout"><main>
@@ -76,7 +75,7 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
         <div className="gstc-rows">
           <SettingRow title="定时任务开关" description="开启后按下方配置自动执行定时任务。" icon={ShieldCheck}><Toggle label="定时任务开关" checked={draft.enabled} onChange={enabled => update({ enabled })} /></SettingRow>
           <SettingRow title="默认时区" description="执行时间与 Cron 表达式均使用北京时间。" icon={Clock3}><div className="gstc-static-input">亚洲/上海 (UTC+8)</div></SettingRow>
-          <SettingRow title="任务执行环境" description="选择服务器脚本或游戏控制台指令。" icon={Terminal}><select aria-label="任务执行环境" value={draft.environment ?? templates[templateIndex]?.environment ?? "server"} onChange={event => update({ environment: event.target.value as "server" | "console" })}><option value="server">服务器内（推荐）</option><option value="console">游戏控制台</option></select></SettingRow>
+          <SettingRow title="任务执行环境" description="选择服务器脚本或游戏控制台指令。" icon={Terminal}><select aria-label="任务执行环境" value={draft.environment ?? selectedTemplate?.environment ?? "server"} onChange={event => update({ environment: event.target.value as "server" | "console" })}><option value="server">服务器内（推荐）</option><option value="console">游戏控制台</option></select></SettingRow>
           <SettingRow title="失败重试次数" description="失败后每隔 5 分钟重试，0 表示不重试。" icon={RotateCcw}><div className="gstc-unit"><input aria-label="失败重试次数" type="number" min={0} max={10} required value={draft.retries} onChange={event => update({ retries: Number(event.target.value) })} /><span>次</span></div></SettingRow>
         </div>
       </Card>
@@ -93,7 +92,7 @@ function TaskSettingsForm({ draft, onChange, error, onSave, onCancel, serverName
         </div>
       </Card>
       <Card title="执行动作" description="选择动作模板，再按需要调整执行命令。" icon={Play}>
-        <div className="gstc-templates">{templates.map((template, index) => <label key={template.name} className={templateIndex === index ? "selected" : ""}><input type="radio" name="task-template" value={index} checked={templateIndex === index} onChange={() => chooseTemplate(index)} /><template.icon size={26} /><span><strong>{template.name}</strong><small>{template.description}</small></span></label>)}</div>
+        <div className="gstc-templates">{templates.map((template, index) => <label key={template.name} className={selectedTemplate?.name === template.name ? "selected" : ""}><input type="radio" name="task-template" value={index} checked={selectedTemplate?.name === template.name} onChange={() => chooseTemplate(index)} /><template.icon size={26} /><span><strong>{template.name}</strong><small>{template.description}</small></span></label>)}</div>
         <div className="gstc-command-fields"><label>执行目录<input aria-label="执行目录" required value={draft.directory} onChange={event => update({ directory: event.target.value })} /></label><div className="gstc-name-fields"><label>任务类型<select aria-label="任务类型" value={draft.type} onChange={event => update({ type: event.target.value as ServerTask["type"] })}>{taskTypes.map(type => <option key={type}>{type}</option>)}</select></label><label>超时时间（分钟）<input aria-label="超时时间" type="number" min={1} max={120} required value={draft.timeout} onChange={event => update({ timeout: Number(event.target.value) })} /></label></div><label>执行命令<textarea aria-label="执行命令" value={draft.command} required onChange={event => update({ command: event.target.value })} placeholder="输入需要执行的命令" /></label></div>
       </Card>
       <Card title="运行条件" description="设置执行条件，避免在不合适的情况下运行。" icon={ShieldCheck}>
