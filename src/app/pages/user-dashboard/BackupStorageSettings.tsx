@@ -1,9 +1,8 @@
 import { useRef, useState, type RefObject } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowDown, ArrowUp, BadgeDollarSign, Check, ChevronDown, ChevronRight, CircleHelp, ClipboardList, Cloud, FileText, Folder, HardDrive, Info, Link, MoreVertical, Plus, Save, Server, Settings, Upload } from "lucide-react";
+import { ArrowDown, ArrowUp, BadgeDollarSign, Check, ChevronDown, ChevronRight, CircleHelp, ClipboardList, Cloud, Folder, HardDrive, Info, Link, MoreVertical, Plus, Save, Server, Settings, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
-import { Switch } from "../../components/ui/switch";
 import { BackupScheduleFields } from "./BackupScheduleFields";
 import { backupScheduleCron, validateBackupSchedule } from "./backupSchedule";
 import "../../../styles/cloud-backup-storage.css";
@@ -38,7 +37,6 @@ export const defaultBackupStorageConfig = (): BackupStorageConfig => ({
   compression: true, compressionLevel: "medium", deduplication: true, encryption: true, encryptionType: "AES-256",
   bandwidth: true, bandwidthLimit: "10", multiSync: true, specifiedDirectories: false, directories: "/minecraft/world\n/minecraft/plugins",
 });
-const timestamp = () => new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(new Date());
 
 export function BackupStorageSettings({ open, onOpenChange, value, onSave, triggerRef, backupPoolId }: {
   open: boolean; onOpenChange: (open: boolean) => void; value: BackupStorageConfig; onSave: (value: BackupStorageConfig) => void; triggerRef: RefObject<HTMLButtonElement>; backupPoolId?: string;
@@ -55,16 +53,12 @@ function BackupStorageForm({ value, onSave, onCancel, backupPoolId }: { value: B
   const [storageEditor, setStorageEditor] = useState(false);
   const storageEditorRef = useRef<HTMLElement>(null);
   const reducedMotion = useReducedMotion();
-  const [tested, setTested] = useState(true);
-  const [testTime, setTestTime] = useState("2024-10-26 14:28:12");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [editor, setEditor] = useState<"directories" | "folder" | "help" | "cost" | null>(null);
-  const [directories, setDirectories] = useState(draft.directories);
+  const [editor, setEditor] = useState<"folder" | "help" | "cost" | null>(null);
   const [folderPath, setFolderPath] = useState(draft.path);
   const update = <K extends keyof BackupStorageConfig>(key: K, next: BackupStorageConfig[K]) => {
     setDraft(previous => ({ ...previous, [key]: next })); setError("");
-    if (["name", "path", "capacity"].includes(key)) setTested(false);
   };
   const scrollToStorageEditor = () => storageEditorRef.current?.closest(".gsbs-dialog")?.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
   const revealStorageEditor = () => {
@@ -75,14 +69,14 @@ function BackupStorageForm({ value, onSave, onCancel, backupPoolId }: { value: B
     revealStorageEditor();
     setAdding(false);
     setKind(target.kind); setDraft(previous => ({ ...previous, activeId: target.id, name: target.name, path: target.path, capacity: String(target.capacity) }));
-    setTested(false); setError(""); setMessage(`正在编辑：${target.name}`);
+    setError(""); setMessage(`正在编辑：${target.name}`);
   };
   const chooseKind = (next: StorageKind) => {
     const existing = draft.targets.find(target => target.kind === next);
     if (existing && !adding) selectTarget(existing);
     else {
       const definition = kinds.find(item => item.id === next)!;
-      setKind(next); setDraft(previous => ({ ...previous, activeId: "", name: definition.name, path: definition.path, capacity: definition.capacity })); setTested(false); setError(""); setMessage("");
+      setKind(next); setDraft(previous => ({ ...previous, activeId: "", name: definition.name, path: definition.path, capacity: definition.capacity })); setError(""); setMessage("");
     }
   };
   const validate = () => {
@@ -91,9 +85,8 @@ function BackupStorageForm({ value, onSave, onCancel, backupPoolId }: { value: B
     const scheduleProblem = validateBackupSchedule(draft);
     if (draft.enabled && scheduleProblem) return scheduleProblem;
     if (!draft.name.trim()) return "请输入存储名称。";
-    if (!draft.path.trim()) return "请输入存储路径。";
-    if (kind === "local" && !draft.path.startsWith("/")) return "本地存储路径需要以 / 开头。";
     if (kind !== "local") {
+      if (!draft.path.trim()) return "请输入存储路径。";
       try {
         const url = new URL(draft.path);
         const protocols = kind === "object" ? ["oss:", "cos:", "s3:", "https:"] : kind === "remote" ? ["ftp:", "sftp:", "ftps:"] : ["s3:", "https:"];
@@ -103,14 +96,13 @@ function BackupStorageForm({ value, onSave, onCancel, backupPoolId }: { value: B
     const current = draft.targets.find(target => target.id === draft.activeId);
     if (current && Number(draft.capacity) < current.used) return "最大保留空间不能小于已使用空间。";
     if (draft.retention === "time" && (!/^\d+$/.test(draft.days) || Number(draft.days) < 1 || Number(draft.days) > 365)) return "保留天数需要在 1 至 365 天之间。";
-    if (draft.bandwidth && (!Number.isFinite(Number(draft.bandwidthLimit)) || Number(draft.bandwidthLimit) <= 0)) return "上传带宽必须大于 0。";
-    if (draft.specifiedDirectories && !draft.directories.trim()) return "请至少设置一个备份目录。";
     return "";
   };
   const commitTarget = () => {
     const problem = validate(); if (problem) { setError(problem); return null; }
     const existing = draft.targets.find(target => target.id === draft.activeId);
-    const target: StorageTarget = { id: existing?.id ?? crypto.randomUUID(), kind, name: draft.name.trim(), path: draft.path.trim(), capacity: Number(draft.capacity), used: existing?.used ?? 0 };
+    const path = kind === "local" ? (draft.path.trim().startsWith("/") ? draft.path.trim() : kinds[0].path) : draft.path.trim();
+    const target: StorageTarget = { id: existing?.id ?? crypto.randomUUID(), kind, name: draft.name.trim(), path, capacity: Number(draft.capacity), used: existing?.used ?? 0 };
     const targets = existing ? draft.targets.map(item => item.id === target.id ? target : item) : [...draft.targets, target];
     return { ...draft, compression: true, targets, activeId: target.id, name: target.name, path: target.path };
   };
@@ -118,14 +110,8 @@ function BackupStorageForm({ value, onSave, onCancel, backupPoolId }: { value: B
     revealStorageEditor();
     const definition = kinds.find(item => item.id === kind)!;
     setAdding(true); setDraft(previous => ({ ...previous, activeId: "", name: "", path: definition.path, capacity: definition.capacity }));
-    setTested(false); setError(""); setMessage("请在左侧选择类型并填写新存储目标，保存配置后完成添加。");
+    setError(""); setMessage("请在左侧选择类型并填写新存储目标，保存配置后完成添加。");
   };
-  const testConnection = () => {
-    const problem = validate(); if (problem) { setError(problem); setTested(false); return; }
-    setTested(true); setTestTime(timestamp()); setMessage("连接测试演示完成；未连接真实存储服务。");
-  };
-  const optionSwitch = (key: "compression" | "deduplication" | "encryption" | "bandwidth" | "multiSync" | "specifiedDirectories", label: string) => <Switch className="gsbs-switch" aria-label={label} checked={key === "compression" || draft[key]} disabled={key === "compression"} onCheckedChange={key === "compression" ? undefined : checked => update(key, checked)} />;
-
   return <div className="gsbs-content">
     <header className="gsbs-banner"><span className="gsbs-icon blue"><Cloud size={34} /></span><div><DialogTitle className="gsbs-title">文件备份 <ChevronRight size={20} /> 自动备份设置</DialogTitle><DialogDescription className="gsbs-description">配置自动备份策略、备份内容与范围，定期保护服务器数据。</DialogDescription></div><button type="button" className="gsbs-button" onClick={() => setEditor(editor === "help" ? null : "help")}><CircleHelp size={17} />使用帮助</button></header>
     {editor === "help" && <section className="gsbs-note" role="status"><Info size={18} /><div>每小时可指定分钟，每天可指定时间，每周可选择星期一至星期日，每月可选择 1 至 31 号；没有所选日期的月份将跳过。设置备份路径后保存。右侧存储目标可编辑或添加。当前为演示设置，仅在本次页面会话中生效。</div><button type="button" onClick={() => setEditor(null)}>收起</button></section>}
@@ -135,22 +121,12 @@ function BackupStorageForm({ value, onSave, onCancel, backupPoolId }: { value: B
         <div className="gsbs-types" role="group" aria-label="存储目标类型">{kinds.map(definition => <button type="button" key={definition.id} className={`gsbs-type${kind === definition.id ? " active" : ""}`} aria-pressed={kind === definition.id} onClick={() => chooseKind(definition.id)}><span className={`gsbs-icon ${definition.id === "remote" ? "ink" : "blue"}`}><definition.icon size={32} /></span><div><strong>{definition.title}</strong><p>{definition.description}</p></div>{kind === definition.id && <span className="gsbs-type-check"><Check size={12} /></span>}</button>)}</div>
         <h2 className="gsbs-subheading"><ClipboardList size={19} />存储配置</h2>
         <div className="gsbs-fields"><label>存储名称 <b>*</b><input aria-label="存储名称" required maxLength={60} value={draft.name} onChange={event => update("name", event.target.value)} /><small>用于区分不同的存储目标，便于管理。</small></label>
-          <label>存储路径 <b>*</b><div className="gsbs-path-input"><input aria-label="存储路径" required value={draft.path} onChange={event => update("path", event.target.value)} /><button type="button" aria-label="选择存储目录" onClick={() => { setFolderPath(draft.path); setEditor(editor === "folder" ? null : "folder"); }}><Folder size={17} /></button></div><small>备份文件将在该目录下存储，建议使用大容量磁盘。</small></label>
+          {kind !== "local" && <label>存储路径 <b>*</b><div className="gsbs-path-input"><input aria-label="存储路径" required value={draft.path} onChange={event => update("path", event.target.value)} /><button type="button" aria-label="选择存储目录" onClick={() => { setFolderPath(draft.path); setEditor(editor === "folder" ? null : "folder"); }}><Folder size={17} /></button></div><small>备份文件将在该目录下存储，建议使用大容量磁盘。</small></label>}
           <label>最大保留空间<div className="gsbs-select"><select aria-label="最大保留空间" value={draft.capacity} onChange={event => update("capacity", event.target.value)}>{[20, 50, 100, 200, 500, 1000].map(size => <option key={size} value={size}>{size} GB</option>)}</select><ChevronDown size={16} /></div><small>达到上限后将自动清理最早的备份文件。</small></label>
           <label>保留策略<div className="gsbs-retention"><div className="gsbs-select"><select aria-label="保留策略" value={draft.retention} onChange={event => update("retention", event.target.value)}><option value="time">按时间保留</option><option value="forever">永久保留</option></select><ChevronDown size={16} /></div><div className="gsbs-unit"><input aria-label="存储保留天数" type="number" min={1} max={365} required={draft.retention === "time"} disabled={draft.retention !== "time"} value={draft.days} onChange={event => update("days", event.target.value)} /><span>天</span></div></div><small>根据备份时间自动清理过期文件。</small></label>
         </div>
-        {editor === "folder" && <div className="gsbs-inline-editor"><label>存储目录<input aria-label="存储目录" value={folderPath} onChange={event => setFolderPath(event.target.value)} /></label><button type="button" className="gsbs-button" onClick={() => { update("path", folderPath); setEditor(null); }}>使用此目录</button></div>}
-        <h2 className="gsbs-subheading gsbs-advanced-title"><Settings size={20} />高级选项</h2>
-        <div className="gsbs-advanced"><div className="gsbs-option"><div className="gsbs-option-line">{optionSwitch("compression", "启用文件压缩")}<strong>启用文件压缩</strong><div className="gsbs-select"><select aria-label="压缩级别" disabled={!draft.compression} value={draft.compressionLevel} onChange={event => update("compressionLevel", event.target.value)}><option value="low">快速压缩</option><option value="medium">中等压缩（推荐）</option><option value="high">高压缩率</option></select><ChevronDown size={15} /></div></div><p>使用 zip 压缩备份文件，节省存储空间。</p></div>
-          <div className="gsbs-option"><div className="gsbs-option-line">{optionSwitch("bandwidth", "上传带宽限制")}<strong>上传带宽限制</strong><div className="gsbs-unit"><input aria-label="上传带宽上限" type="number" min="0.1" step="0.1" disabled={!draft.bandwidth} value={draft.bandwidthLimit} onChange={event => update("bandwidthLimit", event.target.value)} /><span>MB/s</span></div></div><p>限制备份上传的最大带宽，避免影响服务器正常运行。</p></div>
-          <div className="gsbs-option"><div className="gsbs-option-line">{optionSwitch("deduplication", "启用文件去重")}<strong>启用文件去重</strong></div><p>通过内容识别避免重复上传相同文件，减少存储空间占用。</p></div>
-          <div className="gsbs-option"><div className="gsbs-option-line">{optionSwitch("multiSync", "启用多目标同步")}<strong>启用多目标同步</strong></div><p>同时将备份文件同步到多个存储目标。</p></div>
-          <div className="gsbs-option"><div className="gsbs-option-line">{optionSwitch("encryption", "加密备份文件")}<strong>加密备份文件</strong><div className="gsbs-select"><select aria-label="备份加密方式" value={draft.encryptionType} disabled={!draft.encryption} onChange={event => update("encryptionType", event.target.value)}><option>AES-256</option><option>AES-128</option></select><ChevronDown size={15} /></div></div><p>对备份文件进行加密存储，保障数据安全。</p></div>
-          <div className="gsbs-option"><div className="gsbs-option-line">{optionSwitch("specifiedDirectories", "仅备份指定目录")}<strong>仅备份指定目录</strong><button type="button" className="gsbs-button gsbs-directories-button" disabled={!draft.specifiedDirectories} onClick={() => { setDirectories(draft.directories); setEditor(editor === "directories" ? null : "directories"); }}>设置目录</button></div><p>只备份游戏世界、插件等指定目录，减少备份体积。</p></div>
-        </div>
-        {editor === "directories" && <div className="gsbs-inline-editor"><label>备份目录（每行一个）<textarea aria-label="指定备份目录" value={directories} onChange={event => setDirectories(event.target.value)} /></label><button type="button" className="gsbs-button" onClick={() => { update("directories", directories); setEditor(null); }}>应用目录</button></div>}
-      </section>
-      <section className="gsbs-card gsbs-test"><h2><FileText size={19} />连接测试</h2><p className="gsbs-section-description">测试存储目标的连接状态和写入权限，确保备份能够正常进行。</p><div className={`gsbs-test-result${tested ? "" : " pending"}`}><span className="gsbs-icon green">{tested ? <Check size={25} /> : <Info size={25} />}</span><div><strong>{tested ? "连接测试成功" : "配置已修改，等待测试"}</strong><p>{tested ? `存储路径 ${draft.path} 可正常访问，写入权限正常。` : "请重新测试当前存储配置。"}</p></div><time>{tested ? testTime : ""}</time><button type="button" className="gsbs-button" onClick={testConnection}>{tested ? "重新测试" : "测试连接"}</button></div></section></motion.div>}</AnimatePresence>
+        {kind !== "local" && editor === "folder" && <div className="gsbs-inline-editor"><label>存储目录<input aria-label="存储目录" value={folderPath} onChange={event => setFolderPath(event.target.value)} /></label><button type="button" className="gsbs-button" onClick={() => { update("path", folderPath); setEditor(null); }}>使用此目录</button></div>}
+      </section></motion.div>}</AnimatePresence>
         <BackupScheduleFields value={draft} onChange={update} />
         <div className="gsbs-savebar">{error && <p className="gsbs-error" role="alert">{error}</p>}{message && <p className="gsbs-message" role="status">{message}</p>}<footer><button className="gsbs-button primary" type="submit"><Save size={18} />保存配置</button><button className="gsbs-button" type="button" onClick={onCancel}>取消</button></footer></div></div>
 
