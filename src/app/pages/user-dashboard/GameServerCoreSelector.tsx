@@ -98,7 +98,6 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
         <Tabs.List className="gcore-detail-tabs" aria-label="核心详情页面">
           <Tabs.Trigger value="versions">版本列表</Tabs.Trigger>
           <Tabs.Trigger value="changelog">更新日志</Tabs.Trigger>
-          <Tabs.Trigger value="installation">安装说明</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="versions" className="gcore-version-panel">
           <div className="gcore-version-toolbar">
@@ -135,18 +134,6 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
             </article>
           </li>)}</ol>
           <p className="gcore-changelog-note"><Info size={15} aria-hidden="true" />当前为演示发布记录，实际变更请以项目文档为准。</p>
-        </Tabs.Content>
-        <Tabs.Content value="installation" className="gcore-information-panel">
-          <div className="gcore-panel-heading"><div><h3>{name} 安装说明</h3><p>按以下步骤在控制台选择版本并重建容器。</p></div><a className="gcore-detail-link" href={resources.docs} target="_blank" rel="noreferrer"><BookOpen size={15} />项目文档</a></div>
-          <section className="gcore-install-requirements"><h4>安装前准备</h4><p>确认目标 Minecraft 版本在 {core.range} 范围内，并按该版本的项目文档选择 Java 环境。</p><p>{core.type === "原版" ? "使用原版客户端和对应版本的世界存档。" : `确认现有${core.type === "插件服" ? "插件" : core.type === "混合核心" ? "插件和模组" : "模组及加载器"}与 ${name} 和目标 Minecraft 版本兼容。`}</p></section>
-          <ol className="gcore-install-steps">
-            <li><h4>备份服务器数据</h4><p>备份世界存档、玩家数据、配置文件及插件或模组。可以在重建确认窗口选择“创建备份并重装”。</p></li>
-            <li><h4>选择核心和版本</h4><p>切换到“版本列表”，按 Minecraft 版本、发布渠道或构建号筛选，点击对应行的“安装”。</p></li>
-            <li><h4>确认数据保留方式</h4><p>在确认窗口核对目标核心与版本，选择是否保留世界数据和重装前备份方式，再确认重装。</p></li>
-            <li><h4>检查启动结果</h4><p>重装后检查控制台日志，确认核心成功启动、插件或模组正常加载，再使用匹配版本的客户端连接。</p></li>
-          </ol>
-          <p className="gcore-install-note">当前安装为演示操作，不会连接或修改真实服务器。</p>
-          <button className="gsd-button primary" onClick={() => { clearFilters(); setActiveTab("versions"); }}>前往版本列表</button>
         </Tabs.Content>
       </Tabs.Root>
     </main>

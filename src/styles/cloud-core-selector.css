@@ -195,14 +195,6 @@
   .gcore-release-action { min-height: 30px; padding-left: 0; }
   .gcore-release-meta { column-gap: 12px; }
 }
-.gcore-install-requirements { padding: 16px; border: 1px solid #dbe8f8; border-radius: 8px; background: #f5f9ff; }
-.gcore-install-requirements h4, .gcore-install-steps h4 { margin: 0 0 6px; color: #152454; font-size: 14px; font-weight: 650; }
-.gcore-install-requirements p { margin: 6px 0 0; }
-.gcore-install-steps { display: grid; gap: 18px; margin: 22px 0; padding-left: 24px; list-style: decimal; }
-.gcore-install-steps li { padding-left: 5px; }
-.gcore-install-steps li::marker { color: #087bff; font-weight: 650; }
-.gcore-install-steps p { margin: 0; }
-.gcore-install-note { color: #718aaf; margin: 0 0 16px; }
 @media (max-width: 760px) { .gcore-version-toolbar { flex-wrap: wrap; }.gcore-version-toolbar .gcore-filter { flex: 1; }.gcore-version-toolbar .gcore-detail-search { flex: 1 0 100%; }.gcore-information-panel { padding: 14px; }.gcore-panel-heading { flex-wrap: wrap; }.gcore-pagination { flex-wrap: wrap; } }
 @media (max-width: 1350px) { .gcore-detail { grid-template-columns: 245px minmax(0, 1fr); } }
 @media (max-width: 900px) { .gcore-detail { grid-template-columns: 1fr; }.gcore-detail-sidebar { order: 2; }.gcore-detail-content { order: 1; }.gcore-detail-hero { flex-direction: column; }.gcore-detail-links { align-items: center; }.gcore-detail-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
