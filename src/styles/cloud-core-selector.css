@@ -47,9 +47,6 @@
 .gcore-meta svg { color: #3e6198; }
 .gcore-pick { width: 100%; height: 33px; border: 0; border-radius: 6px; color: white; background: #087bff; font-size: 12px; font-weight: 600; }
 .gcore-pick:hover { background: #0068eb; }
-.gcore-config { display: grid; gap: 16px; margin: 4px 0; }
-.gcore-version { display: flex; align-items: center; gap: 12px; font-size: 13px; color: #345581; }
-.gcore-version select { flex: 1; min-width: 0; height: 38px; border: 1px solid #d9e7fb; border-radius: 6px; background: #fff; padding: 0 8px; color: #345581; }
 .gcore-keep { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #dae8fd; border-radius: 7px; }
 .gcore-keep > svg { color: #0b57bc; flex: none; }
 .gcore-keep > div { flex: 1; min-width: 0; }
@@ -58,6 +55,78 @@
 .gcore-keep .gsd-switch { width: 43px; min-width: 43px; height: 25px; flex: none; }
 .gcore-keep .gsd-switch [data-slot="switch-thumb"] { width: 21px; height: 21px; }
 .gcore-keep .gsd-switch [data-slot="switch-thumb"][data-state="checked"] { transform: translateX(20px); }
+
+/* Rebuild settings confirmation */
+.gcore-rebuild-dialog[data-slot="dialog-content"] { display: flex; flex-direction: column; gap: 0; width: 480px; max-width: calc(100vw - 24px); max-height: calc(100dvh - 32px); padding: 0; overflow: clip; border: 1px solid #d9e7fb; border-radius: 12px; background: #fff; color: #345581; }
+.gcore-rebuild-dialog > button:last-child { display: none; }
+.gcore-rebuild-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex: none; padding: 20px 20px 15px; }
+.gcore-rebuild-header [data-slot="dialog-title"] { display: flex; align-items: center; gap: 10px; margin: 0; color: #10183c; font-size: 19px; font-weight: 700; line-height: 26px; }
+.gcore-rebuild-close { display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: #7b8da9; }
+.gcore-rebuild-close:hover { background: #eef5ff; color: #087bff; }
+.gcore-rebuild-body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 0 20px; }
+.gcore-rebuild-core { padding: 14px 16px; border-radius: 9px; background: #f4f9fe; }
+.gcore-rebuild-core h3 { margin: 0 0 13px; color: #345581; font-size: 14px; font-weight: 600; line-height: 20px; }
+.gcore-rebuild-core-row { display: flex; align-items: center; gap: 15px; }
+.gcore-rebuild-core-row .gcore-image { flex: none; width: 60px; height: 60px; border-radius: 8px; }
+.gcore-rebuild-core-row > div { flex: 1; min-width: 0; }
+.gcore-rebuild-core-row strong { color: #10183c; font-size: 21px; font-weight: 700; line-height: 28px; }
+.gcore-rebuild-core-name { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.gcore-rebuild-core-row p { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 5px 0 0; color: #6e87ad; font-size: 13px; line-height: 20px; }
+.gcore-rebuild-core-row b { color: #10183c; font-weight: 600; }
+.gcore-rebuild-status { display: inline-flex; align-items: center; gap: 6px; padding: 3px 11px; border-radius: 20px; background: #ddf8ef; color: #00a879; font-size: 12px; line-height: 18px; }
+.gcore-rebuild-status::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.gcore-rebuild-status.stopped { background: #edf1f7; color: #7b8da9; }
+.gcore-rebuild-arrow { display: flex; justify-content: center; padding: 10px 0; color: #087bff; }
+.gcore-rebuild-section-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+.gcore-rebuild-section-heading h3 { margin: 0; }
+.gcore-rebuild-secondary { flex: none; min-height: 34px; padding: 0 12px; border: 1px solid #b9d7fc; border-radius: 6px; background: #fff; color: #087bff; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.gcore-rebuild-secondary:hover { border-color: #087bff; background: #eef5ff; }
+.gcore-rebuild-secondary:disabled { background: #f4f9fe; color: #00a879; cursor: default; }
+.gcore-rebuild-selects { display: grid; margin-top: 12px; }
+.gcore-rebuild-field { display: grid; gap: 6px; min-width: 0; color: #57729e; font-size: 12px; line-height: 18px; }
+.gcore-rebuild-field select { width: 100%; min-width: 0; height: 36px; padding: 0 8px; border: 1px solid #d7e5f8; border-radius: 6px; background: #fff; color: #345581; font: inherit; font-size: 13px; }
+#gcore-rebuild-core-picker:not([hidden]) { margin-bottom: 12px; }
+.gcore-rebuild-options { margin-top: 16px; }
+.gcore-rebuild-options h3 { margin: 0 0 8px; padding-top: 10px; border-top: 1px solid #e7effa; color: #10183c; font-size: 16px; font-weight: 650; line-height: 23px; }
+.gcore-rebuild-dialog .gcore-keep { gap: 11px; padding: 12px; background: #fff; }
+.gcore-rebuild-dialog .gcore-keep strong { font-size: 14px; }
+.gcore-rebuild-dialog .gcore-keep p { color: #6e87ad; line-height: 18px; }
+.gcore-rebuild-dialog .gcore-keep > svg { padding: 5px; box-sizing: content-box; border-radius: 6px; background: #edf5ff; color: #0b57bc; }
+.gcore-rebuild-estimate { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 7px 12px; font-size: 13px; }
+.gcore-rebuild-estimate strong { font-weight: 600; }
+.gcore-rebuild-estimate > span { margin-left: auto; color: #243e75; font-weight: 600; white-space: nowrap; }
+.gcore-rebuild-backup { display: flex; align-items: flex-start; gap: 9px; padding: 13px 12px; border-radius: 8px; background: #eef7ff; }
+.gcore-rebuild-backup > svg { flex: none; color: #087bff; }
+.gcore-rebuild-backup > div { flex: 1; min-width: 0; }
+.gcore-rebuild-backup strong { color: #345581; font-size: 14px; line-height: 20px; }
+.gcore-rebuild-backup p { margin: 4px 0 0; color: #6e87ad; font-size: 12px; line-height: 19px; }
+.gcore-rebuild-backup button { align-self: center; }
+.gcore-rebuild-warning { margin-top: 14px; padding: 13px 14px; border-radius: 8px; background: #fff2f4; color: #e33247; }
+.gcore-rebuild-warning h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; font-size: 14px; font-weight: 650; line-height: 21px; }
+.gcore-rebuild-dialog .gcore-rebuild-warning p { margin: 0; color: inherit; font-size: 12px; line-height: 20px; }
+.gcore-rebuild-warning ul { margin: 0; padding-left: 20px; list-style: disc; font-size: 12px; line-height: 21px; }
+.gcore-rebuild-demo { margin: 8px 0 0; color: #7b8da9; font-size: 11px; line-height: 18px; }
+.gcore-rebuild-dialog .gcore-rebuild-message { margin: 10px 0 0; color: #e33247; font-size: 12px; line-height: 20px; }
+.gcore-rebuild-dialog .gcore-rebuild-message.success { color: #00a879; }
+.gcore-rebuild-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: none; padding: 12px 20px 18px; }
+.gcore-rebuild-actions button { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 58px; padding: 10px 8px; border: 1px solid #087bff; border-radius: 8px; font-size: 14px; font-weight: 600; line-height: 20px; }
+.gcore-rebuild-actions svg { flex: none; }
+.gcore-rebuild-primary { background: #087bff; color: #fff; }
+.gcore-rebuild-primary:hover { background: #0068eb; }
+.gcore-rebuild-direct { background: #fff; color: #087bff; }
+.gcore-rebuild-direct:hover { background: #eef5ff; }
+.gcore-rebuild-direct span { display: grid; gap: 2px; }
+.gcore-rebuild-direct small { color: #718aaf; font-size: 12px; font-weight: 400; }
+.gcore-rebuild-dialog button:focus-visible, .gcore-rebuild-dialog select:focus-visible { outline: 2px solid #087bff; outline-offset: 2px; }
+@media (max-width: 540px) {
+  .gcore-rebuild-header { padding: 14px 14px 12px; }
+  .gcore-rebuild-body { padding: 0 14px; }
+  .gcore-rebuild-core { padding: 12px; }
+  .gcore-rebuild-core-row { gap: 11px; }
+  .gcore-rebuild-core-row p { gap: 5px 14px; }
+  .gcore-rebuild-actions { gap: 8px; padding: 12px 14px 14px; }
+  .gcore-rebuild-actions button { gap: 7px; font-size: 13px; }
+}
 .gcore-feedback { padding: 10px; margin: 9px 0; border-radius: 6px; background: #ecf7ff; color: #265990; font-size: 12px; line-height: 20px; }
 .gcore-empty { display: grid; flex: 1; justify-items: center; gap: 12px; min-height: 260px; padding: 24px; align-content: center; text-align: center; background: white; }
 .gcore-empty h3, .gcore-empty p { margin: 0; }

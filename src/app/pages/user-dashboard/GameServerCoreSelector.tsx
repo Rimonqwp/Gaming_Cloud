@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 import {
-  ArrowLeft, ArrowRight, BadgeCheck, BookOpen, Box, Check, ChevronDown, Database, Download,
+  AlertTriangle, ArrowDown, ArrowLeft, ArrowRight, BadgeCheck, BookOpen, Box, Check, ChevronDown, CircleHelp, Clock3, Database, Download,
   ExternalLink, FileText, Gamepad2, History, Package, Search, SlidersHorizontal,
-  Wrench, X, Zap,
+  Lightbulb, RefreshCw, Wrench, X, Zap,
 } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
@@ -38,6 +38,14 @@ function getCoreBuilds(core: Core): VersionRow[] {
 
 function newestBuildFirst(a: VersionRow, b: VersionRow) {
   return b.date.localeCompare(a.date) || b.build.localeCompare(a.build, undefined, { numeric: true });
+}
+
+type InstallTarget = { core: Core; version: string; build: string };
+function latestTarget(core: Core, selectedVersion = core.latest): InstallTarget {
+  const rows = getCoreBuilds(core);
+  const version = rows.some(row => row.version === selectedVersion) ? selectedVersion : rows[0].version;
+  const build = rows.filter(row => row.version === version).sort(newestBuildFirst)[0].build;
+  return { core, version, build };
 }
 
 const coreResources: Record<string, { site: string; docs: string }> = {
@@ -150,56 +158,83 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
   </div>;
 }
 
-export function GameServerCoreSelector({ open, onOpenChange, onBackup, onLog }: {
+export function GameServerCoreSelector({ open, onOpenChange, onBackup, onLog, onNotice, running }: {
   open: boolean; onOpenChange: (open: boolean) => void;
   onBackup: () => boolean; onLog: (message: string) => void;
+  onNotice: (message: string) => void; running: boolean;
 }) {
   const [query, setQuery] = useState("");
   const [type, setType] = useState("全部类型");
   const [versionFilter, setVersionFilter] = useState("全部版本");
   const [trait, setTrait] = useState("全部特性");
   const [sort, setSort] = useState("综合排序");
-  const [target, setTarget] = useState<{ core: Core; version: string; build?: string } | null>(null);
+  const [target, setTarget] = useState<InstallTarget | null>(null);
+  const [installed, setInstalled] = useState<InstallTarget>({ core: cores[0], version: "1.20.4", build: "#499" });
   const [detailCore, setDetailCore] = useState<Core | null>(null);
   const [keepWorld, setKeepWorld] = useState(true);
-  const [confirmation, setConfirmation] = useState<"backup" | "direct" | null>(null);
+  const [confirmation, setConfirmation] = useState(false);
+  const [corePickerOpen, setCorePickerOpen] = useState(false);
+  const [backupReady, setBackupReady] = useState(false);
+  const [installMessage, setInstallMessage] = useState("");
   const [feedback, setFeedback] = useState("");
   const versions = [...new Set(cores.flatMap(core => core.versions))].sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
   const traits = [...new Set(cores.flatMap(core => core.tags.slice(1)))];
   const filtered = cores.filter(core => (!query.trim() || `${core.name} ${core.description} ${core.tags.join(" ")}`.toLowerCase().includes(query.trim().toLowerCase())) && (type === "全部类型" || core.type === type) && (versionFilter === "全部版本" || core.versions.includes(versionFilter)) && (trait === "全部特性" || core.tags.includes(trait)));
   const visible = sort === "名称排序" ? [...filtered].sort((a, b) => a.name.localeCompare(b.name)) : sort === "版本优先" ? [...filtered].sort((a, b) => b.latest.localeCompare(a.latest, undefined, { numeric: true })) : filtered;
-  const choose = (core: Core) => { setTarget({ core, version: versionFilter === "全部版本" ? core.latest : versionFilter }); setDetailCore(core); setFeedback(""); };
-  const selectDetailCore = (core: Core) => { setDetailCore(core); setTarget({ core, version: core.latest }); };
-  const selectDetailVersion = (row: VersionRow) => { if (!detailCore) return; setTarget({ core: detailCore, version: row.version, build: row.build }); setConfirmation("backup"); };
+  const choose = (core: Core) => { setTarget(latestTarget(core)); setDetailCore(core); setFeedback(""); };
+  const selectDetailCore = (core: Core) => { setDetailCore(core); setTarget(latestTarget(core)); };
+  const selectDetailVersion = (row: VersionRow) => { if (!detailCore) return; setTarget(latestTarget(detailCore, row.version)); setBackupReady(false); setInstallMessage(""); setCorePickerOpen(false); setConfirmation(true); };
   const targetBuilds = target ? getCoreBuilds(target.core).filter(row => row.version === target.version).sort(newestBuildFirst) : [];
-  const backup = () => { const success = onBackup(); setFeedback(success ? "世界存档备份已创建（演示操作）" : "备份创建失败，可能已达到备份上限，请在文件备份中检查。"); return success; };
-  const rebuild = () => {
+  const backup = () => { const success = onBackup(); setBackupReady(success); setInstallMessage(success ? "世界存档备份已创建（演示操作）" : "备份创建失败，可能已达到备份上限，请在文件备份中检查。"); return success; };
+  const rebuild = (withBackup: boolean) => {
     if (!target) return;
-    if (confirmation === "backup" && !backup()) { setConfirmation(null); return; }
+    if (withBackup && !backupReady && !backup()) return;
     onLog(`Machine: 重建容器为 ${target.core.name} ${target.version}${target.build ? ` ${target.build}` : ""}，${keepWorld ? "保留" : "清空"}世界数据（演示操作）`);
-    setConfirmation(null);
-    setFeedback(`已重建为 ${target.core.name} ${target.version}${target.build ? ` ${target.build}` : ""}，${keepWorld ? "保留世界数据" : "清空世界数据"}（演示操作）`);
+    setInstalled(target);
+    setConfirmation(false);
+    setDetailCore(target.core);
+    const message = `已重建为 ${target.core.name} ${target.version} ${target.build}，${keepWorld ? "保留世界数据" : "清空世界数据"}（演示操作）`;
+    setFeedback(message);
+    onNotice(message);
   };
 
   return <>
-    <Dialog open={open} onOpenChange={value => { onOpenChange(value); if (!value) { setDetailCore(null); setTarget(null); setConfirmation(null); setFeedback(""); } }}>
+    <Dialog open={open} onOpenChange={value => { onOpenChange(value); if (!value) { setDetailCore(null); setTarget(null); setConfirmation(false); setFeedback(""); } }}>
       <DialogContent className="cloud-modal gcore-dialog" onCloseAutoFocus={event => { event.preventDefault(); document.querySelector<HTMLButtonElement>(".gsm-maintenance-grid .blue")?.focus(); }}>
         <header className="gcore-dialog-header"><DialogTitle>{detailCore ? `${detailCore.name === "Paper" ? "PaperMC" : detailCore.name} 核心详情` : "重建容器"}</DialogTitle><DialogClose className="gcore-close" aria-label="关闭版本选择器"><X size={21} /></DialogClose></header>
         <DialogDescription className="sr-only">选择服务端核心、版本和世界数据保留方式，再重建游戏容器。</DialogDescription>
         <div className="gcore-frame gsd-page">{detailCore ? <CoreDetail core={detailCore} onBack={() => setDetailCore(null)} onSelectCore={selectDetailCore} onSelectVersion={selectDetailVersion} /> : <div className="gcore-layout"><main className="gcore-catalog"><section className="gcore-banner"><img src="/console/cores/banner-change.png" alt="草方块切换为宝箱" /><div><h2>更换核心，打造你专属的 Minecraft 服务器</h2><p>支持多种主流服务端核心，一键切换并重装容器，轻松搭建插件服或模组服。</p></div></section><div className="gcore-filters"><label className="gcore-search"><Search size={20} /><input aria-label="搜索服务端核心" placeholder="搜索核心名称、关键词，如：Paper、Purpur、模组、插件..." value={query} onChange={event => setQuery(event.target.value)} /></label><Filter label="核心类型" value={type} onChange={setType} options={["全部类型", "插件服", "原版", "模组服", "混合核心"]} /><Filter label="兼容版本" value={versionFilter} onChange={setVersionFilter} options={["全部版本", ...versions]} icon /><Filter label="核心特性" value={trait} onChange={setTrait} options={["全部特性", ...traits]} icon /><label className="gcore-filter"><SlidersHorizontal size={17} /><select aria-label="核心排序" value={sort} onChange={event => setSort(event.target.value)}>{["综合排序", "名称排序", "版本优先"].map(value => <option key={value}>{value}</option>)}</select><ChevronDown size={15} /></label></div><div className="gcore-cards">{visible.map(core => <article key={core.id} className={`gcore-card${target?.core.id === core.id ? " selected" : ""}`}><div className="gcore-card-main"><CoreImage core={core} /><div><h3>{core.name}{core.id === "paper" && <span className="gcore-recommend"><BadgeCheck size={14} />推荐</span>}</h3><p>{core.description}</p><div className="gcore-tags">{core.tags.map((tag, index) => <span key={tag} className={index === 0 && core.type !== "原版" ? core.type === "混合核心" ? "orange" : "purple" : ""}>{tag}</span>)}</div></div></div><div className="gcore-meta"><span><Gamepad2 size={17} />{core.range}</span><span className="latest"><Box size={17} />{core.latest} (最新)</span><span><Download size={17} />{core.java}</span></div><button className="gcore-pick" aria-label={`选择 ${core.name} 核心`} aria-pressed={target?.core.id === core.id} onClick={() => choose(core)}>选择此核心</button></article>)}</div>{!visible.length && <div className="gcore-empty"><Search size={30} /><h3>没有找到匹配的核心</h3><p>试试其他关键词，或清除筛选条件。</p><button className="gsd-button" onClick={() => { setQuery(""); setType("全部类型"); setVersionFilter("全部版本"); setTrait("全部特性"); }}>清除筛选</button></div>}{feedback && <p className="gcore-feedback" role="status">{feedback}</p>}</main></div>}</div>
       </DialogContent>
     </Dialog>
-    {target && <Dialog open={confirmation !== null && open} onOpenChange={value => { if (!value) setConfirmation(null); }}>
-      <DialogContent className="cloud-modal gsd-dialog gsm-dialog">
-        <DialogTitle>确认重建容器</DialogTitle>
-        <DialogDescription>将安装 {target.core.name} 核心，替换核心文件和启动环境，并清空容器配置。请确认已备份重要数据。当前为演示操作，不会连接真实机器。</DialogDescription>
-        <div className="gcore-config">
-          <label className="gcore-version">安装版本<select aria-label="目标核心版本" value={target.version} onChange={event => { const version = event.target.value; const build = getCoreBuilds(target.core).filter(row => row.version === version).sort(newestBuildFirst)[0]?.build; setTarget(previous => previous ? { ...previous, version, build } : null); }}>{Array.from(new Set(getCoreBuilds(target.core).map(row => row.version)), value => <option key={value}>{value}</option>)}</select></label>
-          <label className="gcore-version">构建号<select aria-label="目标核心构建号" value={target.build ?? targetBuilds[0]?.build ?? ""} onChange={event => setTarget(previous => previous ? { ...previous, build: event.target.value } : null)}>{targetBuilds.map(row => <option key={row.build} value={row.build}>{row.build} · {row.channel}</option>)}</select></label>
-          <div className="gcore-keep"><Database size={24} /><div><strong>保留世界数据</strong><p>{keepWorld ? "保留 /world 存档及玩家数据" : "重装时清空世界存档及玩家数据"}</p></div><Switch className="gsd-switch" checked={keepWorld} onCheckedChange={setKeepWorld} aria-label="保留世界数据" /></div>
-          <label className="gcore-version">备份方式<select aria-label="重装前备份方式" value={confirmation ?? "backup"} onChange={event => setConfirmation(event.target.value as "backup" | "direct")}><option value="backup">创建备份并重装（推荐）</option><option value="direct">直接重装，不创建备份</option></select></label>
+    {target && <Dialog open={confirmation && open} onOpenChange={setConfirmation}>
+      <DialogContent className="cloud-modal gsd-dialog gcore-rebuild-dialog">
+        <header className="gcore-rebuild-header"><DialogTitle><RefreshCw size={22} aria-hidden="true" />重装容器设置</DialogTitle><DialogClose className="gcore-rebuild-close" aria-label="关闭重装设置"><X size={18} /></DialogClose></header>
+        <DialogDescription className="sr-only">安装版本固定为列表中点选的版本，可选择该版本的构建号，设置世界数据保留方式，再创建备份并重装或直接重装。当前为演示操作，不会连接真实机器。</DialogDescription>
+        <div className="gcore-rebuild-body">
+          <section className="gcore-rebuild-core" aria-label="当前核心">
+            <h3>当前核心（{running ? "正在运行" : "已停止"}）</h3>
+            <div className="gcore-rebuild-core-row"><CoreImage core={installed.core} /><div><div className="gcore-rebuild-core-name"><strong>{installed.core.name}</strong><span className={`gcore-rebuild-status${running ? "" : " stopped"}`}>{running ? "运行中" : "已停止"}</span></div><p>版本：<b>{installed.version}</b><span>Java：{installed.core.java}</span></p></div></div>
+          </section>
+          <div className="gcore-rebuild-arrow"><ArrowDown size={21} aria-hidden="true" /></div>
+          <section className="gcore-rebuild-core" aria-label="目标核心">
+            <div className="gcore-rebuild-section-heading"><h3>目标核心（将要安装）</h3><button className="gcore-rebuild-secondary" aria-expanded={corePickerOpen} aria-controls="gcore-rebuild-core-picker" onClick={() => setCorePickerOpen(value => !value)}>更换</button></div>
+            <div id="gcore-rebuild-core-picker" hidden={!corePickerOpen}>{corePickerOpen && <label className="gcore-rebuild-field">目标核心<select aria-label="更换目标核心" value={target.core.id} onChange={event => { const core = cores.find(core => core.id === event.target.value); if (core && getCoreBuilds(core).some(row => row.version === target.version)) setTarget(latestTarget(core, target.version)); setCorePickerOpen(false); }}>{cores.map(core => <option key={core.id} value={core.id} disabled={!getCoreBuilds(core).some(row => row.version === target.version)}>{core.name}{getCoreBuilds(core).some(row => row.version === target.version) ? "" : "（不支持此版本）"}</option>)}</select></label>}</div>
+            <div className="gcore-rebuild-core-row"><CoreImage core={target.core} /><div><strong>{target.core.name}</strong><p>版本：<b>{target.version}</b><span>Java：{target.core.java}</span></p></div></div>
+            <div className="gcore-rebuild-selects">
+              <label className="gcore-rebuild-field">构建号<select aria-label="目标核心构建号" value={target.build} onChange={event => setTarget({ ...target, build: event.target.value })}>{targetBuilds.map(row => <option key={row.build} value={row.build}>{row.build} · {row.channel}</option>)}</select></label>
+            </div>
+          </section>
+          <section className="gcore-rebuild-options" aria-label="重装选项">
+            <h3>重装选项</h3>
+            <div className="gcore-keep"><Box size={22} aria-hidden="true" /><div><strong>保留世界数据</strong><p>{keepWorld ? "保留 /world 存档及玩家数据（推荐）" : "重装时清空世界存档及玩家数据"}</p></div><Switch className="gsd-switch" checked={keepWorld} onCheckedChange={setKeepWorld} aria-label="保留世界数据" /></div>
+            <div className="gcore-rebuild-estimate"><Clock3 size={20} aria-hidden="true" /><strong>预计耗时</strong><span>约 3 - 8 分钟</span><CircleHelp size={16} aria-label="实际耗时取决于核心大小和服务器环境" /></div>
+          </section>
+          <div className="gcore-rebuild-backup"><Lightbulb size={22} aria-hidden="true" /><div><strong>{backupReady ? "世界存档已备份" : "建议先创建备份"}</strong><p>{backupReady ? "已创建备份，可以继续重装。" : "重装前建议先创建存档备份，以防止数据丢失。"}</p></div><button className="gcore-rebuild-secondary" onClick={backup} disabled={backupReady}>{backupReady ? "已备份" : "立即备份"}</button></div>
+          <section className="gcore-rebuild-warning"><h3><AlertTriangle size={20} aria-hidden="true" />重要提示</h3><p>重装容器将会：</p><ul><li>替换服务器的核心文件和启动环境</li><li>{keepWorld ? "清空当前容器内的配置文件（保留世界数据）" : "清空当前容器内的配置文件、世界存档及玩家数据"}</li><li>此操作不可撤销，请确认已备份重要数据</li></ul></section>
+          {installMessage && <p className={`gcore-rebuild-message${backupReady ? " success" : ""}`} role={backupReady ? "status" : "alert"}>{installMessage}</p>}
+          <p className="gcore-rebuild-demo">当前为演示操作，不会连接真实机器。</p>
         </div>
-        <footer><button className="gsd-button" onClick={() => setConfirmation(null)}>取消</button><button className="gsd-button primary" onClick={rebuild}>确认重装</button></footer>
+        <footer className="gcore-rebuild-actions"><button className="gcore-rebuild-primary" onClick={() => rebuild(true)}><Database size={20} aria-hidden="true" /><span>创建备份并重装</span></button><button className="gcore-rebuild-direct" onClick={() => rebuild(false)}><RefreshCw size={20} aria-hidden="true" /><span>直接重装<small>（不创建备份）</small></span></button></footer>
       </DialogContent>
     </Dialog>}
   </>;
