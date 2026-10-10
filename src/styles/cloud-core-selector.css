@@ -183,8 +183,6 @@
 .gcore-release-action { display: inline-flex; align-items: center; justify-content: center; flex: none; gap: 8px; min-height: 34px; padding: 0 10px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: #087bff; font-size: 12px; white-space: nowrap; }
 .gcore-release-action:hover { border-color: #cfe0f5; background: #eaf3ff; }
 .gcore-release-action:focus-visible { outline: 2px solid #087bff; outline-offset: 2px; }
-.gcore-changelog-note { display: flex; align-items: center; gap: 7px; margin: 14px 0 0; padding: 12px 14px; border-radius: 7px; background: #f7f9fc; color: #7b8da9; font-size: 12px; line-height: 19px; }
-.gcore-changelog-note svg { flex: none; }
 @media (max-width: 760px) {
   .gcore-changelog .gcore-panel-heading { gap: 12px; }
   .gcore-release:not(:last-child)::after { left: 4px; top: 21px; bottom: -21px; }

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 import {
   ArrowLeft, ArrowRight, BadgeCheck, BookOpen, Box, Check, ChevronDown, Database, Download,
-  ExternalLink, FileText, Gamepad2, History, Info, Layers, Package, Search, SlidersHorizontal,
+  ExternalLink, FileText, Gamepad2, History, Layers, Package, Search, SlidersHorizontal,
   Wrench, X, Zap,
 } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
@@ -133,7 +133,6 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
               <button className="gcore-release-action" aria-label={`查看 ${name} ${row.version} ${row.build} 构建`} onClick={() => { setVersion(row.version); setChannel("全部渠道"); setBuildQuery(row.build); setPage(1); setActiveTab("versions"); }}>查看构建<ArrowRight size={15} aria-hidden="true" /></button>
             </article>
           </li>)}</ol>
-          <p className="gcore-changelog-note"><Info size={15} aria-hidden="true" />当前为演示发布记录，实际变更请以项目文档为准。</p>
         </Tabs.Content>
       </Tabs.Root>
     </main>
