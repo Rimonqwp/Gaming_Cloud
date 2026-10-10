@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, Circle, Plus, Search, Settings, ShieldCheck, Upload, type LucideIcon } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
+import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, Circle, Plus, Search, Settings, ShieldCheck, Upload, X, type LucideIcon } from "lucide-react";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { isExposedManagementPort, parsePortRuleImport, validatePortRule, type PortRule, type PortRuleDraft } from "./gameServerPortRules";
 import "../../../styles/cloud-port-settings.css";
@@ -22,7 +22,6 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
   settingsPages: { id: string; title: string; description: string; icon: LucideIcon; content: ReactNode }[];
 }) {
   const activePage = settingsPages.find(item => item.id === activeSetting);
-  const ActiveIcon = activePage?.icon ?? ShieldCheck;
   const [tab, setTab] = useState("端口规则");
   const [query, setQuery] = useState("");
   const [protocol, setProtocol] = useState("全部协议");
@@ -83,7 +82,11 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
             </nav>
           </aside>
           <div className="gport-settings-main">
-          <header className="gport-content gport-header"><span className="gport-icon blue"><ActiveIcon size={30} /></span><div><DialogTitle>{activePage?.title ?? "开放端口设定"}</DialogTitle><DialogDescription>{activePage?.description ?? "管理服务器的防火墙规则，控制端口的开放范围，保障服务器安全。"}</DialogDescription></div></header>
+          <header className="gport-content gport-header">
+            <DialogTitle>{activePage?.title ?? "开放端口设定"}</DialogTitle>
+            <DialogDescription className="sr-only">{activePage?.description ?? "管理服务器的防火墙规则，控制端口的开放范围，保障服务器安全。"}</DialogDescription>
+            <DialogClose className="gport-header-close" aria-label="关闭机器设定"><X size={21} /></DialogClose>
+          </header>
         <div className="gport-content" hidden={activeSetting !== "ports"}>
           <section className="gport-security-banner" aria-label="端口访问设定">
             <span className="gport-banner-shield"><ShieldCheck size={34} /></span>
