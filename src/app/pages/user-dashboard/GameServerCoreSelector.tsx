@@ -65,7 +65,6 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
   const [buildQuery, setBuildQuery] = useState("");
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
-  const [expandedVersions, setExpandedVersions] = useState<string[]>([]);
   const isPaper = core.id === "paper";
   const name = isPaper ? "PaperMC" : core.name;
   const resources = coreResources[core.id];
@@ -73,10 +72,9 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
   const recommended = rows.find(row => row.recommended) ?? rows[0];
   const releaseRows = [...rows].sort((a, b) => b.date.localeCompare(a.date));
   const filteredRows = rows.filter(row => (version === "全部版本" || row.version === version) && (channel === "全部渠道" || row.channel === channel) && (!buildQuery.trim() || `${row.version} ${row.build}`.toLowerCase().includes(buildQuery.trim().toLowerCase())));
-  const versionGroups = Array.from(new Set(filteredRows.map(row => row.version)), version => ({ version, builds: filteredRows.filter(row => row.version === version).sort(newestBuildFirst) }));
-  const pageCount = Math.max(1, Math.ceil(versionGroups.length / pageSize));
+  const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize));
   const currentPage = Math.min(page, pageCount);
-  const visibleGroups = versionGroups.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const visibleRows = filteredRows.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   const visibleCores = cores.filter(item => `${item.name} ${item.description} ${item.tags.join(" ")}`.toLowerCase().includes(coreQuery.trim().toLowerCase()));
 
   useEffect(() => {
@@ -84,13 +82,11 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
     setChannel("全部渠道");
     setBuildQuery("");
     setPage(1);
-    setExpandedVersions([]);
   }, [core.id]);
 
   const clearFilters = () => { setVersion("全部版本"); setChannel("全部渠道"); setBuildQuery(""); setPage(1); };
-  const historyId = (version: string) => `gcore-build-history-${core.id}-${version.replaceAll(".", "-")}`;
-  const renderBuildRow = (row: VersionRow, builds?: VersionRow[]) => <div className={`gcore-version-row${builds ? "" : " historical"}`} key={`${row.version}-${row.build}`}>
-    <div className="gcore-version-name"><strong>{row.version}</strong>{builds && builds.length > 1 && <button className="gcore-build-toggle" aria-label={`${expandedVersions.includes(row.version) ? "收起" : "展开"} ${row.version} 历史构建`} aria-expanded={expandedVersions.includes(row.version)} aria-controls={historyId(row.version)} onClick={() => setExpandedVersions(previous => previous.includes(row.version) ? previous.filter(value => value !== row.version) : [...previous, row.version])}><ChevronDown size={14} aria-hidden="true" /><span>{builds.length} 个构建</span></button>}</div>
+  const renderBuildRow = (row: VersionRow) => <div className="gcore-version-row" key={`${row.version}-${row.build}`}>
+    <strong>{row.version}</strong>
     <span>{row.build}</span><span>{row.date}</span><span><em className={`channel-badge ${row.channel === "测试版" ? "beta" : ""}`}>{row.channel}</em></span><span>{row.size}</span><span className="passed"><Check size={14} />通过</span><button className="gcore-build-install" aria-label={`安装 ${name} ${row.version} ${row.build}`} onClick={() => onSelectVersion(row)}><Download size={15} />安装</button>
   </div>;
   return <div className="gcore-detail">
@@ -118,18 +114,14 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
           </div>
           <div className="gcore-version-table">
             <div className="gcore-version-row table-head"><span>版本</span><span>构建号</span><span>发布时间</span><span>渠道</span><span>文件大小</span><span>校验状态</span><span>操作</span></div>
-            {visibleGroups.map(group => <div className="gcore-version-group" key={group.version}>
-              {renderBuildRow(group.builds[0], group.builds)}
-              {group.builds.length > 1 && <div id={historyId(group.version)} className="gcore-build-history" role="region" aria-label={`${group.version} 历史构建`} hidden={!expandedVersions.includes(group.version)}>{expandedVersions.includes(group.version) && group.builds.slice(1).map(row => renderBuildRow(row))}</div>}
-            </div>)}
+            {visibleRows.map(row => renderBuildRow(row))}
           </div>
           {!filteredRows.length && <div className="gcore-version-empty" role="status"><Search size={26} /><h3>没有找到匹配的版本</h3><p>试试其他版本、发布渠道或构建号。</p><button className="gsd-button" onClick={clearFilters}>清除筛选</button></div>}
           <div className="gcore-pagination">
-            <span className="gcore-result-count" role="status">共 {versionGroups.length} 个版本 · {filteredRows.length} 个构建</span>
             <button aria-label="上一页" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>‹</button>
             {Array.from({ length: pageCount }, (_, index) => <button key={index} className={currentPage === index + 1 ? "active" : ""} aria-label={`第 ${index + 1} 页`} aria-current={currentPage === index + 1 ? "page" : undefined} onClick={() => setPage(index + 1)}>{index + 1}</button>)}
             <button aria-label="下一页" disabled={currentPage === pageCount} onClick={() => setPage(currentPage + 1)}>›</button>
-            <select aria-label="每页显示数量" value={pageSize} onChange={event => { setPageSize(Number(event.target.value)); setPage(1); }}>{[5, 10, 20].map(size => <option key={size} value={size}>{size} 版本/页</option>)}</select>
+            <select aria-label="每页显示数量" value={pageSize} onChange={event => { setPageSize(Number(event.target.value)); setPage(1); }}>{[5, 10, 20].map(size => <option key={size} value={size}>{size} 条/页</option>)}</select>
           </div>
         </Tabs.Content>
         <Tabs.Content value="changelog" className="gcore-information-panel gcore-changelog">

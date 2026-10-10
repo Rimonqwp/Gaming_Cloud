@@ -135,17 +135,7 @@
 .gcore-version-row .gcore-build-install { display: inline-flex; justify-content: center; align-items: center; gap: 4px; margin-right: 7px; border: 1px solid #b9d7fc; border-radius: 4px; background: #087bff; color: #fff; font-size: 13px; }
 .gcore-version-row .table-badge, .gcore-version-row .channel-badge { font-size: 11px; line-height: 16px; }
 .gcore-version-row .gcore-build-install:hover { background: #0068eb; }
-.gcore-version-group { min-width: 820px; border-top: 1px solid #edf3fa; }
-.gcore-version-name { display: grid; justify-items: start; gap: 2px; }
-.gcore-version-row .gcore-build-toggle { display: inline-flex; align-items: center; gap: 3px; padding: 0; border: 0; border-radius: 3px; background: transparent; color: #6b87ad; font-size: 11px; line-height: 18px; }
-.gcore-version-row .gcore-build-toggle:hover { color: #087bff; }
-.gcore-build-toggle svg { transition: transform .15s ease; }
-.gcore-build-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
 .gcore-version-row button:focus-visible { outline: 2px solid #087bff; outline-offset: 2px; }
-.gcore-build-history { background: #f5f9fe; box-shadow: inset 3px 0 #cfe2fb; }
-.gcore-build-history .gcore-version-row { border-top: 1px dashed #dfeaf8; }
-.gcore-build-history .gcore-version-name { padding-left: 24px; }
-.gcore-build-history .gcore-version-name strong { color: #7b92b0; font-size: 12px; font-weight: 400; }
 .table-badge, .channel-badge { display: inline-block; margin-left: 4px; padding: 2px 4px; border-radius: 4px; background: #dff8ed; color: #00a879; font-size: 10px; font-style: normal; font-weight: 600; }
 .table-badge.latest { background: #fff0cf; color: #c67a00; }
 .channel-badge.beta { background: #fff0d7; color: #d18a18; }
@@ -155,7 +145,6 @@
 .gcore-pagination button.active { border-color: #087bff; background: #087bff; color: #fff; }
 .gcore-pagination select { height: 28px; margin-left: 5px; border: 1px solid #dbe8f7; border-radius: 4px; color: #55759f; font-size: 13px; }
 .gcore-pagination button:disabled { opacity: .45; }
-.gcore-result-count { margin-right: auto; color: #718aaf; font-size: 13px; }
 .gcore-version-empty { display: grid; justify-items: center; align-content: center; gap: 12px; min-height: 220px; text-align: center; }
 .gcore-version-empty h3, .gcore-version-empty p { margin: 0; }
 .gcore-sidebar-empty { display: grid; justify-items: center; gap: 10px; padding: 20px 0; text-align: center; }
