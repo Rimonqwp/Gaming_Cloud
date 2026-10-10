@@ -116,7 +116,12 @@ export function GameServerMachineSettings({ server, onNotice, onLog }: {
               </div>
             </div>}
           </dd>
-        </div>)}</dl>
+        </div>)}
+          <div className="gsm-network-row gsm-network-ports">
+            <dt><Network size={18} />端口信息</dt>
+            <dd><code className="gsm-port-badge">{ports.join(" / ")}</code><button type="button" className="gsd-button" onClick={() => openSecurity("ports")}>配置端口</button></dd>
+          </div>
+        </dl>
       </section>
       <section className="gsm-card gsm-maintenance"><PanelHeading icon={Wrench}>快捷维护</PanelHeading><div className="gsm-maintenance-grid">{maintenance.map(({ id, title, description, icon: Icon, tone }) => <button className={tone} key={id} onClick={() => setAction(id)}><Icon size={27} /><strong>{title}</strong><span>{description}</span></button>)}</div><div className="gsm-reinstall"><PanelHeading icon={Database}>重装系统</PanelHeading><label className="gsm-system-picker"><span className="gsm-os-icon">{selectedSystem.startsWith("Ubuntu") ? <img src="/console/machine/ubuntu.svg" alt="" /> : <Database size={24} />}</span><span><select aria-label="选择重装系统" value={selectedSystem} onChange={event => setSelectedSystem(event.target.value)}>{systems.map(value => <option key={value}>{value}</option>)}</select><small>稳定、通用，推荐使用</small></span></label><button className="gsd-button primary gsm-reinstall-button" onClick={() => setAction("reinstall")}>立即重装系统</button><p className="gsm-warning"><AlertTriangle size={18} fill="currentColor" /><span><strong>重装系统将清空系统盘数据，包括已安装的环境与文件。</strong><br />请提前做好数据备份，此操作不可恢复。</span></p></div></section>
     </div>
@@ -124,7 +129,6 @@ export function GameServerMachineSettings({ server, onNotice, onLog }: {
       <section className="gsm-card gsm-startup"><PanelHeading icon={CirclePlay}>启动与运行设置</PanelHeading><div className="gsm-startup-content"><div className="gsm-toggles">{startupOptions.map(({ id, title, description, icon: Icon }) => <div className="gsm-toggle-row" key={id}><span><Icon size={16} />{title}</span><small>{description}{id === "boot" ? ` ${server.game.split(" / ")[0]} 服务` : ""}</small><Switch className="gsd-switch" aria-label={title} checked={startup[id]} onCheckedChange={checked => { setStartup(previous => ({ ...previous, [id]: checked })); onNotice(`${title}已${checked ? "开启" : "关闭"}（演示操作）`); }} /><b>{startup[id] ? "已开启" : "已关闭"}</b></div>)}</div><div className="gsm-scripts">{(["start", "stop"] as const).map(id => <div className="gsm-script-row" key={id}><span>{id === "start" ? <Play size={17} /> : <Square size={17} />}{id === "start" ? "启动脚本" : "停止脚本"}</span><code>{scripts[id]}</code><button className="gsd-button" aria-label={`编辑${id === "start" ? "启动" : "停止"}脚本`} onClick={() => { setScript(id); setScriptDraft(scripts[id]); setFormError(""); }}><Pencil size={14} />编辑</button></div>)}</div></div></section>
       <section className="gsm-card gsm-security"><PanelHeading icon={ShieldCheck}>安全与规则</PanelHeading><dl>{[
         { label: "防火墙状态", value: <span className="gsm-badge"><span className="gsm-dot" />已开启</span>, button: "管理规则", panel: "firewall", icon: BadgeCheck },
-        { label: "开放端口", value: <code className="gsm-port-badge">{ports.join(" / ")}</code>, button: "配置端口", panel: "ports", icon: Network },
         { label: "DDoS 防护", value: <span className="gsm-badge"><span className="gsm-dot" />已开启</span>, button: "查看详情", panel: "ddos", icon: Shield },
         { label: "SSH 密钥登录", value: <span className="gsm-badge"><span className="gsm-dot" />已启用</span>, button: "管理密钥", panel: "keys", icon: KeyRound },
       ].map(({ label, value, button, panel, icon: Icon }) => <div className="gsm-security-row" key={label}><dt><Icon size={16} />{label}</dt><dd>{value}<button className="gsd-button" onClick={() => openSecurity(panel as SecurityPanel)}>{button}</button></dd></div>)}</dl></section>

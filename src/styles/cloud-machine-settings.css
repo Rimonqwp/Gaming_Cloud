@@ -28,6 +28,8 @@
 .gsm-sftp-row { padding: 8px 0; }
 .gsm-sftp-row dt { align-self: start; padding-top: 8px; }
 .gsm-network-row.gsm-sftp-row dd { flex-direction: column; align-items: stretch; gap: 8px; }
+.gsm-network-ports dd { flex-wrap: wrap; }
+.gsm-network-ports .gsd-button { height: 26px; padding: 0 10px; font-size: 11px; border-color: #cbdfff; flex: none; }
 .gsm-password-label { color: #7d8eae; font-size: 11px; flex: none; }
 .gsm-address { display: inline-flex; align-items: center; gap: 14px; padding: 8px 12px; border-radius: 6px; background: #f4f7fc; min-width: 0; }
 .gsm-address code, .gsm-scripts code, .gsm-port-badge { font-family: Consolas, "Liberation Mono", monospace; font-size: 12px; color: #526b99; }
