@@ -99,7 +99,6 @@
 .gcore-detail-core-list > button > span { display: grid; min-width: 0; flex: 1; gap: 2px; }
 .gcore-detail-core-list strong { color: #152454; font-size: 14px; }
 .gcore-detail-core-list small, .gcore-detail-core-list em { overflow: hidden; color: #7490b7; font-size: 11px; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
-.gcore-detail-core-list > button > svg { flex: none; color: #087bff; }
 .gcore-detail-core-list .gcore-image { width: 42px; height: 42px; }
 .gcore-detail-content { overflow: hidden; }
 .gcore-detail-hero { display: flex; justify-content: space-between; gap: 16px; padding: 15px 16px 13px; border-bottom: 1px solid #e7effa; }
