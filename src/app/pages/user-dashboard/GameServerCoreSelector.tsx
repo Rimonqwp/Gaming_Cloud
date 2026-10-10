@@ -171,7 +171,7 @@ export function GameServerCoreSelector({ open, onOpenChange, onBackup, onLog, on
   const [target, setTarget] = useState<InstallTarget | null>(null);
   const [installed, setInstalled] = useState<InstallTarget>({ core: cores[0], version: "1.20.4", build: "#499" });
   const [detailCore, setDetailCore] = useState<Core | null>(null);
-  const [keepWorld, setKeepWorld] = useState(true);
+  const [keepWorld, setKeepWorld] = useState(false);
   const [confirmation, setConfirmation] = useState(false);
   const [backupReady, setBackupReady] = useState(false);
   const [installMessage, setInstallMessage] = useState("");
@@ -182,7 +182,7 @@ export function GameServerCoreSelector({ open, onOpenChange, onBackup, onLog, on
   const visible = sort === "名称排序" ? [...filtered].sort((a, b) => a.name.localeCompare(b.name)) : sort === "版本优先" ? [...filtered].sort((a, b) => b.latest.localeCompare(a.latest, undefined, { numeric: true })) : filtered;
   const choose = (core: Core) => { setTarget(latestTarget(core)); setDetailCore(core); setFeedback(""); };
   const selectDetailCore = (core: Core) => { setDetailCore(core); setTarget(latestTarget(core)); };
-  const selectDetailVersion = (row: VersionRow) => { if (!detailCore) return; setTarget(latestTarget(detailCore, row.version)); setBackupReady(false); setInstallMessage(""); setConfirmation(true); };
+  const selectDetailVersion = (row: VersionRow) => { if (!detailCore) return; setTarget(latestTarget(detailCore, row.version)); setKeepWorld(false); setBackupReady(false); setInstallMessage(""); setConfirmation(true); };
   const targetBuilds = target ? getCoreBuilds(target.core).filter(row => row.version === target.version).sort(newestBuildFirst) : [];
   const backup = () => { const success = onBackup(); setBackupReady(success); setInstallMessage(success ? "世界存档备份已创建（演示操作）" : "备份创建失败，可能已达到备份上限，请在文件备份中检查。"); return success; };
   const rebuild = () => {
