@@ -33,6 +33,7 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
   const [page, setPage] = useState(1);
   const pageSize = 10;
   const [editor, setEditor] = useState<{ id?: string; draft: PortRuleDraft } | null>(null);
+  const [editorContainer, setEditorContainer] = useState<HTMLDivElement | null>(null);
   const [templates, setTemplates] = useState<PortRuleDraft[]>([]);
   const [blacklist, setBlacklist] = useState<BlockedIp[]>([]);
 
@@ -79,6 +80,7 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
             <DialogDescription className="sr-only">{activePage?.description ?? "管理服务器的防火墙规则，控制端口的开放范围，保障服务器安全。"}</DialogDescription>
             <DialogClose className="gport-header-close" aria-label="关闭机器设定"><X size={21} /></DialogClose>
           </header>
+        <div className="gport-settings-stage" ref={setEditorContainer}>
         <div className="gport-content" hidden={activeSetting !== "ports"}>
           <section className="gport-security-banner" aria-label="端口访问设定">
             <span className="gport-banner-shield"><ShieldCheck size={34} /></span>
@@ -94,11 +96,12 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
         </div>
         <div className="gport-content gport-settings-page" hidden={activeSetting !== "blacklist"}><GameServerIpBlacklist entries={blacklist} onEntriesChange={setBlacklist} onNotice={onNotice} /></div>
         {activePage && <div className="gport-content gport-settings-page"><div className="gsm-workspace gport-machine-panel">{activePage.content}</div></div>}
+        <GameServerPortRuleDrawer container={editorContainer} editor={editor} error={error} templates={templates} onDraftChange={draft => { setError(""); setEditor(previous => previous ? { ...previous, draft } : null); }} onClose={() => setEditor(null)} onSave={saveRule} />
+        </div>
           </div>
         </div>
       </DialogContent>
     </Dialog>
-    <GameServerPortRuleDrawer editor={editor} error={error} templates={templates} onDraftChange={draft => { setError(""); setEditor(previous => previous ? { ...previous, draft } : null); }} onClose={() => setEditor(null)} onSave={saveRule} />
     <Dialog open={deleteIds.length > 0} onOpenChange={value => { if (!value) setDeleteIds([]); }}><DialogContent className="cloud-modal gport-form-dialog"><DialogTitle>删除端口规则</DialogTitle><DialogDescription>确认删除所选的 {deleteIds.length} 条规则？当前操作仅影响演示页面。</DialogDescription><footer><button className="gport-button muted" onClick={() => setDeleteIds([])}>取消</button><button className="gport-button danger" onClick={() => { update(rules.filter(rule => !deleteIds.includes(rule.id)), `已删除 ${deleteIds.length} 条端口规则`); setSelected(previous => previous.filter(id => !deleteIds.includes(id))); setDeleteIds([]); }}>确认删除</button></footer></DialogContent></Dialog>
   </>;
 }

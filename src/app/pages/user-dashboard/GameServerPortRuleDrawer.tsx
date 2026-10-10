@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, ChevronDown, Folder, Gamepad2, Info, Plus, ShieldCheck, Terminal, X, XCircle } from "lucide-react";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { Dialog, DialogClose, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
 import type { PortRuleDraft } from "./gameServerPortRules";
 
@@ -13,7 +14,8 @@ const services = [
   { name: "RCON", title: "RCON", port: "25575", protocol: "TCP" },
 ] as const;
 
-export function GameServerPortRuleDrawer({ editor, error, templates, onDraftChange, onClose, onSave }: {
+export function GameServerPortRuleDrawer({ container, editor, error, templates, onDraftChange, onClose, onSave }: {
+  container: HTMLDivElement | null;
   editor: { id?: string; draft: PortRuleDraft } | null; error: string; templates: PortRuleDraft[];
   onDraftChange: (draft: PortRuleDraft) => void; onClose: () => void; onSave: (template: boolean) => void;
 }) {
@@ -21,13 +23,16 @@ export function GameServerPortRuleDrawer({ editor, error, templates, onDraftChan
   const [tagInput, setTagInput] = useState("");
   const [addingTag, setAddingTag] = useState(false);
   const errorRef = useRef<HTMLParagraphElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
   useEffect(() => { if (editor) { setWarningDismissed(false); setAddingTag(false); setTagInput(""); } }, [editor?.id, editor !== null]);
   useEffect(() => { if (error) errorRef.current?.scrollIntoView({ block: "nearest" }); }, [error]);
   const draft = editor?.draft;
   const change = (patch: Partial<PortRuleDraft>) => { if (draft) onDraftChange({ ...draft, ...patch }); };
   const addTag = () => { if (draft && tagInput.trim()) change({ tags: [...new Set([...(draft.tags ?? []), tagInput.trim()])] }); setTagInput(""); setAddingTag(false); };
   return <Dialog open={editor !== null} onOpenChange={open => { if (!open) { onClose(); setWarningDismissed(false); setAddingTag(false); } }}>
-    <DialogContent className="gport-rule-drawer" onCloseAutoFocus={event => { event.preventDefault(); document.querySelector<HTMLButtonElement>(".gport-add-rule")?.focus(); }}>
+    {container && <DialogPrimitive.Portal container={container}>
+    <DialogPrimitive.Overlay className="gport-drawer-overlay" />
+    <DialogPrimitive.Content className="gport-rule-drawer" onOpenAutoFocus={() => { returnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null; }} onCloseAutoFocus={event => { event.preventDefault(); if (returnFocusRef.current?.isConnected) returnFocusRef.current.focus(); else container.querySelector<HTMLButtonElement>(".gport-add-rule")?.focus(); }}>
       <header className="gport-drawer-header"><DialogTitle>{editor?.id ? "编辑端口规则" : "新增端口规则"}</DialogTitle><DialogDescription>配置服务器的端口访问规则，支持常用服务一键添加。</DialogDescription><DialogClose aria-label="关闭端口规则面板"><X size={20} /></DialogClose></header>
       {draft && <form className="gport-drawer-form" onSubmit={event => { event.preventDefault(); onSave(false); }}>
         <div className="gport-drawer-body">
@@ -46,6 +51,7 @@ export function GameServerPortRuleDrawer({ editor, error, templates, onDraftChan
         </div>
         <footer className="gport-drawer-footer"><button type="button" className="gport-button muted" onClick={onClose}>取消</button><button type="submit" className="gport-button primary">保存规则</button><button type="button" className="gport-button" onClick={() => onSave(true)}>保存并设为模板</button></footer>
       </form>}
-    </DialogContent>
+    </DialogPrimitive.Content>
+    </DialogPrimitive.Portal>}
   </Dialog>;
 }
