@@ -3,6 +3,8 @@ import { AlertTriangle, BadgeCheck, Box, ChartColumnBig, CirclePlay, Copy, Cpu, 
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
 import type { ConsoleInstance } from "./cloudDashboardData";
+import { GameServerPortSettings } from "./GameServerPortSettings";
+import { createPortRules } from "./gameServerPortRules";
 import "../../../styles/cloud-machine-settings.css";
 
 type Maintenance = "container" | "rescue" | "reinstall";
@@ -35,8 +37,8 @@ export function GameServerMachineSettings({ server, onNotice, onLog }: {
   const [scriptDraft, setScriptDraft] = useState("");
   const [formError, setFormError] = useState("");
   const [portsOpen, setPortsOpen] = useState(false);
-  const [ports, setPorts] = useState([22, server.port, 8080]);
-  const [portDraft, setPortDraft] = useState("");
+  const [portRules, setPortRules] = useState(() => createPortRules(server.port, server.game));
+  const ports = [...new Set(portRules.filter(rule => rule.enabled).map(rule => rule.range))];
   const region = server.region.match(/（(.+)）/);
   const city = region?.[1] ?? server.region;
   const location = region ? `中国 · ${city}` : city;
@@ -89,14 +91,7 @@ export function GameServerMachineSettings({ server, onNotice, onLog }: {
     onNotice(`${title}已完成（演示操作）`);
     setAction(null);
   };
-  const openPorts = () => { setPortsOpen(true); setPortDraft(ports.join(" / ")); setFormError(""); };
-  const savePorts = () => {
-    const tokens = portDraft.trim().split(/[\s/,，]+/);
-    const values = tokens.map(Number);
-    if (!portDraft.trim() || values.some((value, index) => !/^\d+$/.test(tokens[index]) || !Number.isInteger(value) || value < 1 || value > 65535)) { setFormError("请输入 1 至 65535 的端口号，用空格、逗号或 / 分隔。"); return; }
-    if (![22, server.port, 8080].every(value => values.includes(value))) { setFormError(`请保留 SSH、游戏和面板端口：22、${server.port}、8080。`); return; }
-    setPorts([...new Set(values)]); setPortsOpen(false); onNotice("开放端口已保存（演示操作）");
-  };
+  const openPorts = () => setPortsOpen(true);
 
   return <div className="gsm-workspace">
     <section className="gsm-specs" aria-label="机器规格">{specs.map(({ title, value, detail, icon: Icon, tone }) => <article className="gsm-spec" key={title}><span className={`gsm-spec-icon ${tone}`}><Icon size={27} /></span><div><h3>{title}</h3><strong>{value}</strong><p>{detail}</p></div></article>)}</section>
@@ -122,7 +117,7 @@ export function GameServerMachineSettings({ server, onNotice, onLog }: {
         </div>)}
           <div className="gsm-network-row gsm-network-ports">
             <dt><Network size={18} />端口信息</dt>
-            <dd><code className="gsm-port-badge">{ports.join(" / ")}</code><button type="button" className="gsd-button" onClick={openPorts}>配置端口</button></dd>
+            <dd><code className="gsm-port-badge">{ports.join(" / ") || "无开放端口"}</code><button type="button" className="gsd-button" onClick={openPorts}>配置端口</button></dd>
           </div>
         </dl>
       </section>
@@ -133,17 +128,6 @@ export function GameServerMachineSettings({ server, onNotice, onLog }: {
     </div>
     <Dialog open={action !== null} onOpenChange={open => { if (!open) setAction(null); }}><DialogContent className="cloud-modal gsd-dialog gsm-dialog"><DialogTitle>{action === "reinstall" ? "确认重装系统" : maintenance.find(item => item.id === action)?.title}</DialogTitle><DialogDescription>{action === "reinstall" ? `将重装为 ${selectedSystem}，系统盘环境与文件将被清空，请确认已完成备份。` : maintenance.find(item => item.id === action)?.confirmation} 当前为演示操作，不会连接真实机器。</DialogDescription><footer><button className="gsd-button" onClick={() => setAction(null)}>取消</button><button className={`gsd-button ${action === "reinstall" ? "danger" : "primary"}`} onClick={confirmAction}>确认{action === "reinstall" ? "重装" : "执行"}</button></footer></DialogContent></Dialog>
     <Dialog open={script !== null} onOpenChange={open => { if (!open) setScript(null); }}><DialogContent className="cloud-modal gsd-dialog gsm-dialog"><DialogTitle>编辑{script === "start" ? "启动" : "停止"}脚本</DialogTitle><DialogDescription>设置服务器脚本的绝对路径（演示配置）。</DialogDescription><form onSubmit={event => { event.preventDefault(); if (!/^\/(?:[^/\s]+\/)*[^/\s]+\.sh$/.test(scriptDraft.trim())) { setFormError("请输入以 / 开头、以 .sh 结尾的绝对路径，不能包含空格。"); return; } if (script) setScripts(previous => ({ ...previous, [script]: scriptDraft.trim() })); setScript(null); onNotice("脚本路径已保存（演示操作）"); }}><label>脚本路径<input aria-label="脚本路径" value={scriptDraft} onChange={event => setScriptDraft(event.target.value)} /></label>{formError && <p className="gsm-form-error" role="alert">{formError}</p>}<footer><button type="button" className="gsd-button" onClick={() => setScript(null)}>取消</button><button type="submit" className="gsd-button primary">保存脚本</button></footer></form></DialogContent></Dialog>
-    <Dialog open={portsOpen} onOpenChange={setPortsOpen}>
-      <DialogContent className="cloud-modal gsd-dialog gsm-dialog">
-        <DialogTitle>配置开放端口</DialogTitle>
-        <DialogDescription>调整当前实例的开放端口（演示配置）。</DialogDescription>
-        <form onSubmit={event => { event.preventDefault(); savePorts(); }}>
-          <label>允许访问的端口<input aria-label="开放端口" value={portDraft} onChange={event => setPortDraft(event.target.value)} /></label>
-          <p className="gsm-dialog-note">使用逗号、空格或 / 分隔，保留 SSH、游戏与面板端口。</p>
-          {formError && <p className="gsm-form-error" role="alert">{formError}</p>}
-          <footer><button type="button" className="gsd-button" onClick={() => setPortsOpen(false)}>取消</button><button type="submit" className="gsd-button primary">保存端口</button></footer>
-        </form>
-      </DialogContent>
-    </Dialog>
+    <GameServerPortSettings open={portsOpen} onOpenChange={setPortsOpen} rules={portRules} onRulesChange={setPortRules} onNotice={onNotice} />
   </div>;
 }
