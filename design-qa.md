@@ -433,3 +433,13 @@ final result: passed
 - 浏览器 error 日志为空；构建和 git diff --check 通过。没有遗留 P0/P1/P2。
 - Implementation checklist: 标题、四选项、行内自定义、清除、过渡、地址校验、键盘取消与保存恢复均已验证。
 - final result: passed
+
+## 备份路径预设交互补充（2026-10-11）
+
+- 以用户后续补充为最终交互要求，替代上节的“所有选择均转换”规则：前三项保持四选项界面并高亮当前项；仅自定义地址确认后显示地址和清除。
+- Source visual truth: 用户补充要求及 `output/design/backup-integrated/backup-desktop.png`；implementation focused screenshot: `output/design/backup-path/preset-selected.png`（860 × 68）；`preset-comparison.png`（1720 × 68）已打开比较，桌面 viewport 为 1742 × 1238，密度 1，截取区域无缩放。
+- 字体、颜色、间距、图标和业务文案延续上节的已通过检查；新增选中状态采用浅蓝背景和蓝色边框，无其他视觉变更。
+- 浏览器分别点击前三项，每次均保留 4 个按钮、0 个地址行且对应 aria-pressed=true；保存重开仍高亮世界目录。自定义输入 /minecraft/world（与预设同地址）仍显示地址＋清除，保存重开也保持自定义。清除返回未选中的四个按钮。
+- 手机 390 × 844 下选择插件仍保留四选项，无横向溢出；浏览器 error 日志为空，构建与 diff 检查通过。
+- Findings / comparison history: 补充规则实现后无 P0/P1/P2；此前检查记录保留为历史，最终行为以上述补充规则为准。
+- final result: passed

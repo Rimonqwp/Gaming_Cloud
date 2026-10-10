@@ -13,6 +13,7 @@ type StorageTarget = { id: string; kind: StorageKind; name: string; path: string
 export type BackupStorageConfig = {
   enabled: boolean; frequency: "hourly" | "daily" | "weekly" | "monthly"; executionTime: string; timezone: string;
   sourcePath: string; backupMode: "full" | "incremental"; filenameTemplate: string; verify: boolean;
+  sourcePathMode?: "preset" | "custom";
   targets: StorageTarget[]; activeId: string; name: string; path: string; capacity: string; retention: string; days: string;
   compression: boolean; compressionLevel: string; deduplication: boolean; encryption: boolean; encryptionType: string;
   bandwidth: boolean; bandwidthLimit: string; multiSync: boolean; specifiedDirectories: boolean; directories: string;
