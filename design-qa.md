@@ -206,3 +206,17 @@ final result: passed
 - 标题和说明改为端口、协议、访问来源与按需启用规则相关内容。
 - 桌面与手机证据：`output/design/port-banner-refinement/desktop-final.png`（1280 × 720）、`mobile-final.png`（390 × 844）。手机浮层 clientWidth/scrollWidth 均为 358px，没有整体横向溢出。
 - 浏览器 error 日志为空，生产构建通过。
+
+---
+
+# 机器设定分页统一尺寸与居中验收（2026-10-10）
+
+final result: passed
+
+- 采用启动与运行设置页原有的 870px CSS 高度作为公共弹窗高度，六个分页共用尺寸。移除高屏下向下偏移 66px 的定位，弹窗水平与垂直居中。
+- 主内容改为独立滚动区域，保留公共标题、导航和关闭按钮；内容较长时不撑大弹窗。较小视口按可用高度收缩。
+- 在用户的 1561 × 1238 视口逐页验证六个分页，弹窗均为 1305 × 783px，位置均为 left 128px、top 227.5px，上下左右留白对称。
+- 桌面证据：`output/design/machine-settings-fixed-size/desktop-final.png` 与 `startup-final.png`。端口页和启动页尺寸相同。
+- 手机 390 × 844 下验证端口、网络、启动三页，弹窗均为 370 × 820px，left 10px、top 12px，无整体横向溢出；`mobile-final.png` 与 `mobile-scrolled.png` 验证内容可滚动至全部六行规则和分页。
+- 1280 × 720 下弹窗约为 1248 × 688px，四周均保留 16px，仍居中。
+- 浏览器 error 日志为空，生产构建通过。验证标签页已关闭，临时视口已恢复，用户页面未刷新。
