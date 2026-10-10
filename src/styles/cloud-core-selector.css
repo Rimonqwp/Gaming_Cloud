@@ -80,9 +80,12 @@
 .gcore-detail { display: grid; grid-template-columns: 310px minmax(0, 1fr) 300px; gap: 10px; min-width: 0; color: #3e5f8c; }
 .gcore-detail-sidebar, .gcore-detail-content, .gcore-detail-right { min-width: 0; background: #fff; border: 1px solid #dce8f8; border-radius: 9px; }
 .gcore-detail-sidebar { padding: 12px 10px; }
-.gcore-detail-back { display: flex; align-items: center; gap: 7px; width: 100%; padding: 8px 6px 13px; border: 0; border-bottom: 1px solid #edf3fb; background: transparent; color: #2866ad; font-size: 13px; font-weight: 600; text-align: left; }
-.gcore-detail-back:hover { color: #087bff; }
+.gcore-detail-sidebar-toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.gcore-detail-back { display: grid; place-items: center; flex: none; width: 32px; height: 38px; padding: 0; border: 1px solid #d7e5f8; border-radius: 6px; background: #fff; color: #087bff; }
+.gcore-detail-back:hover { border-color: #087bff; background: #f3f8ff; }
 .gcore-detail-search { display: flex; align-items: center; gap: 8px; height: 38px; margin: 12px 0 10px; padding: 0 10px; border: 1px solid #d7e5f8; border-radius: 6px; color: #6b87ad; }
+.gcore-detail-sidebar-toolbar .gcore-detail-search { flex: 1; min-width: 0; margin: 0; }
+.gcore-detail-sidebar-toolbar .gcore-detail-search > svg { flex: none; }
 .gcore-detail-search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: #345581; font: inherit; font-size: 12px; }
 .gcore-detail-search.compact { flex: 1.4; margin: 0; }
 .gcore-detail-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 9px; }

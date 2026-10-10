@@ -41,8 +41,10 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
   const rows = isPaper ? paperVersions : core.versions.slice(0, 6).map((version, index) => ({ version, build: `#${520 - index}`, date: `2024-10-${String(25 - index * 2).padStart(2, "0")} 12:00`, channel: "稳定版" as const, size: `${50 + index}.2 MB`, latest: index === 0 }));
   return <div className="gcore-detail">
     <aside className="gcore-detail-sidebar">
-      <button className="gcore-detail-back" onClick={onBack}><ArrowLeft size={17} />返回核心列表</button>
-      <label className="gcore-detail-search"><Search size={17} /><input aria-label="搜索核心" placeholder="搜索核心名称，例如：Paper、Spigot..." /></label>
+      <div className="gcore-detail-sidebar-toolbar">
+        <button className="gcore-detail-back" aria-label="返回核心列表" title="返回核心列表" onClick={onBack}><ArrowLeft size={17} aria-hidden="true" /></button>
+        <label className="gcore-detail-search"><Search size={17} /><input aria-label="搜索核心" placeholder="搜索核心名称，例如：Paper、Spigot..." /></label>
+      </div>
       <div className="gcore-detail-pills"><button className="active">稳定版</button><button>测试版</button><button className="recommended-pill"><BadgeCheck size={14} />推荐</button><button>Java 17</button><button>Java 21</button></div>
       <nav className="gcore-detail-core-list" aria-label="服务端核心列表">{cores.map(item => <button key={item.id} className={item.id === core.id ? "active" : ""} onClick={() => onSelectCore(item)}><CoreImage core={item} /><span><strong>{item.id === "paper" ? "PaperMC" : item.name}<em>{item.range}</em></strong><small>{item.description.length > 29 ? `${item.description.slice(0, 29)}...` : item.description}</small></span>{item.id === core.id && <Check size={18} />}</button>)}</nav>
     </aside>
