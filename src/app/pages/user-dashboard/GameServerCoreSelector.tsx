@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 import {
-  AlertTriangle, ArrowDown, ArrowLeft, ArrowRight, BadgeCheck, BookOpen, Box, Check, ChevronDown, CircleHelp, Clock3, Database, Download,
+  AlertTriangle, ArrowDown, ArrowLeft, ArrowRight, BadgeCheck, BookOpen, Box, Check, ChevronDown, CircleHelp, Clock3, Download,
   ExternalLink, FileText, Gamepad2, History, Package, Search, SlidersHorizontal,
   Lightbulb, RefreshCw, Wrench, X, Zap,
 } from "lucide-react";
@@ -185,9 +185,8 @@ export function GameServerCoreSelector({ open, onOpenChange, onBackup, onLog, on
   const selectDetailVersion = (row: VersionRow) => { if (!detailCore) return; setTarget(latestTarget(detailCore, row.version)); setBackupReady(false); setInstallMessage(""); setConfirmation(true); };
   const targetBuilds = target ? getCoreBuilds(target.core).filter(row => row.version === target.version).sort(newestBuildFirst) : [];
   const backup = () => { const success = onBackup(); setBackupReady(success); setInstallMessage(success ? "世界存档备份已创建（演示操作）" : "备份创建失败，可能已达到备份上限，请在文件备份中检查。"); return success; };
-  const rebuild = (withBackup: boolean) => {
+  const rebuild = () => {
     if (!target) return;
-    if (withBackup && !backupReady && !backup()) return;
     onLog(`Machine: 重建容器为 ${target.core.name} ${target.version}${target.build ? ` ${target.build}` : ""}，${keepWorld ? "保留" : "清空"}世界数据（演示操作）`);
     setInstalled(target);
     setConfirmation(false);
@@ -208,7 +207,7 @@ export function GameServerCoreSelector({ open, onOpenChange, onBackup, onLog, on
     {target && <Dialog open={confirmation && open} onOpenChange={setConfirmation}>
       <DialogContent className="cloud-modal gsd-dialog gcore-rebuild-dialog">
         <header className="gcore-rebuild-header"><DialogTitle><RefreshCw size={22} aria-hidden="true" />重装容器设置</DialogTitle><DialogClose className="gcore-rebuild-close" aria-label="关闭重装设置"><X size={18} /></DialogClose></header>
-        <DialogDescription className="sr-only">安装版本固定为列表中点选的版本，可选择该版本的构建号，设置世界数据保留方式，再创建备份并重装或直接重装。当前为演示操作，不会连接真实机器。</DialogDescription>
+        <DialogDescription className="sr-only">安装版本固定为列表中点选的版本，可选择该版本的构建号，设置世界数据保留方式，再重装容器。可通过立即备份按钮先创建备份。当前为演示操作，不会连接真实机器。</DialogDescription>
         <div className="gcore-rebuild-body">
           <section className="gcore-rebuild-core" aria-label="当前核心">
             <h3>当前核心（{running ? "正在运行" : "已停止"}）</h3>
@@ -231,7 +230,7 @@ export function GameServerCoreSelector({ open, onOpenChange, onBackup, onLog, on
           <section className="gcore-rebuild-warning"><h3><AlertTriangle size={20} aria-hidden="true" />重要提示</h3><p>重装容器将会：</p><ul><li>替换服务器的核心文件和启动环境</li><li>{keepWorld ? "清空当前容器内的配置文件（保留世界数据）" : "清空当前容器内的配置文件、世界存档及玩家数据"}</li><li>此操作不可撤销，请确认已备份重要数据</li></ul></section>
           {installMessage && <p className={`gcore-rebuild-message${backupReady ? " success" : ""}`} role={backupReady ? "status" : "alert"}>{installMessage}</p>}
         </div>
-        <footer className="gcore-rebuild-actions"><button className="gcore-rebuild-primary" onClick={() => rebuild(true)}><Database size={20} aria-hidden="true" /><span>创建备份并重装</span></button><button className="gcore-rebuild-direct" onClick={() => rebuild(false)}><RefreshCw size={20} aria-hidden="true" /><span>直接重装<small>（不创建备份）</small></span></button></footer>
+        <footer className="gcore-rebuild-actions"><button className="gcore-rebuild-primary" onClick={rebuild}><RefreshCw size={20} aria-hidden="true" /><span>重装</span></button></footer>
       </DialogContent>
     </Dialog>}
   </>;
