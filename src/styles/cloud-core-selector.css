@@ -127,26 +127,28 @@
 .gcore-version-panel { padding: 12px 14px 7px; }
 .gcore-version-toolbar { display: flex; gap: 8px; margin-bottom: 10px; }
 .gcore-version-toolbar .gcore-filter { flex: 0 0 160px; }
-.gcore-version-toolbar .gcore-filter select { font-size: 12px; }
+.gcore-version-toolbar .gcore-filter select { font-size: 14px; }
+.gcore-version-toolbar .gcore-detail-search input { font-size: 14px; }
 .gcore-version-table { overflow: auto; border: 1px solid #e1ebf7; border-radius: 6px; }
-.gcore-version-row { display: grid; grid-template-columns: .8fr .8fr 1.35fr .8fr .85fr .85fr 1fr; align-items: center; min-width: 700px; min-height: 39px; border-top: 1px solid #edf3fa; color: #5f7da5; font-size: 11px; }
+.gcore-version-row { display: grid; grid-template-columns: .8fr 1fr 1.5fr .8fr .85fr .85fr 1fr; align-items: center; min-width: 820px; min-height: 44px; border-top: 1px solid #edf3fa; color: #5f7da5; font-size: 13px; line-height: 20px; }
 .gcore-version-row:first-child { border-top: 0; }
 .gcore-version-row:not(.table-head):hover { background: #f7fbff; }
-.gcore-version-row > * { min-width: 0; padding: 5px 7px; }
-.gcore-version-row strong { color: #345581; font-size: 12px; }
-.gcore-version-row.table-head { min-height: 32px; background: #f4f8fd; color: #52729e; font-size: 11px; font-weight: 700; }
-.gcore-version-row button { display: inline-flex; justify-content: center; align-items: center; gap: 4px; margin-right: 7px; border: 1px solid #b9d7fc; border-radius: 4px; background: #087bff; color: #fff; font-size: 11px; }
+.gcore-version-row > * { min-width: 0; padding: 6px 7px; }
+.gcore-version-row strong { color: #345581; font-size: 14px; }
+.gcore-version-row.table-head { min-height: 36px; background: #f4f8fd; color: #52729e; font-size: 13px; font-weight: 700; }
+.gcore-version-row button { display: inline-flex; justify-content: center; align-items: center; gap: 4px; margin-right: 7px; border: 1px solid #b9d7fc; border-radius: 4px; background: #087bff; color: #fff; font-size: 13px; }
+.gcore-version-row .table-badge, .gcore-version-row .channel-badge { font-size: 11px; line-height: 16px; }
 .gcore-version-row button:hover { background: #0068eb; }
 .table-badge, .channel-badge { display: inline-block; margin-left: 4px; padding: 2px 4px; border-radius: 4px; background: #dff8ed; color: #00a879; font-size: 10px; font-style: normal; font-weight: 600; }
 .table-badge.latest { background: #fff0cf; color: #c67a00; }
 .channel-badge.beta { background: #fff0d7; color: #d18a18; }
 .passed { display: inline-flex; align-items: center; gap: 3px; color: #00a879; }
 .gcore-pagination { display: flex; justify-content: flex-end; align-items: center; gap: 5px; padding-top: 8px; }
-.gcore-pagination button { width: 25px; height: 25px; border: 1px solid #dbe8f7; border-radius: 4px; background: #fff; color: #55759f; font-size: 12px; }
+.gcore-pagination button { width: 28px; height: 28px; border: 1px solid #dbe8f7; border-radius: 4px; background: #fff; color: #55759f; font-size: 13px; }
 .gcore-pagination button.active { border-color: #087bff; background: #087bff; color: #fff; }
-.gcore-pagination select { height: 25px; margin-left: 5px; border: 1px solid #dbe8f7; border-radius: 4px; color: #55759f; font-size: 11px; }
+.gcore-pagination select { height: 28px; margin-left: 5px; border: 1px solid #dbe8f7; border-radius: 4px; color: #55759f; font-size: 13px; }
 .gcore-pagination button:disabled { opacity: .45; }
-.gcore-result-count { margin-right: auto; color: #718aaf; font-size: 12px; }
+.gcore-result-count { margin-right: auto; color: #718aaf; font-size: 13px; }
 .gcore-version-empty { display: grid; justify-items: center; align-content: center; gap: 12px; min-height: 220px; text-align: center; }
 .gcore-version-empty h3, .gcore-version-empty p { margin: 0; }
 .gcore-sidebar-empty { display: grid; justify-items: center; gap: 10px; padding: 20px 0; text-align: center; }
