@@ -66,7 +66,7 @@
 .gdb-credential { display: flex; align-items: center; gap: 4px; min-width: 0; }
 .gdb-credential > span { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gdb-success-icon { color: #fff; fill: #00b581; stroke-width: 2.5; flex: none; }
-.gdb-row-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.gdb-row-actions { display: flex; align-items: center; justify-content: flex-start; gap: 8px; }
 .gdb-row-actions button { display: inline-flex; align-items: center; gap: 4px; padding: 0; background: none; border: 0; color: #087bff; font-size: 13px; white-space: nowrap; }
 .gdb-row-actions button:hover { color: #0053cf; text-decoration: underline; }
 .gdb-pagination { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 15px 4px 0; font-size: 13px; color: #8296b7; }
