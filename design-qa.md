@@ -443,3 +443,15 @@ final result: passed
 - 手机 390 × 844 下选择插件仍保留四选项，无横向溢出；浏览器 error 日志为空，构建与 diff 检查通过。
 - Findings / comparison history: 补充规则实现后无 P0/P1/P2；此前检查记录保留为历史，最终行为以上述补充规则为准。
 - final result: passed
+
+## 备份存储卡片标识调整（2026-10-11）
+
+- Source visual truth: 用户 Comment 2–4 及 `output/design/backup-integrated/backup-desktop.png`。Implementation screenshot: `output/design/backup-targets/desktop.png`；viewport / pixels 1742 × 1238，密度 1；手机 `output/design/backup-targets/mobile.png` 为 390 × 844，密度 1。
+- State: 自动备份设置打开、服务器目录已选、时区禁用、三个存储目标已绑定。当前截图也包含用户补充后的路径行为。
+- Full-view comparison: 已打开原页面与最终桌面截图。Focused comparison: `output/design/backup-targets/comparison-detail.png`（790 × 98，首张卡片前后同尺度），已打开检查。
+- 字体与层级：名称仍为 14px，池 ID 复用 12px 辅助文字；间距与布局：去除类型标签，“正常”与名称之间仅保留原 9px CSS gap，菜单仍右靠；手机文字和池 ID 均完整可见。
+- 颜色与图标：保留原状态绿色、蓝色容量条和现有 Lucide 图标；文案：路径行改为“备份池 ID”，直接读取 `server.machineDetails.backupPoolId`，当前为 backup.sh01.grix.local；缺失时显示“未提供”，不伪造 ID。
+- 交互验证：类型标签节点数为 0；三个卡片的状态均靠近名称；菜单编辑仍打开原本 /home/backups 存储地址；关闭编辑后重新打开仍保留服务器目录高亮和时区禁用。
+- 手机页面无横向溢出，浏览器 error 日志为空；npm run build 和 git diff --check 通过，保留原大 bundle 提示。
+- Findings / comparison history: 首次视觉对照无待修复 P0/P1/P2；无额外 P3。Implementation checklist: 类型标签移除、状态左靠、服务器池 ID 接入、手机适配、原编辑行为验证完成。
+- final result: passed
