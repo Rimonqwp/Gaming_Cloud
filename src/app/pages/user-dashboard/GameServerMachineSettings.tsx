@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { AlertTriangle, BadgeCheck, Box, ChartColumnBig, CirclePlay, Copy, Cpu, Database, Eye, EyeOff, Folder, Gamepad2, Globe2, HardDrive, House, Info, KeyRound, LifeBuoy, MapPin, MemoryStick, Monitor, Network, Pencil, Play, RefreshCw, Settings, Shield, ShieldCheck, Square, Terminal, Timer, Wrench, type LucideIcon } from "lucide-react";
+import { AlertTriangle, BadgeCheck, Box, ChartColumnBig, CirclePlay, Copy, Cpu, Database, Eye, EyeOff, Folder, Gamepad2, Globe2, HardDrive, House, Info, KeyRound, LifeBuoy, MapPin, MemoryStick, Network, Pencil, Play, RefreshCw, Settings, Shield, ShieldCheck, Square, Terminal, Timer, Wrench, type LucideIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
 import type { ConsoleInstance } from "./cloudDashboardData";
@@ -50,10 +50,9 @@ export function GameServerMachineSettings({ server, onNotice, onRestart, onLog }
   const threadCount = server.cores * 2;
   const network = [
     { label: "SSH 连接", value: `ssh root@${server.ip} -p 22`, icon: Terminal },
-    { label: "SFTP 连接", value: `sftp://root@${server.ip}:22`, icon: Folder },
     { label: "游戏端口", value: `${server.ip}:${server.port}`, icon: Gamepad2 },
-    { label: "面板端口", value: `http://${server.ip}:8080`, icon: Monitor },
     { label: "内网 IP", value: `10.0.0.${Number(server.ip.split(".").at(-1)) + 2}`, icon: Network },
+    { label: "SFTP 连接", value: `sftp://root@${server.ip}:22`, icon: Folder },
   ];
   const machineInfo = [
     { label: "节点名称", value: <>{server.region.replace(/[（）]/g, "-").replace(/-$/, "")} 高性能节点 <span className="gsm-bgp">BGP 多线</span></>, icon: CirclePlay },
@@ -109,7 +108,6 @@ export function GameServerMachineSettings({ server, onNotice, onRestart, onLog }
           <dd>
             <div className="gsm-network-value">
               <div className="gsm-address"><code>{value}</code><button type="button" aria-label={`复制${label}`} onClick={() => copy(label, value)}><Copy size={16} /></button></div>
-              <span className="gsm-status"><span className="gsm-dot" />正常</span>
             </div>
             {label === "SFTP 连接" && <div className="gsm-network-value" aria-label="SFTP 密码">
               <div className="gsm-address">
@@ -118,7 +116,6 @@ export function GameServerMachineSettings({ server, onNotice, onRestart, onLog }
                 {server.sftpPassword && <button type="button" aria-label={showSftpPassword ? "隐藏 SFTP 密码" : "显示 SFTP 密码"} aria-pressed={showSftpPassword} onClick={() => setShowSftpPassword(previous => !previous)}>{showSftpPassword ? <EyeOff size={16} /> : <Eye size={16} />}</button>}
                 <button type="button" aria-label="复制SFTP 密码" disabled={!server.sftpPassword} onClick={() => copy("SFTP 密码", server.sftpPassword ?? "")}><Copy size={16} /></button>
               </div>
-              <small className="gsm-password-note">演示密码</small>
             </div>}
           </dd>
         </div>)}</dl>

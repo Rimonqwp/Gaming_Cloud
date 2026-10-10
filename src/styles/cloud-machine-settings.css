@@ -24,7 +24,7 @@
 .gsm-network-row { display: grid; grid-template-columns: 135px minmax(0, 1fr); min-height: 47px; align-items: center; border-bottom: 1px solid #edf2fb; }
 .gsm-network-row:last-child { border-bottom: 0; }
 .gsm-network-row dd { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.gsm-network-value { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-width: 0; }
+.gsm-network-value { display: flex; align-items: center; gap: 12px; width: 100%; min-width: 0; }
 .gsm-sftp-row { padding: 8px 0; }
 .gsm-sftp-row dt { align-self: start; padding-top: 8px; }
 .gsm-network-row.gsm-sftp-row dd { flex-direction: column; align-items: stretch; gap: 8px; }
@@ -35,8 +35,6 @@
 .gsm-address button { display: flex; background: transparent; padding: 0; border: 0; color: #58719f; flex: none; }
 .gsm-address button:hover { color: #087bff; }
 .gsm-address button:disabled { color: #a4afc3; cursor: default; }
-.gsm-password-note { flex: none; color: #7d8eae; font-size: 11px; white-space: nowrap; }
-.gsm-status { display: inline-flex; align-items: center; gap: 8px; color: #00b783; white-space: nowrap; padding-right: 15px; font-size: 12px; }
 .gsm-tip { display: flex; align-items: flex-start; gap: 12px; background: #eff7ff; border-radius: 7px; margin-top: 23px; padding: 16px; color: #087bff; }
 .gsm-tip > svg { flex: none; stroke: white; }
 .gsm-tip strong { font-weight: 600; font-size: 13px; }
@@ -111,7 +109,6 @@
   .gsm-card dt { gap: 10px; }
   .gsm-address { padding: 8px; gap: 8px; }
   .gsm-address code { font-size: 10px; }
-  .gsm-status { padding-right: 0; }
   .gsm-startup-content { gap: 15px; }
   .gsm-toggle-row { gap: 10px; }
   .gsm-toggle-row > span { width: 100px; gap: 10px; }
@@ -145,8 +142,6 @@
   .gsm-network-row { grid-template-columns: 90px minmax(0, 1fr); min-height: 53px; }
   .gsm-network-row dd { gap: 6px; }
   .gsm-network-value { gap: 6px; }
-  .gsm-status { gap: 4px; font-size: 10px; }
-  .gsm-status .gsm-dot { width: 6px; height: 6px; }
   .gsm-maintenance { display: block; }
   .gsm-reinstall { margin-top: 22px; }
   .gsm-startup-content { grid-template-columns: 1fr; }
