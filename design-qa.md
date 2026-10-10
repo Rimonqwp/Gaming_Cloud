@@ -378,3 +378,10 @@ final result: passed
 - 搜索空状态、清除筛选、核心选择、版本切换、数据开关、取消及演示重装反馈均通过；浏览器错误日志为空。`npm run build` 通过。
 - 截图：`output/design/core-selector-polish/desktop-final.png`、`mobile-final.png`、`mobile-config.png`。最终背景：`public/console/cores/banner-workbench.png`；完整提示词和来源记录在同目录 README。
 - 没有新增 P0/P1 问题，真实容器后端行为仍为此前的演示实现。
+
+
+## 2026-10-10 核心卡片桌面四列
+
+- 按浏览器标注将桌面核心列表改为每行四张卡片，九种核心按 4 / 4 / 1 排列。调整桌面卡片图标间距和版本信息字号，保证更窄的卡片内文字完整。平板两列及手机单列的现有媒体查询保留。
+- 在用户当前 1790 × 1292 视口确认四列，每列 CSS 宽度 364.75px；卡片、图标文字区和版本信息均无横向溢出，浏览器错误日志为空。
+- `npm run build` 通过；最终截图：`output/design/core-selector-four-columns/desktop.png`。没有新增 P0/P1 问题。

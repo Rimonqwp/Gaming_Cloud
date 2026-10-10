@@ -23,7 +23,7 @@
 .gcore-filter select { min-width: 0; width: 100%; height: 100%; appearance: none; border: 0; background: transparent; padding: 0 23px 0 0; font: inherit; font-size: 12px; color: #456b9f; cursor: pointer; }
 .gcore-filter > svg:last-child { position: absolute; right: 9px; pointer-events: none; }
 .gcore-search:focus-within, .gcore-filter:focus-within { outline: 2px solid #a9ccff; outline-offset: 1px; }
-.gcore-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; padding: 0 7px 7px; background: #fff; border-radius: 0 0 8px 8px; }
+.gcore-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 11px; padding: 0 7px 7px; background: #fff; border-radius: 0 0 8px 8px; }
 .gcore-card { display: flex; flex-direction: column; min-width: 0; padding: 15px 17px 11px; border: 1px solid #dfebfb; border-radius: 9px; background: #fff; }
 .gcore-card.recommended { border-color: #77adff; background: #f6fbff; }
 .gcore-card.selected { border-color: #087bff; box-shadow: 0 0 0 1px #087bff20; }
@@ -63,10 +63,12 @@
 @media (min-width: 1451px) {
   .gcore-banner h2 { font-size: 26px; }
   .gcore-card p { font-size: 13.5px; }
-  .gcore-card-main { gap: 20px; }
-  .gcore-image { width: 74px; height: 74px; }
+  .gcore-card-main { gap: 14px; }
+  .gcore-image { width: 64px; height: 64px; }
   .gcore-search input, .gcore-filter select { font-size: 14px; }
-  .gcore-meta { font-size: 14px; }
+  .gcore-meta { font-size: 12px; }
+  .gcore-meta span { gap: 4px; }
+  .gcore-meta svg { width: 16px; }
 }
 @media (max-width: 1450px) { .gcore-card { padding: 12px; }.gcore-card-main { gap: 12px; min-height: 118px; }.gcore-image { width: 60px; height: 60px; }.gcore-card p { font-size: 12px; }.gcore-meta { font-size: 10px; gap: 3px; }.gcore-meta span { gap: 4px; }.gcore-meta svg { width: 15px; }.gcore-banner > img { width: 200px; }.gcore-banner h2 { font-size: 20px; }.gcore-banner p { font-size: 12px; }.gcore-filters { grid-template-columns: minmax(180px, 2.8fr) repeat(4, minmax(90px, 1fr)); gap: 7px; padding: 12px 7px; } }
 @media (max-width: 1100px) { .gcore-dialog[data-slot="dialog-content"] { width: calc(100vw - 48px); }.gcore-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }.gcore-filters { grid-template-columns: repeat(4, minmax(0, 1fr)); }.gcore-search { grid-column: 1 / -1; }.gcore-banner { min-height: 135px; height: auto; }.gcore-banner > img { width: 130px; }.gcore-banner h2 { font-size: 18px; line-height: 27px; }.gcore-banner p { line-height: 20px; } }
