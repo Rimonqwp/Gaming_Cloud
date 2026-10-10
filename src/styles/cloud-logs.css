@@ -82,17 +82,6 @@
 .ial-pagination button:disabled { color: #bfd5f3; }
 .ial-pagination select { margin-left: 6px; height: 28px; }
 .ial-empty { min-height: 347px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; }
-.ial-bottom { display: grid; grid-template-columns: minmax(0, 1.32fr) minmax(0, 1.16fr) minmax(0, 1fr); gap: 10px; }
-.ial-small-card { padding: 8px 13px 9px; }
-.ial-small-card .ial-heading { margin-bottom: 2px; }
-.ial-mini-table { width: 100%; border-collapse: collapse; text-align: left; table-layout: fixed; font-size: 11px; }
-.ial-mini-table th { font-size: 10px; color: #7c90ae; font-weight: 500; background: #f4f8fc; }
-.ial-mini-table th, .ial-mini-table td { height: 20px; padding: 1px 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ial-mini-table td { border-bottom: 1px solid #edf2fa; }
-.ial-mini-table th:nth-child(1) { width: 20%; }
-.ial-mini-table th:nth-child(2) { width: 24%; }
-.ial-mini-table th:last-child { width: 12%; }
-.ial-success { color: #00b887; }
 .ial-donut { width: 118px; height: 118px; position: relative; flex: none; }
 .ial-donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
 .ial-donut-center strong { color: #10183f; font-size: 22px; line-height: 1.3; font-weight: 700; }
@@ -105,19 +94,10 @@
 .ial-legend span { flex: 1; }
 .ial-legend strong { color: #445e89; font-weight: 500; }
 .ial-legend small { font: inherit; min-width: 34px; text-align: right; }
-.ial-device-content, .ial-risk-content { display: flex; align-items: center; gap: 16px; }
-.ial-device-content .ial-donut { width: 111px; height: 111px; }
-.ial-devices .ial-heading select, .ial-risk-card select { height: 27px; font-size: 11px; }
+.ial-risk-content { display: flex; align-items: center; gap: 16px; }
+.ial-risk-card select { height: 27px; font-size: 11px; }
 .ial-risk-card { height: 165px; padding: 8px 13px 10px; }
 .ial-risk-card .ial-heading { margin-bottom: 8px; }
-.ial-places { padding: 8px 13px 9px; }
-.ial-places .ial-heading { margin-bottom: 4px; }
-.ial-place { display: flex; align-items: center; gap: 14px; height: 25px; border-bottom: 1px solid #edf2fa; font-size: 11px; }
-.ial-place:last-child { border-bottom: 0; }
-.ial-place img { width: 22px; height: 15px; object-fit: cover; border-radius: 2px; flex: none; }
-.ial-place > span { flex: 1; }
-.ial-place strong { font-size: 12px; font-weight: 400; }
-.ial-place small { width: 32px; text-align: right; font-size: 11px; }
 .ial-alerts { padding: 8px 13px 11px; }
 .ial-alerts .ial-heading h2 svg { color: #ff3d55; }
 .ial-alerts .ial-heading { margin-bottom: 2px; }
@@ -156,33 +136,20 @@
   .ial-change { right: auto; left: 12px; font-size: 10px; top: 67px; }
   .ial-metric-period { display: none; }
   .ial-sparkline { width: 46%; right: 7px; }
-  .ial-bottom { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .ial-devices { grid-column: 1 / -1; }
-  .ial-device-content { justify-content: center; }
-  .ial-device-content .ial-legend { flex: 0 1 200px; }
 }
 @media (max-width: 1100px) {
   .ial-layout { grid-template-columns: minmax(0, 1fr); }
   .ial-sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ial-metric-top { gap: 12px; }
-  .ial-bottom { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .ial-devices { grid-column: auto; }
-  .ial-mini-scroll { overflow-x: auto; }
-  .ial-mini-table { min-width: 340px; }
-  .ial-mini-table th:nth-child(1) { width: 25%; }
-  .ial-mini-table th:nth-child(2) { width: 22%; }
-  .ial-small-card { padding: 8px 10px; }
-  .ial-device-content { gap: 8px; }
-  .ial-device-content .ial-donut { width: 100px; height: 100px; }
 }
 @media (max-width: 700px) {
   .ial-layout { font-size: 12px; }
+  .ial-sidebar { grid-template-columns: minmax(0, 1fr); }
   .ial-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ial-metric:last-child { grid-column: 1 / -1; }
   .ial-change { top: 16px; right: 12px; left: auto; }
   .ial-metric-period { display: block; right: 12px; }
   .ial-sparkline { width: 45%; }
-  .ial-bottom, .ial-sidebar { grid-template-columns: minmax(0, 1fr); }
   .ial-audit { padding: 10px; }
   .ial-filters > .ial-search { flex-basis: 100%; }
   .ial-filters > .ial-date { order: 5; width: 100%; }
@@ -197,7 +164,6 @@
   .ial-table .ial-link { min-height: 32px; }
   .ial-risk-content { justify-content: space-around; }
   .ial-risk-content .ial-legend { max-width: 160px; }
-  .ial-device-content .ial-donut { width: 118px; height: 118px; }
   .ial-alert time { font-size: 10px; }
   .ial-ban p, .ial-ban time { font-size: 11px; }
 }
