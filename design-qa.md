@@ -368,3 +368,13 @@ final result: passed
 - 1521 × 1292 浏览器检查通过：侧栏节点为 0；Fabric 版本改为 1.20.4，关闭/恢复世界保留开关，直接演示重装成功并显示正确反馈；搜索空状态可见。浏览器错误日志为空。
 - `npm run build` 通过，已有 bundle 大小提示不影响构建。
 - 截图：`output/design/core-selector-polish/catalog-without-sidebar.png`。没有新增 P0/P1 问题。
+
+
+## 2026-10-10 核心选择横幅主题与融合
+
+- 对照最新三处浏览器标注：替换旧房屋截图为内置 imagegen 生成的 Minecraft 工作台/铁砧/宝箱/红石场景；保留左侧核心切换插图，通过颜色融合和横纵边缘羽化消除原截图边界。新背景跨整个横幅连续渐隐，没有新增拼接线。
+- 桌面 1521 × 1292 检查通过：主题背景加载正确、插图衔接平滑、标题及说明清楚，三列卡片铺满已移除侧栏的浮窗，内部无横向溢出。
+- 手机 390 × 844 检查通过：背景透明度降低以保证文字可读，单列列表无横向溢出（容器 clientWidth/scrollWidth 均为 349），紧凑配置弹窗中的版本、数据开关、备份及操作按钮完整可见。测试后已恢复默认浏览器尺寸。
+- 搜索空状态、清除筛选、核心选择、版本切换、数据开关、取消及演示重装反馈均通过；浏览器错误日志为空。`npm run build` 通过。
+- 截图：`output/design/core-selector-polish/desktop-final.png`、`mobile-final.png`、`mobile-config.png`。最终背景：`public/console/cores/banner-workbench.png`；完整提示词和来源记录在同目录 README。
+- 没有新增 P0/P1 问题，真实容器后端行为仍为此前的演示实现。
