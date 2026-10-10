@@ -19,6 +19,7 @@
 .gsbs-frequency label:has(input:disabled) { opacity: .6; cursor: not-allowed; }.gsbs-frequency input:disabled { cursor: not-allowed; }
 .gsbs-frequency label:has(input:focus-visible) { outline: 2px solid #087bff; outline-offset: 3px; }
 .gsbs-execution-time { display: grid; grid-template-columns: 1fr 1.8fr; gap: 9px; }
+.gsbs-execution-time.gsbs-execution-date { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1.8fr); }
 .gsbs-setting-control :is(input, select) { height: 37px; font-size: 13px; border-color: #dbe7fa; border-radius: 5px; padding-left: 12px; padding-right: 10px; }
 .gsbs-execution-time select:disabled { cursor: not-allowed; }
 .gsbs-execution-time input::-webkit-calendar-picker-indicator { opacity: .65; cursor: pointer; }
@@ -48,6 +49,7 @@
 .gsbs-savebar :is(.gsbs-message, .gsbs-error) { margin: 0 0 10px; }
 @media (max-width: 1200px) { .gsbs-setting-row { gap: 12px; padding: 8px 10px; }.gsbs-backup-modes { flex-direction: column; }.gsbs-execution-time { grid-template-columns: 1fr; } }
 @media (max-width: 1200px) { .gsbs-path-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 1200px) { .gsbs-execution-time.gsbs-execution-date { grid-template-columns: repeat(2, minmax(0, 1fr)); }.gsbs-execution-date > select:last-child { grid-column: 1 / -1; } }
 @media (max-width: 760px) {
   .gsbs-schedule-card { padding: 12px; }.gsbs-schedule-card .gsbs-section-description { font-size: 12px; }
   .gsbs-setting-row, .gsbs-schedule-card:nth-child(2) .gsbs-setting-row { grid-template-columns: 24px minmax(0, 1fr); min-height: 72px; gap: 8px 10px; padding: 10px; }

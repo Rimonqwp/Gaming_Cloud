@@ -455,3 +455,16 @@ final result: passed
 - 手机页面无横向溢出，浏览器 error 日志为空；npm run build 和 git diff --check 通过，保留原大 bundle 提示。
 - Findings / comparison history: 首次视觉对照无待修复 P0/P1/P2；无额外 P3。Implementation checklist: 类型标签移除、状态左靠、服务器池 ID 接入、手机适配、原编辑行为验证完成。
 - final result: passed
+
+## 自动备份星期、日期与执行时间（2026-10-11）
+
+- Source visual truth: 用户本轮选中的备份频率行及星期一至日、每月日期要求；样式基线为 `output/design/backup-targets/desktop.png`。
+- Implementation: `output/design/backup-frequency/weekly.png`（每周日 18:45）、`monthly.png`（每月 31 号 23:59），桌面 viewport / pixels 为 1742 × 1238、密度 1；手机 `monthly-mobile.png` 为 390 × 844、密度 1。
+- Focused comparison: `output/design/backup-frequency/comparison-detail.png`（1720 × 77），执行时间行前后同尺度，已打开比较；完整实现截图也已查看。
+- 字体、颜色、间距、图标与内容：沿用现有标题、辅助文字、蓝色选中边框及 Lucide 图标；星期/日期、时分、禁用时区在桌面同排。选择 29–31 号时在控件下方显示无该日期月份跳过的说明，没有破坏分组外框与分隔线。
+- 手机日期与时间并排、时区独占下一行，提示完整可见。弹窗 clientWidth / scrollWidth 均为 358，执行控件组均为 258，无横向溢出；检查后已恢复默认视口。
+- 交互：每周包含星期一至日，每月包含 1–31 号；每小时使用 00–59 分钟，其他频率使用时分。每周日 18:45、每月 31 号 23:59、每小时 25 分均分别保存并重新打开验证，计划说明与保存内容一致。切换频率保留星期、日期与时间；关闭自动备份禁用频率及日期时间，时区始终禁用。最终预览恢复每月 1 号 04:00。
+- 调度兼容：保存配置包含所选星期、月份日期和对应 Cron；旧配置缺少日期时默认周一 / 1 号。测试覆盖周日的上海时区执行、月末缺失日期跳过、跨年、小时分钟、每日时分及非法值。
+- 检查：新调度测试与现有定时任务测试合计 9 项通过；`npm run build`、`git diff --check` 通过，浏览器 error 日志为空。当前仍沿用页面会话中的演示配置，没有新增后台调度服务。
+- Findings / comparison history: 首次桌面与手机视觉检查无待修复 P0/P1/P2；无额外 P3。Implementation checklist: 星期、月份日期、频率适配、保存恢复、摘要、Cron、月末说明及响应式布局均完成。
+- final result: passed

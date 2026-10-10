@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../com
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { Switch } from "../../components/ui/switch";
 import { BackupScheduleFields } from "./BackupScheduleFields";
+import { backupScheduleCron, validateBackupSchedule } from "./backupSchedule";
 import "../../../styles/cloud-backup-storage.css";
 import "../../../styles/cloud-backup-schedule.css";
 
@@ -12,6 +13,7 @@ type StorageKind = "local" | "object" | "remote" | "bound";
 type StorageTarget = { id: string; kind: StorageKind; name: string; path: string; used: number; capacity: number };
 export type BackupStorageConfig = {
   enabled: boolean; frequency: "hourly" | "daily" | "weekly" | "monthly"; executionTime: string; timezone: string;
+  weekday?: number; monthDay?: number; cron?: string;
   sourcePath: string; backupMode: "full" | "incremental"; filenameTemplate: string; verify: boolean;
   sourcePathMode?: "preset" | "custom";
   targets: StorageTarget[]; activeId: string; name: string; path: string; capacity: string; retention: string; days: string;
@@ -25,7 +27,7 @@ const kinds = [
   { id: "bound", title: "云存储桶绑定", description: "绑定已有的云存储桶，支持 S3 兼容协议。", icon: Link, path: "s3://minecraft-backups", name: "云存储桶", capacity: "100" },
 ] as const;
 export const defaultBackupStorageConfig = (): BackupStorageConfig => ({
-  enabled: true, frequency: "daily", executionTime: "04:00", timezone: "Asia/Shanghai",
+  enabled: true, frequency: "daily", executionTime: "04:00", timezone: "Asia/Shanghai", weekday: 1, monthDay: 1,
   sourcePath: "", backupMode: "full", filenameTemplate: "{server_name}_{date}_{time}", verify: true,
   targets: [
     { id: "local-backup", kind: "local", name: "本地备份存储", path: "/home/backups", used: 12.6, capacity: 50 },
@@ -80,7 +82,8 @@ function BackupStorageForm({ value, onSave, onCancel, backupPoolId }: { value: B
   const validate = () => {
     if (!draft.sourcePath.trim()) return "请选择备份路径。";
     if (!draft.sourcePath.trim().startsWith("/")) return "备份路径需要以 / 开头。";
-    if (draft.enabled && !/^([01]\d|2[0-3]):[0-5]\d$/.test(draft.executionTime)) return "请设置有效的执行时间。";
+    const scheduleProblem = validateBackupSchedule(draft);
+    if (draft.enabled && scheduleProblem) return scheduleProblem;
     if (!draft.name.trim()) return "请输入存储名称。";
     if (!draft.path.trim()) return "请输入存储路径。";
     if (kind === "local" && !draft.path.startsWith("/")) return "本地存储路径需要以 / 开头。";
@@ -123,8 +126,8 @@ function BackupStorageForm({ value, onSave, onCancel, backupPoolId }: { value: B
 
   return <div className="gsbs-content">
     <header className="gsbs-banner"><span className="gsbs-icon blue"><Cloud size={34} /></span><div><DialogTitle className="gsbs-title">文件备份 <ChevronRight size={20} /> 自动备份设置</DialogTitle><DialogDescription className="gsbs-description">配置自动备份策略、备份内容与范围，定期保护服务器数据。</DialogDescription></div><button type="button" className="gsbs-button" onClick={() => setEditor(editor === "help" ? null : "help")}><CircleHelp size={17} />使用帮助</button></header>
-    {editor === "help" && <section className="gsbs-note" role="status"><Info size={18} /><div>设置备份频率、执行时间和源目录后保存；每周在周一、每月在 1 日执行。右侧存储目标可编辑或添加。当前为演示设置，仅在本次页面会话中生效。</div><button type="button" onClick={() => setEditor(null)}>收起</button></section>}
-    <form className="gsbs-layout" onSubmit={event => { event.preventDefault(); const next = commitTarget(); if (next) onSave({ ...next, executionTime: String(new FormData(event.currentTarget).get("backupTime") ?? next.executionTime) }); }}>
+    {editor === "help" && <section className="gsbs-note" role="status"><Info size={18} /><div>每小时可指定分钟，每天可指定时间，每周可选择星期一至星期日，每月可选择 1 至 31 号；没有所选日期的月份将跳过。设置备份路径后保存。右侧存储目标可编辑或添加。当前为演示设置，仅在本次页面会话中生效。</div><button type="button" onClick={() => setEditor(null)}>收起</button></section>}
+    <form className="gsbs-layout" onSubmit={event => { event.preventDefault(); const next = commitTarget(); if (next) { const config = { ...next, executionTime: String(new FormData(event.currentTarget).get("backupTime") ?? next.executionTime) }; onSave({ ...config, weekday: config.weekday ?? 1, monthDay: config.monthDay ?? 1, cron: backupScheduleCron(config) ?? undefined }); } }}>
       <div className="gsbs-main"><BackupScheduleFields value={draft} onChange={update} />
         {storageEditor && <><section className="gsbs-card gsbs-configuration"><h2><Settings size={19} />存储目标类型</h2><p className="gsbs-section-description">选择备份文件的存储位置，支持多种存储方式，可同时配置多个目标实现多重备份。</p>
         <div className="gsbs-types" role="group" aria-label="存储目标类型">{kinds.map(definition => <button type="button" key={definition.id} className={`gsbs-type${kind === definition.id ? " active" : ""}`} aria-pressed={kind === definition.id} onClick={() => chooseKind(definition.id)}><span className={`gsbs-icon ${definition.id === "remote" ? "ink" : "blue"}`}><definition.icon size={32} /></span><div><strong>{definition.title}</strong><p>{definition.description}</p></div>{kind === definition.id && <span className="gsbs-type-check"><Check size={12} /></span>}</button>)}</div>
