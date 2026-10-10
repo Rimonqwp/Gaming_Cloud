@@ -5,10 +5,11 @@ export type ConsoleInstance = {
   players: number; slots: number; saveGB: number; backups: number; backupLimit: number; memoryUsedMB: number; memoryTotalMB: number;
   containerName?: string;
   sftpPassword?: string;
+  srvAddress?: string;
 };
 
 export const consoleInstances: ConsoleInstance[] = [
-  { id: "srv-mc-01", containerName: "minecraft-srv-mc-01", sftpPassword: "SftpDemo2026!", name: "Minecraft 生存服", game: "Minecraft", region: "华东（上海）", cpu: 50, memory: 75, uptime: "12 天 6 小时", running: true, ip: "203.0.113.10", port: 25565, cores: 4, ram: 8, players: 28, slots: 40, saveGB: 32, backups: 12, backupLimit: 15, memoryUsedMB: 1000, memoryTotalMB: 1024, expiresAt: "2026-11-05T00:00:00+08:00" },
+  { id: "srv-mc-01", srvAddress: "mc-01.play.example.com", containerName: "minecraft-srv-mc-01", sftpPassword: "SftpDemo2026!", name: "Minecraft 生存服", game: "Minecraft", region: "华东（上海）", cpu: 50, memory: 75, uptime: "12 天 6 小时", running: true, ip: "203.0.113.10", port: 25565, cores: 4, ram: 8, players: 28, slots: 40, saveGB: 32, backups: 12, backupLimit: 15, memoryUsedMB: 1000, memoryTotalMB: 1024, expiresAt: "2026-11-05T00:00:00+08:00" },
   { id: "srv-pal-01", containerName: "palworld-srv-pal-01", sftpPassword: "SftpDemo2026!", name: "幻兽帕鲁公会服", game: "Palworld / 幻兽帕鲁", region: "华北（北京）", cpu: 75, memory: 75, uptime: "8 天 3 小时", running: true, ip: "203.0.113.11", port: 8211, cores: 8, ram: 16, players: 32, slots: 32, saveGB: 48, backups: 7, backupLimit: 10, memoryUsedMB: 12288, memoryTotalMB: 16384, expiresAt: "2026-10-12T00:00:00+08:00" },
   { id: "srv-terraria-01", containerName: "terraria-srv-terraria-01", sftpPassword: "SftpDemo2026!", name: "泰拉瑞亚冒险服", game: "Terraria / 泰拉瑞亚", region: "华南（广州）", cpu: 0, memory: 0, uptime: "—", running: false, ip: "203.0.113.12", port: 7777, cores: 2, ram: 4, players: 0, slots: 16, saveGB: 8, backups: 3, backupLimit: 3, memoryUsedMB: 0, memoryTotalMB: 4096, expiresAt: "2026-10-08T00:00:00+08:00" },
   { id: "srv-rust-01", containerName: "rust-srv-rust-01", sftpPassword: "SftpDemo2026!", name: "Rust 社区服", game: "Rust", region: "华东（上海）", cpu: 40, memory: 50, uptime: "5 天 8 小时", running: true, ip: "203.0.113.13", port: 28015, cores: 4, ram: 8, players: 20, slots: 50, saveGB: 36, backups: 5, backupLimit: 10, memoryUsedMB: 4096, memoryTotalMB: 8192, expiresAt: "2026-11-18T00:00:00+08:00" },
