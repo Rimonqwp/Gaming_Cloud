@@ -1,8 +1,8 @@
 import { useState } from "react";
 import {
-  ArrowLeft, BadgeCheck, BookOpen, Box, Check, ChevronDown, Clock3, Database, Download,
-  ExternalLink, FileText, Gamepad2, History, Info, Layers, Package, RotateCcw, Search, SlidersHorizontal,
-  Upload, Wrench, X, Zap,
+  ArrowLeft, BadgeCheck, BookOpen, Box, Check, ChevronDown, Database, Download,
+  ExternalLink, FileText, Gamepad2, Layers, Package, Search, SlidersHorizontal,
+  Wrench, X, Zap,
 } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
@@ -54,7 +54,6 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
       <div className="gcore-detail-tabs"><button className="active">版本列表</button><button>更新日志</button><button>安装说明</button><button>重装记录</button></div>
       <section className="gcore-version-panel"><div className="gcore-version-toolbar"><Filter label="选择版本" value={isPaper ? "1.20.4（推荐）" : core.latest} options={isPaper ? ["1.20.4（推荐）", ...core.versions] : core.versions} onChange={() => undefined} /><Filter label="发布渠道" value="全部渠道" options={["全部渠道", "稳定版", "测试版"]} onChange={() => undefined} /><label className="gcore-detail-search compact"><Search size={17} /><input aria-label="搜索构建号" placeholder="搜索构建号，例如：499、498..." /></label></div><div className="gcore-version-table"><div className="gcore-version-row table-head"><span>版本</span><span>构建号</span><span>发布时间</span><span>渠道</span><span>文件大小</span><span>校验状态</span><span>操作</span></div>{rows.map(row => <div className="gcore-version-row" key={`${row.version}-${row.build}`}><strong>{row.version}</strong><span>{row.build}{row.recommended && <em className="table-badge">推荐</em>}{row.latest && <em className="table-badge latest">最新</em>}</span><span>{row.date}</span><span><em className={`channel-badge ${row.channel === "测试版" ? "beta" : ""}`}>{row.channel}</em></span><span>{row.size}</span><span className="passed"><Check size={14} />通过</span><button onClick={() => onSelectVersion(row.version)}><Download size={15} />安装</button></div>)}</div><div className="gcore-pagination"><button>‹</button><button className="active">1</button><button>2</button><button>3</button><button>›</button><select aria-label="每页显示数量"><option>10 条/页</option></select></div></section>
     </main>
-    <aside className="gcore-detail-right"><section><h3><Clock3 size={18} />最近更新版本 <a>查看更多 ›</a></h3>{rows.slice(0, 5).map(row => <p key={`recent-${row.build}`}><i />{row.version} {row.build}<em>{row.channel}</em><time>{row.date.slice(0, 10)}</time></p>)}</section><section className="warning"><h3><Info size={18} />风险提醒</h3><p>更换核心可能会导致部分插件不兼容。请在更换前先创建备份，以便出现问题时快速回滚。</p></section><section><h3><Wrench size={18} />快捷操作</h3><button className="primary"><Database size={16} />创建备份并安装</button><button><Upload size={16} />上传自定义核心</button><button><RotateCcw size={16} />回滚到上一个版本</button></section><section><h3><History size={18} />操作记录 <a>查看全部 ›</a></h3><p className="record"><i />切换核心到 {isPaper ? "PaperMC" : core.name}</p><p className="record"><i />安装 {isPaper ? "PaperMC 1.20.4 #499" : `${core.name} ${core.latest}`}</p></section></aside>
   </div>;
 }
 
