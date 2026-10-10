@@ -17,6 +17,10 @@ export default defineConfig({
     },
   },
   server: {
+    watch: {
+      // Wait for saves to finish so HMR does not cache a temporarily empty stylesheet.
+      awaitWriteFinish: { stabilityThreshold: 200, pollInterval: 50 },
+    },
     proxy: {
       '/api': 'http://127.0.0.1:8787',
     },
