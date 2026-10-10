@@ -110,6 +110,19 @@
 .gcore-rebuild-primary { background: #087bff; color: #fff; }
 .gcore-rebuild-primary:hover { background: #0068eb; }
 .gcore-rebuild-dialog button:focus-visible, .gcore-rebuild-dialog select:focus-visible { outline: 2px solid #087bff; outline-offset: 2px; }
+.gcore-loss-dialog[data-slot="alert-dialog-content"] { width: 440px; max-width: calc(100vw - 24px); max-height: calc(100dvh - 32px); overflow: auto; padding: 24px; gap: 18px; border: 1px solid #e4eaf3; border-radius: 12px; background: #fff; }
+.gcore-loss-title { display: flex; align-items: center; gap: 10px; color: #d92c42; font-size: 19px; font-weight: 700; line-height: 26px; }
+.gcore-loss-dialog .gcore-loss-description { margin: 0; color: #526b8d; font-size: 14px; line-height: 24px; }
+.gcore-loss-target { display: flex; flex-wrap: wrap; gap: 8px 12px; padding: 12px 14px; border: 1px solid #f7dce1; border-radius: 8px; background: #fff5f6; color: #8c4350; font-size: 13px; line-height: 20px; }
+.gcore-loss-target strong { color: #263d64; font-weight: 600; }
+.gcore-loss-acknowledgement { display: flex; align-items: flex-start; gap: 10px; color: #345581; font-size: 13px; line-height: 22px; cursor: pointer; }
+.gcore-loss-acknowledgement input { flex: none; width: 18px; height: 18px; margin: 2px 0 0; accent-color: #d92c42; cursor: pointer; }
+.gcore-loss-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.gcore-loss-actions button { min-height: 38px; height: auto; padding: 8px 16px; border: 1px solid #d4e1f3; border-radius: 6px; background: #fff; color: #526b8d; font-size: 13px; font-weight: 600; line-height: 20px; }
+.gcore-loss-actions .gcore-loss-confirm { border-color: #d92c42; background: #d92c42; color: #fff; }
+.gcore-loss-actions .gcore-loss-confirm:hover { background: #bf2035; }
+.gcore-loss-actions .gcore-loss-confirm:disabled { border-color: #dce3ed; background: #e9edf3; color: #929eb0; opacity: 1; cursor: not-allowed; }
+.gcore-loss-dialog button:focus-visible, .gcore-loss-acknowledgement input:focus-visible { outline: 2px solid #087bff; outline-offset: 3px; }
 @media (max-width: 540px) {
   .gcore-rebuild-header { padding: 14px 14px 12px; }
   .gcore-rebuild-body { padding: 0 14px; }
