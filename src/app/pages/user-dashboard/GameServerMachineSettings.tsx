@@ -3,6 +3,7 @@ import { AlertTriangle, BadgeCheck, Box, ChartColumnBig, CirclePlay, Copy, Cpu, 
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
 import type { ConsoleInstance } from "./cloudDashboardData";
+import { GameServerCoreSelector } from "./GameServerCoreSelector";
 import { GameServerPortSettings } from "./GameServerPortSettings";
 import { createPortRules } from "./gameServerPortRules";
 import "../../../styles/cloud-machine-settings.css";
@@ -24,9 +25,11 @@ function PanelHeading({ icon: Icon, children }: { icon: LucideIcon; children: Re
   return <h2><Icon size={22} strokeWidth={2} />{children}</h2>;
 }
 
-export function GameServerMachineSettings({ server, onNotice, onLog }: {
+export function GameServerMachineSettings({ server, onNotice, onLog, rebuildHeader, onNavigate, onBackup, terminal }: {
+  terminal: ReactNode; rebuildHeader: ReactNode; onNavigate: (id: string) => void; onBackup: () => boolean;
   server: ConsoleInstance; onNotice: (message: string) => void; onLog: (message: string) => void;
 }) {
+  const [coreSelectorOpen, setCoreSelectorOpen] = useState(false);
   const [system, setSystem] = useState(systems[0]);
   const [selectedSystem, setSelectedSystem] = useState(systems[0]);
   const [action, setAction] = useState<Maintenance | null>(null);
@@ -39,7 +42,7 @@ export function GameServerMachineSettings({ server, onNotice, onLog }: {
   const [portsOpen, setPortsOpen] = useState(false);
   const [activeSetting, setActiveSetting] = useState("ports");
   const [portRules, setPortRules] = useState(() => createPortRules(server.port, server.game));
-  const ports = [...new Set(portRules.filter(rule => rule.enabled).map(rule => rule.range))];
+  const ports = [...new Set(portRules.filter(rule => rule.enabled && rule.action !== "拒绝").map(rule => rule.networkRange ?? rule.range))];
   const region = server.region.match(/（(.+)）/);
   const city = region?.[1] ?? server.region;
   const location = region ? `中国 · ${city}` : city;
@@ -119,7 +122,7 @@ export function GameServerMachineSettings({ server, onNotice, onLog }: {
           </div>
         </dl>
       </section>;
-  const maintenancePanel = <div className="gsm-maintenance-grid">{maintenance.map(({ id, title, description, icon: Icon, tone }) => <button className={tone} key={id} onClick={() => setAction(id)}><Icon size={27} /><strong>{title}</strong><span>{description}</span></button>)}</div>;
+  const maintenancePanel = <div className="gsm-maintenance-grid">{maintenance.map(({ id, title, description, icon: Icon, tone }) => <button className={tone} key={id} onClick={() => id === "container" && server.game === "Minecraft" ? setCoreSelectorOpen(true) : setAction(id)}><Icon size={27} /><strong>{title}</strong><span>{description}</span></button>)}</div>;
   const detailsPanel = <section className="gsm-machine-details" aria-label="机器详细信息"><h3><Settings size={16} />机器详细信息</h3><dl>{machineDetails.map(({ label, value }) => <div key={label}><dt>{label}</dt><dd><code>{value ?? "未分配"}</code><button type="button" aria-label={"复制" + label} disabled={!value} onClick={() => copy(label, value ?? "")}><Copy size={14} /></button></dd></div>)}</dl></section>;
   const startupPanel = <section className="gsm-card gsm-startup"><PanelHeading icon={CirclePlay}>启动与运行设置</PanelHeading><div className="gsm-startup-content"><div className="gsm-toggles">{startupOptions.map(({ id, title, description, icon: Icon }) => <div className="gsm-toggle-row" key={id}><span><Icon size={16} />{title}</span><small>{description}{id === "boot" ? ` ${server.game.split(" / ")[0]} 服务` : ""}</small><Switch className="gsd-switch" aria-label={title} checked={startup[id]} onCheckedChange={checked => { setStartup(previous => ({ ...previous, [id]: checked })); onNotice(`${title}已${checked ? "开启" : "关闭"}（演示操作）`); }} /><b>{startup[id] ? "已开启" : "已关闭"}</b></div>)}</div><div className="gsm-scripts">{(["start", "stop"] as const).map(id => <div className="gsm-script-row" key={id}><span>{id === "start" ? <Play size={17} /> : <Square size={17} />}{id === "start" ? "启动脚本" : "停止脚本"}</span><code>{scripts[id]}</code><button className="gsd-button" aria-label={`编辑${id === "start" ? "启动" : "停止"}脚本`} onClick={() => { setScript(id); setScriptDraft(scripts[id]); setFormError(""); }}><Pencil size={14} />编辑</button></div>)}</div></div></section>;
   const settingsPages = [
@@ -142,6 +145,7 @@ export function GameServerMachineSettings({ server, onNotice, onLog }: {
     </div>
     <Dialog open={action !== null} onOpenChange={open => { if (!open) setAction(null); }}><DialogContent className="cloud-modal gsd-dialog gsm-dialog"><DialogTitle>{action === "reinstall" ? "确认重装系统" : maintenance.find(item => item.id === action)?.title}</DialogTitle><DialogDescription>{action === "reinstall" ? `将重装为 ${selectedSystem}，系统盘环境与文件将被清空，请确认已完成备份。` : maintenance.find(item => item.id === action)?.confirmation} 当前为演示操作，不会连接真实机器。</DialogDescription><footer><button className="gsd-button" onClick={() => setAction(null)}>取消</button><button className={`gsd-button ${action === "reinstall" ? "danger" : "primary"}`} onClick={confirmAction}>确认{action === "reinstall" ? "重装" : "执行"}</button></footer></DialogContent></Dialog>
     <Dialog open={script !== null} onOpenChange={open => { if (!open) setScript(null); }}><DialogContent className="cloud-modal gsd-dialog gsm-dialog"><DialogTitle>编辑{script === "start" ? "启动" : "停止"}脚本</DialogTitle><DialogDescription>设置服务器脚本的绝对路径（演示配置）。</DialogDescription><form onSubmit={event => { event.preventDefault(); if (!/^\/(?:[^/\s]+\/)*[^/\s]+\.sh$/.test(scriptDraft.trim())) { setFormError("请输入以 / 开头、以 .sh 结尾的绝对路径，不能包含空格。"); return; } if (script) setScripts(previous => ({ ...previous, [script]: scriptDraft.trim() })); setScript(null); onNotice("脚本路径已保存（演示操作）"); }}><label>脚本路径<input aria-label="脚本路径" value={scriptDraft} onChange={event => setScriptDraft(event.target.value)} /></label>{formError && <p className="gsm-form-error" role="alert">{formError}</p>}<footer><button type="button" className="gsd-button" onClick={() => setScript(null)}>取消</button><button type="submit" className="gsd-button primary">保存脚本</button></footer></form></DialogContent></Dialog>
+    <GameServerCoreSelector terminal={terminal} open={coreSelectorOpen} onOpenChange={setCoreSelectorOpen} header={rebuildHeader} running={server.running} onNavigate={onNavigate} onBackup={onBackup} onLog={onLog} />
     <GameServerPortSettings open={portsOpen} onOpenChange={setPortsOpen} machineName={server.name} settingsPages={settingsPages} activeSetting={activeSetting} onSettingChange={setActiveSetting} rules={portRules} onRulesChange={setPortRules} onNotice={onNotice} />
   </div>;
 }
