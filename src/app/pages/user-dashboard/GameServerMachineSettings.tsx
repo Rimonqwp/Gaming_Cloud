@@ -51,7 +51,6 @@ export function GameServerMachineSettings({ server, onNotice, onRestart, onLog }
   const network = [
     { label: "SSH 连接", value: `ssh root@${server.ip} -p 22`, icon: Terminal },
     { label: "SFTP 连接", value: `sftp://root@${server.ip}:22`, icon: Folder },
-    { label: "SFTP 密码", value: server.sftpPassword ?? "", icon: KeyRound, secret: true },
     { label: "游戏端口", value: `${server.ip}:${server.port}`, icon: Gamepad2 },
     { label: "面板端口", value: `http://${server.ip}:8080`, icon: Monitor },
     { label: "内网 IP", value: `10.0.0.${Number(server.ip.split(".").at(-1)) + 2}`, icon: Network },
@@ -103,7 +102,28 @@ export function GameServerMachineSettings({ server, onNotice, onRestart, onLog }
     <section className="gsm-specs" aria-label="机器规格">{specs.map(({ title, value, detail, icon: Icon, tone }) => <article className="gsm-spec" key={title}><span className={`gsm-spec-icon ${tone}`}><Icon size={27} /></span><div><h3>{title}</h3><strong>{value}</strong><p>{detail}</p></div></article>)}</section>
     <div className="gsm-main-grid">
       <section className="gsm-card gsm-information"><PanelHeading icon={Database}>基础机器信息</PanelHeading><dl>{machineInfo.map(({ label, value, icon: Icon }) => <div className="gsm-info-row" key={label}><dt><Icon size={16} />{label}</dt><dd>{value}</dd></div>)}</dl></section>
-      <section className="gsm-card gsm-network"><PanelHeading icon={Shield}>网络与访问</PanelHeading><dl>{network.map(({ label, value, icon: Icon, secret }) => <div className="gsm-network-row" key={label}><dt><Icon size={18} />{label}</dt><dd><div className="gsm-address"><code>{secret ? value ? showSftpPassword ? value : "••••••••" : "未提供" : value}</code>{secret && value && <button type="button" aria-label={showSftpPassword ? "隐藏 SFTP 密码" : "显示 SFTP 密码"} aria-pressed={showSftpPassword} onClick={() => setShowSftpPassword(previous => !previous)}>{showSftpPassword ? <EyeOff size={16} /> : <Eye size={16} />}</button>}<button type="button" aria-label={`复制${label}`} disabled={!value} onClick={() => copy(label, value)}><Copy size={16} /></button></div>{secret ? <small className="gsm-password-note">演示密码</small> : <span className="gsm-status"><span className="gsm-dot" />正常</span>}</dd></div>)}</dl><aside className="gsm-tip"><Info size={21} fill="currentColor" /><div><strong>提示</strong><p>以上地址和端口可直接用于连接，点击右侧按钮可快速复制。</p></div></aside></section>
+      <section className="gsm-card gsm-network">
+        <PanelHeading icon={Shield}>网络与访问</PanelHeading>
+        <dl>{network.map(({ label, value, icon: Icon }) => <div className={`gsm-network-row${label === "SFTP 连接" ? " gsm-sftp-row" : ""}`} key={label}>
+          <dt><Icon size={18} />{label}</dt>
+          <dd>
+            <div className="gsm-network-value">
+              <div className="gsm-address"><code>{value}</code><button type="button" aria-label={`复制${label}`} onClick={() => copy(label, value)}><Copy size={16} /></button></div>
+              <span className="gsm-status"><span className="gsm-dot" />正常</span>
+            </div>
+            {label === "SFTP 连接" && <div className="gsm-network-value" aria-label="SFTP 密码">
+              <div className="gsm-address">
+                <span className="gsm-password-label">密码</span>
+                <code>{server.sftpPassword ? showSftpPassword ? server.sftpPassword : "••••••••" : "未提供"}</code>
+                {server.sftpPassword && <button type="button" aria-label={showSftpPassword ? "隐藏 SFTP 密码" : "显示 SFTP 密码"} aria-pressed={showSftpPassword} onClick={() => setShowSftpPassword(previous => !previous)}>{showSftpPassword ? <EyeOff size={16} /> : <Eye size={16} />}</button>}
+                <button type="button" aria-label="复制SFTP 密码" disabled={!server.sftpPassword} onClick={() => copy("SFTP 密码", server.sftpPassword ?? "")}><Copy size={16} /></button>
+              </div>
+              <small className="gsm-password-note">演示密码</small>
+            </div>}
+          </dd>
+        </div>)}</dl>
+        <aside className="gsm-tip"><Info size={21} fill="currentColor" /><div><strong>提示</strong><p>以上地址和端口可直接用于连接，点击右侧按钮可快速复制。</p></div></aside>
+      </section>
       <section className="gsm-card gsm-maintenance"><PanelHeading icon={Wrench}>快捷维护</PanelHeading><div className="gsm-maintenance-grid">{maintenance.map(({ id, title, description, icon: Icon, tone }) => <button className={tone} key={id} onClick={() => id === "restart" ? onRestart() : setAction(id)}><Icon size={27} /><strong>{title}</strong><span>{description}</span></button>)}</div><div className="gsm-reinstall"><PanelHeading icon={Database}>重装系统</PanelHeading><label className="gsm-system-picker"><span className="gsm-os-icon">{selectedSystem.startsWith("Ubuntu") ? <img src="/console/machine/ubuntu.svg" alt="" /> : <Database size={24} />}</span><span><select aria-label="选择重装系统" value={selectedSystem} onChange={event => setSelectedSystem(event.target.value)}>{systems.map(value => <option key={value}>{value}</option>)}</select><small>稳定、通用，推荐使用</small></span></label><button className="gsd-button primary gsm-reinstall-button" onClick={() => setAction("reinstall")}>立即重装系统</button><p className="gsm-warning"><AlertTriangle size={18} fill="currentColor" /><span><strong>重装系统将清空系统盘数据，包括已安装的环境与文件。</strong><br />请提前做好数据备份，此操作不可恢复。</span></p></div></section>
     </div>
     <div className="gsm-bottom-grid">
