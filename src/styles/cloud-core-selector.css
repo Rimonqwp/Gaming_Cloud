@@ -189,3 +189,7 @@
 /* 统计项之间的分隔线改为上下留白、垂直居中的短线。 */
 .gcore-detail-stats > div { position: relative; border-right: 0; }
 .gcore-detail-stats > div:not(:last-child)::after { content: ''; position: absolute; top: 50%; right: 0; height: 58%; transform: translateY(-50%); border-right: 1px solid #e4edf9; }
+
+/* 官网与文档按钮纵向排列，每行显示一个按钮。 */
+.gcore-detail-links { flex-direction: column; align-items: stretch; gap: 8px; }
+.gcore-detail-link { width: 118px; }
