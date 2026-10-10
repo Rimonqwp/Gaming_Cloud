@@ -169,3 +169,16 @@
 .gcore-detail-right .record i { background: #00b384; }
 @media (max-width: 1350px) { .gcore-detail { grid-template-columns: 245px minmax(0, 1fr); }.gcore-detail-right { display: none; }.gcore-detail-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }.gcore-detail-stats > div:nth-child(3) { border-right: 0; }.gcore-detail-stats > div:nth-child(n+4) { border-top: 1px solid #edf2f9; } }
 @media (max-width: 900px) { .gcore-detail { grid-template-columns: 1fr; }.gcore-detail-sidebar { order: 2; }.gcore-detail-content { order: 1; }.gcore-detail-hero { flex-direction: column; }.gcore-detail-links { align-items: center; }.gcore-detail-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }.gcore-preview-grid { grid-template-columns: 1fr; } }
+.gcore-detail-links { display: flex; align-items: center; gap: 8px; flex: none; }
+.gcore-detail-link { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 34px; padding: 0 12px; border: 1px solid #cfe0f5; border-radius: 6px; background: #fff; color: #087bff; font-size: 12px; line-height: 1; text-decoration: none; white-space: nowrap; }
+.gcore-detail-link:hover { border-color: #087bff; background: #f3f8ff; }
+.gcore-detail-link:focus-visible { outline: 2px solid #087bff; outline-offset: 2px; }
+.gcore-detail-stats { grid-template-columns: 1fr 1fr 1fr 1fr 1.3fr; }
+.gcore-detail-stats dd { margin: 0; color: #7c91b3; font-size: 11px; line-height: 17px; }
+.gcore-detail-stats dt { margin: 0; color: #10183c; font-size: 12px; line-height: 18px; font-weight: 550; white-space: nowrap; }
+.gcore-detail-stats .highlight dt { font-size: 12px; }
+.gcore-platform-icons { display: flex; align-items: center; gap: 7px; min-height: 25px; margin-top: 2px; }
+.gcore-platform-icon { display: inline-flex; align-items: center; justify-content: center; width: 25px; height: 25px; padding: 4px; border-radius: 5px; background: #edf5ff; }
+.gcore-platform-icon img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.gcore-platform-icon:first-child { background: #1f2937; }
+@media (max-width: 1350px) { .gcore-detail-stats { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
