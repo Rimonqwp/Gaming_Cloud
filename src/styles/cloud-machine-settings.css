@@ -35,7 +35,7 @@
 .gsm-tip strong { font-weight: 600; font-size: 13px; }
 .gsm-tip p { color: #7d8eae; line-height: 22px; font-size: 12px; margin: 5px 0 0; }
 .cloud-shell .gsm-maintenance h2 { margin-bottom: 8px; }
-.gsm-maintenance-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.gsm-maintenance-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 .gsm-maintenance-grid button { display: flex; align-items: center; flex-direction: column; justify-content: center; gap: 2px; min-height: 88px; padding: 9px; border: 1px solid #deebfb; border-radius: 7px; background: #fff; color: #087bff; }
 .gsm-maintenance-grid button.orange { color: #ff8900; }
 .gsm-maintenance-grid button.purple { color: #8933ff; }
