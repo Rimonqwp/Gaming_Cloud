@@ -13,7 +13,7 @@
 .ial-link { display: inline-flex; align-items: center; justify-content: center; gap: 2px; padding: 0; border: 0; background: none; color: #087bff; font-size: 11px; white-space: nowrap; }
 .ial-link:hover { color: #0055d4; text-decoration: underline; }
 .ial-heading > span { display: flex; align-items: center; gap: 6px; }
-.ial-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(115px, .49fr); gap: 10px; }
+.ial-metrics { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
 .ial-metric { position: relative; height: 102px; padding: 12px 15px; overflow: hidden; }
 .ial-metric-top { display: flex; gap: 13px; align-items: flex-start; }
 .ial-icon-tile { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 9px; color: #087bff; background: #e9f3ff; flex: none; }
