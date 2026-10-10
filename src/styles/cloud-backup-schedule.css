@@ -43,7 +43,7 @@
 .gsbs-backup-modes strong { color: #182d58; font-size: 14px; line-height: 19px; font-weight: 650; }
 .gsbs-backup-modes p { font-size: 12px; line-height: 17px; }
 .gsbs-content-card .gsbs-setting-row { grid-template-columns: 27px minmax(0, 1fr) minmax(0, 55.5%); }
-.gsbs-savebar { padding-top: 12px; border-top: 1px solid #dfeafa; }
+.gsbs-savebar { flex: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #dfeafa; background: #f3f8ff; }
 .gsbs-savebar footer { display: flex; align-items: center; gap: 12px; }
 .gsbs-savebar .gsbs-button { min-width: 102px; }.gsbs-savebar .primary { min-width: 130px; }
 .gsbs-savebar :is(.gsbs-message, .gsbs-error) { margin: 0 0 10px; }
