@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 import {
   ArrowLeft, ArrowRight, BadgeCheck, BookOpen, Box, Check, ChevronDown, Database, Download,
-  ExternalLink, FileText, Gamepad2, History, Layers, Package, Search, SlidersHorizontal,
+  ExternalLink, FileText, Gamepad2, History, Package, Search, SlidersHorizontal,
   Wrench, X, Zap,
 } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
@@ -100,7 +100,12 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
     </aside>
     <main className="gcore-detail-content">
       <section className="gcore-detail-hero"><div className="gcore-detail-heading"><CoreImage core={core} detail /><div><h2>{name}<span className="gcore-recommend"><BadgeCheck size={14} />推荐</span><span className="gcore-selected-check"><Check size={14} /></span></h2><p>作者：{isPaper ? "PaperMC Team" : `${core.name} Team`}</p><p>{isPaper ? "PaperMC 是目前最受欢迎的 Minecraft 服务端，基于 Spigot 深度优化，提供更高的性能、更好的稳定性和更广泛的插件兼容性。" : core.description}</p><div className="gcore-tags">{core.tags.map(tag => <span key={tag}>{tag}</span>)}</div></div></div><div className="gcore-detail-links"><a className="gcore-detail-link" href={resources.site} target="_blank" rel="noreferrer"><ExternalLink size={15} />官方网站</a><a className="gcore-detail-link" href={resources.docs} target="_blank" rel="noreferrer"><BookOpen size={15} />项目文档</a></div></section>
-      <section className="gcore-detail-stats"><div><Package size={20} /><span><dd>支持版本</dd><dt>{core.range}</dt></span></div><div><Wrench size={20} /><span><dd>支持 Java</dd><dt>Java 17 / Java 21</dt></span></div><div><FileText size={20} /><span><dd>最新构建</dd><dt>{core.latest} {rows.find(row => row.latest)?.build}</dt></span></div><div className="highlight"><Zap size={20} /><span><dd>推荐版本</dd><dt>{recommended.version} {recommended.build}</dt><em>{recommended.channel}</em></span></div><div><Layers size={20} /><span><dd>支持服务端</dd><div className="gcore-platform-icons"><span className="gcore-platform-icon"><img src="/console/server-platforms/paper.svg" alt="Paper" /></span><span className="gcore-platform-icon"><img src="/console/server-platforms/spigot.png" alt="Spigot" /></span><span className="gcore-platform-icon"><img src="/console/server-platforms/purpur.svg" alt="Purpur" /></span></div></span></div></section>
+      <section className="gcore-detail-stats">
+        <div><Package size={20} /><span><dd>支持版本</dd><dt>{core.range}</dt></span></div>
+        <div><Wrench size={20} /><span><dd>支持 Java</dd><dt>Java 17 / Java 21</dt></span></div>
+        <div><FileText size={20} /><span><dd>最新构建</dd><dt>{core.latest} {rows.find(row => row.latest)?.build}</dt></span></div>
+        <div className="highlight"><Zap size={20} /><span><dd>推荐版本</dd><dt>{recommended.version} {recommended.build}</dt><em>{recommended.channel}</em></span></div>
+      </section>
       <Tabs.Root value={activeTab} onValueChange={setActiveTab}>
         <Tabs.List className="gcore-detail-tabs" aria-label="核心详情页面">
           <Tabs.Trigger value="versions">版本列表</Tabs.Trigger>
