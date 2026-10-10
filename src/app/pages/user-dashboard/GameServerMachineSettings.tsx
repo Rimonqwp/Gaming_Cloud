@@ -73,7 +73,7 @@ export function GameServerMachineSettings({ server, onNotice, onRestart, onLog }
     { title: "内存", value: `${server.ram} GB`, detail: "DDR4", icon: ChartColumnBig, tone: "purple" },
     { title: "系统盘", value: "100 GB", detail: "SSD（系统盘）", icon: HardDrive, tone: "green" },
     { title: "公网 IP", value: server.ip, detail: location, icon: Globe2, tone: "orange" },
-    { title: "操作系统", value: system, detail: "x86_64", icon: Monitor, tone: "blue" },
+    { title: "容器名称", value: server.containerName ?? "未分配", detail: "Docker 容器", icon: Box, tone: "blue" },
   ];
   const copy = async (label: string, value: string) => {
     try { await navigator.clipboard.writeText(value); onNotice(`${label}已复制`); }
