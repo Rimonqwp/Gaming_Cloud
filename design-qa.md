@@ -180,3 +180,18 @@ final result: passed
 - 搜索 25565 后切换网络页再返回端口页，搜索条件仍保留。关闭主弹窗后焦点返回「配置端口」。
 - 浏览器 error 日志为空；生产构建与 diff 空白检查通过。临时验证标签页已关闭，浏览器视口已恢复，用户标签页未刷新。
 - 设置仍沿用当前前端会话演示机制。本次没有新建真实机器操作后端。
+
+
+---
+
+# 端口设定安全横幅与内容精简验收（2026-10-10）
+
+final result: passed
+
+- 移除端口页底部的安全提示、推荐规则和端口说明三张卡片，以及不再使用的详情弹窗和一键应用逻辑。保留独立的安全建议标签页。
+- 用安全防护横幅替换顶部四张统计卡；采用参考图的浅蓝背景、左侧盾牌和标题说明、右侧 Minecraft 风格场景。横幅文案以 HTML 渲染，图片作为装饰背景。
+- 内置 image_gen 生成专用背景，2172 × 724，保存到 `public/console/minecraft/port-security-banner.png`；完整提示词与来源记录见同目录 `port-security-banner-source.md`。没有改动既有图片。
+- 桌面截图 `output/design/port-security-banner/desktop-final.png`（1280 × 720），横幅、导航、六行表格和分页均完整可见，移除底部内容后收紧浮层高度。
+- 手机截图 `output/design/port-security-banner/mobile-final.png`（390 × 844），横幅标题正常换行，背景增加浅色覆盖确保可读性。浮层 clientWidth/scrollWidth 均为 358px，横幅宽 330px，端口表格独立横向滚动。
+- 浏览器确认顶部统计和底部说明区域均不存在；安全建议标签页仍可切换并显示 RCON 建议，返回端口规则正常。
+- 浏览器 error 日志为空，生产构建与 diff 空白检查通过。临时验证标签页已关闭，视口已恢复，用户原标签页未刷新。

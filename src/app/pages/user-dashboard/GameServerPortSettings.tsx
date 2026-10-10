@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, Circle, Clock3, Database, Plus, Search, Settings, ShieldCheck, Upload, type LucideIcon } from "lucide-react";
+import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, Circle, Plus, Search, Settings, ShieldCheck, Upload, type LucideIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { isExposedManagementPort, parsePortRuleImport, validatePortRule, type PortRule, type PortRuleDraft } from "./gameServerPortRules";
@@ -36,7 +36,6 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
   const [importText, setImportText] = useState("");
   const [deleteIds, setDeleteIds] = useState<string[]>([]);
   const [error, setError] = useState("");
-  const [updatedAt, setUpdatedAt] = useState("2024-10-26 14:28");
   const selectAllRef = useRef<HTMLInputElement>(null);
   const filtered = rules.filter(rule => (!query.trim() || `${rule.range} ${rule.protocol} ${rule.source} ${rule.title} ${rule.description}`.toLowerCase().includes(query.trim().toLowerCase())) && (protocol === "全部协议" || protocol === rule.protocol) && (status === "全部状态" || rule.enabled === (status === "已启用")) && (risk === "全部风险等级" || risk === rule.risk));
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
@@ -48,7 +47,6 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
   const riskCount = rules.filter(isExposedManagementPort).length;
   const update = (next: PortRule[], message: string) => {
     onRulesChange(next);
-    setUpdatedAt(new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date()));
     onNotice(`${message}（演示操作）`);
   };
   const toggle = (ids: string[], enabled: boolean) => update(rules.map(rule => ids.includes(rule.id) ? { ...rule, enabled } : rule), `已${enabled ? "启用" : "禁用"} ${ids.length} 条端口规则`);
@@ -87,11 +85,9 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
           <div className="gport-settings-main">
           <header className="gport-content gport-header"><span className="gport-icon blue"><ActiveIcon size={30} /></span><div><DialogTitle>{activePage?.title ?? "开放端口设定"}</DialogTitle><DialogDescription>{activePage?.description ?? "管理服务器的防火墙规则，控制端口的开放范围，保障服务器安全。"}</DialogDescription></div></header>
         <div className="gport-content" hidden={activeSetting !== "ports"}>
-          <section className="gport-metrics" aria-label="端口统计">
-            <article><span className="gport-icon green"><ShieldCheck size={31} /></span><div><h3>防火墙状态</h3><Badge tone="green">已开启</Badge><p>已启用防火墙，正在保护服务器</p></div></article>
-            <article><span className="gport-icon blue"><Database size={29} /></span><div><h3>已开放端口数量</h3><strong>{rules.length}<small>个</small></strong><p>共 {rules.length} 条规则（含停用）</p></div></article>
-            <article><span className="gport-icon red"><AlertTriangle size={31} /></span><div><h3>风险端口提醒</h3><strong className="gport-red">{riskCount}<small>个</small></strong><p>检测到 {riskCount} 个高风险端口</p></div></article>
-            <article><span className="gport-icon blue"><Clock3 size={30} /></span><div><h3>最近变更时间</h3><strong className="gport-date">{updatedAt}</strong><p>由 Rimon12 修改</p></div></article>
+          <section className="gport-security-banner" aria-label="服务器安全防护">
+            <span className="gport-banner-shield"><ShieldCheck size={34} /></span>
+            <div><h3>多重安全防护，让你的服务器数据更安全</h3><p>通过加密存储、严格的恢复确认机制和权限控制，全面保护 {machineName} 的数据。</p></div>
           </section>
           <div className="gport-toolbar"><div role="tablist" aria-label="端口设置内容" className="gport-tabs">{["端口规则", "安全建议"].map(value => <button key={value} type="button" role="tab" aria-selected={tab === value} aria-controls={`gport-panel-${value}`} id={`gport-tab-${value}`} onClick={() => setTab(value)} onKeyDown={event => { if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) { event.preventDefault(); const next = value === "端口规则" ? "安全建议" : "端口规则"; setTab(event.key === "Home" ? "端口规则" : event.key === "End" ? "安全建议" : next); document.getElementById(`gport-tab-${event.key === "Home" ? "端口规则" : event.key === "End" ? "安全建议" : next}`)?.focus(); } }} tabIndex={tab === value ? 0 : -1}>{value}</button>)}</div><div className="gport-actions"><button type="button" className="gport-button primary" onClick={() => { setError(""); setEditor({ draft: { ...blankRule } }); }}><Plus size={18} />新增端口</button><button type="button" className="gport-button" onClick={() => { setError(""); setImportText(""); setImportOpen(true); }}><Upload size={18} />批量导入</button><DropdownMenu><DropdownMenuTrigger asChild><button type="button" className="gport-button muted">批量操作<ChevronDown size={15} /></button></DropdownMenuTrigger><DropdownMenuContent className="cloud-popover gport-menu" align="end"><DropdownMenuItem disabled={!selected.length} onSelect={() => toggle(selected, true)}>批量启用</DropdownMenuItem><DropdownMenuItem disabled={!selected.length} onSelect={() => toggle(selected, false)}>批量禁用</DropdownMenuItem><DropdownMenuItem disabled={!selected.length} variant="destructive" onSelect={() => setDeleteIds(selected)}>批量删除</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div></div>
           <div role="tabpanel" id="gport-panel-端口规则" aria-labelledby="gport-tab-端口规则" hidden={tab !== "端口规则"}>
