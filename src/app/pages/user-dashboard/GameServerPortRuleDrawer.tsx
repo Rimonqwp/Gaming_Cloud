@@ -1,18 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, ChevronDown, Folder, Gamepad2, Info, Plus, ShieldCheck, Terminal, X, XCircle } from "lucide-react";
+import { CheckCircle2, ChevronDown, Info, Plus, ShieldCheck, X, XCircle } from "lucide-react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Dialog, DialogClose, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
 import type { PortRuleDraft } from "./gameServerPortRules";
 
 export const defaultPortDraft: PortRuleDraft = { protocol: "TCP", range: "25565", networkRange: "25565", source: "0.0.0.0/0", title: "Minecraft Java 版", description: "Minecraft Java 版服务器端口", enabled: true, risk: "低风险", action: "允许", priority: 100, tags: ["游戏服务", "生产环境"] };
-const services = [
-  { name: "Minecraft Java", title: "Minecraft Java 版", port: "25565", protocol: "TCP" },
-  { name: "Minecraft 基岩版", title: "Minecraft 基岩版", port: "19132", protocol: "UDP" },
-  { name: "SSH", title: "SSH", port: "22", protocol: "TCP" },
-  { name: "SFTP", title: "SFTP", port: "22", protocol: "TCP" },
-  { name: "RCON", title: "RCON", port: "25575", protocol: "TCP" },
-] as const;
 
 export function GameServerPortRuleDrawer({ container, editor, error, templates, onDraftChange, onClose, onSave }: {
   container: HTMLDivElement | null;
@@ -33,10 +26,9 @@ export function GameServerPortRuleDrawer({ container, editor, error, templates, 
     {container && <DialogPrimitive.Portal container={container}>
     <DialogPrimitive.Overlay className="gport-drawer-overlay" />
     <DialogPrimitive.Content className="gport-rule-drawer" onOpenAutoFocus={() => { returnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null; }} onCloseAutoFocus={event => { event.preventDefault(); if (returnFocusRef.current?.isConnected) returnFocusRef.current.focus(); else container.querySelector<HTMLButtonElement>(".gport-add-rule")?.focus(); }}>
-      <header className="gport-drawer-header"><DialogTitle>{editor?.id ? "编辑端口规则" : "新增端口规则"}</DialogTitle><DialogDescription>配置服务器的端口访问规则，支持常用服务一键添加。</DialogDescription><DialogClose aria-label="关闭端口规则面板"><X size={20} /></DialogClose></header>
+      <header className="gport-drawer-header"><DialogTitle>{editor?.id ? "编辑端口规则" : "新增端口规则"}</DialogTitle><DialogDescription>配置服务器的端口、协议和访问来源。</DialogDescription><DialogClose aria-label="关闭端口规则面板"><X size={20} /></DialogClose></header>
       {draft && <form className="gport-drawer-form" onSubmit={event => { event.preventDefault(); onSave(false); }}>
         <div className="gport-drawer-body">
-          <section className="gport-quick-services"><h3><ShieldCheck size={17} />快捷添加常用服务</h3><div className="gport-service-grid">{services.map((service, index) => <button key={service.name} type="button" className={draft.title === service.title ? "active" : ""} onClick={() => { setWarningDismissed(false); change({ title: service.title, range: service.port, networkRange: service.port, protocol: service.protocol, description: `${service.title} 服务器端口` }); }}>{index < 2 ? <img src="/console/minecraft/grass-block.png" alt="" /> : index === 2 ? <Terminal size={26} /> : index === 3 ? <Folder size={26} /> : <Gamepad2 size={26} />}<span><strong>{service.name}</strong><small>{service.port} / {service.protocol}</small></span></button>)}</div>{templates.length > 0 && <div className="gport-saved-templates"><span>已保存模板</span>{templates.map((template, index) => <button type="button" key={index} onClick={() => onDraftChange({ ...template, tags: [...(template.tags ?? [])] })}>{template.title}</button>)}</div>}</section>
           <div className="gport-drawer-field"><label htmlFor="gport-service-name"><b>*</b>服务名称</label><div><input id="gport-service-name" value={draft.title} onChange={event => change({ title: event.target.value })} /><small>为该规则设置一个易于识别的名称</small></div></div>
           <div className="gport-drawer-field"><label htmlFor="gport-container-port"><b>*</b>容器端口</label><div><div className="gport-port-input"><input id="gport-container-port" value={draft.range} placeholder="25565" onChange={event => change({ range: event.target.value })} /><select aria-label="端口类型" value={draft.range.includes("-") ? "端口范围" : "单个端口"} onChange={event => change({ range: event.target.value === "端口范围" ? `${draft.range.split("-")[0]}-${draft.range.split("-")[0]}` : draft.range.split("-")[0] })}><option>单个端口</option><option>端口范围</option></select></div><small>支持单个端口（如 25565）或范围（如 25560–25570）</small></div></div>
           <div className="gport-drawer-field"><label htmlFor="gport-network-port"><b>*</b>网络端口</label><div><input id="gport-network-port" value={draft.networkRange ?? draft.range} placeholder="25565" onChange={event => change({ networkRange: event.target.value })} /><small>对外访问端口，范围数量须与容器端口一致</small></div></div>
@@ -47,6 +39,7 @@ export function GameServerPortRuleDrawer({ container, editor, error, templates, 
           <div className="gport-drawer-field"><label htmlFor="gport-tag-select">关联标签</label><div><div className="gport-tag-select"><select id="gport-tag-select" value="" onChange={event => change({ tags: [...new Set([...(draft.tags ?? []), event.target.value])] })}><option value="">选择或创建标签</option>{["游戏服务", "生产环境", "管理服务", "测试环境"].map(tag => <option key={tag}>{tag}</option>)}</select><ChevronDown size={14} /></div><div className="gport-tags">{(draft.tags ?? []).map(tag => <span key={tag}>{tag}<button type="button" aria-label={`移除标签 ${tag}`} onClick={() => change({ tags: draft.tags?.filter(value => value !== tag) })}><X size={12} /></button></span>)}<button className="gport-new-tag" type="button" onClick={() => setAddingTag(true)}><Plus size={12} />新增标签</button></div>{addingTag && <div className="gport-tag-input"><input aria-label="新标签名称" value={tagInput} onChange={event => setTagInput(event.target.value)} onKeyDown={event => { if (event.key === "Enter") { event.preventDefault(); addTag(); } }} /><button type="button" onClick={addTag}>添加</button></div>}</div></div>
           <div className="gport-drawer-field"><label htmlFor="gport-description">备注</label><div><textarea id="gport-description" maxLength={200} value={draft.description} onChange={event => change({ description: event.target.value })} /><span className="gport-note-count">{draft.description.length}/200</span></div></div>
           <div className="gport-drawer-field"><label htmlFor="gport-rule-enabled">启用状态</label><div><div className="gport-enable-row"><Switch id="gport-rule-enabled" checked={draft.enabled} onCheckedChange={enabled => change({ enabled })} aria-label="启用端口规则" /><span>{draft.enabled ? "启用" : "停用"}</span></div><small>关闭后该规则将不生效，但会保留配置</small></div></div>
+          {templates.length > 0 && <div className="gport-saved-templates"><span>已保存模板</span>{templates.map((template, index) => <button type="button" key={index} onClick={() => onDraftChange({ ...template, tags: [...(template.tags ?? [])] })}>{template.title}</button>)}</div>}
           {error && <p ref={errorRef} role="alert" className="gport-form-error">{error}</p>}
         </div>
         <footer className="gport-drawer-footer"><button type="button" className="gport-button muted" onClick={onClose}>取消</button><button type="submit" className="gport-button primary">保存规则</button><button type="button" className="gport-button" onClick={() => onSave(true)}>保存并设为模板</button></footer>
