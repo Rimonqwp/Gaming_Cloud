@@ -77,15 +77,12 @@
 .gcore-rebuild-status::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 .gcore-rebuild-status.stopped { background: #edf1f7; color: #7b8da9; }
 .gcore-rebuild-arrow { display: flex; justify-content: center; padding: 10px 0; color: #087bff; }
-.gcore-rebuild-section-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
-.gcore-rebuild-section-heading h3 { margin: 0; }
 .gcore-rebuild-secondary { flex: none; min-height: 34px; padding: 0 12px; border: 1px solid #b9d7fc; border-radius: 6px; background: #fff; color: #087bff; font-size: 13px; font-weight: 600; white-space: nowrap; }
 .gcore-rebuild-secondary:hover { border-color: #087bff; background: #eef5ff; }
 .gcore-rebuild-secondary:disabled { background: #f4f9fe; color: #00a879; cursor: default; }
 .gcore-rebuild-selects { display: grid; margin-top: 12px; }
 .gcore-rebuild-field { display: grid; gap: 6px; min-width: 0; color: #57729e; font-size: 12px; line-height: 18px; }
 .gcore-rebuild-field select { width: 100%; min-width: 0; height: 36px; padding: 0 8px; border: 1px solid #d7e5f8; border-radius: 6px; background: #fff; color: #345581; font: inherit; font-size: 13px; }
-#gcore-rebuild-core-picker:not([hidden]) { margin-bottom: 12px; }
 .gcore-rebuild-options { margin-top: 16px; }
 .gcore-rebuild-options h3 { margin: 0 0 8px; padding-top: 10px; border-top: 1px solid #e7effa; color: #10183c; font-size: 16px; font-weight: 650; line-height: 23px; }
 .gcore-rebuild-dialog .gcore-keep { gap: 11px; padding: 12px; background: #fff; }

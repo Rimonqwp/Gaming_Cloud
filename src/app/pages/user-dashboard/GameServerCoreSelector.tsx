@@ -173,7 +173,6 @@ export function GameServerCoreSelector({ open, onOpenChange, onBackup, onLog, on
   const [detailCore, setDetailCore] = useState<Core | null>(null);
   const [keepWorld, setKeepWorld] = useState(true);
   const [confirmation, setConfirmation] = useState(false);
-  const [corePickerOpen, setCorePickerOpen] = useState(false);
   const [backupReady, setBackupReady] = useState(false);
   const [installMessage, setInstallMessage] = useState("");
   const [feedback, setFeedback] = useState("");
@@ -183,7 +182,7 @@ export function GameServerCoreSelector({ open, onOpenChange, onBackup, onLog, on
   const visible = sort === "名称排序" ? [...filtered].sort((a, b) => a.name.localeCompare(b.name)) : sort === "版本优先" ? [...filtered].sort((a, b) => b.latest.localeCompare(a.latest, undefined, { numeric: true })) : filtered;
   const choose = (core: Core) => { setTarget(latestTarget(core)); setDetailCore(core); setFeedback(""); };
   const selectDetailCore = (core: Core) => { setDetailCore(core); setTarget(latestTarget(core)); };
-  const selectDetailVersion = (row: VersionRow) => { if (!detailCore) return; setTarget(latestTarget(detailCore, row.version)); setBackupReady(false); setInstallMessage(""); setCorePickerOpen(false); setConfirmation(true); };
+  const selectDetailVersion = (row: VersionRow) => { if (!detailCore) return; setTarget(latestTarget(detailCore, row.version)); setBackupReady(false); setInstallMessage(""); setConfirmation(true); };
   const targetBuilds = target ? getCoreBuilds(target.core).filter(row => row.version === target.version).sort(newestBuildFirst) : [];
   const backup = () => { const success = onBackup(); setBackupReady(success); setInstallMessage(success ? "世界存档备份已创建（演示操作）" : "备份创建失败，可能已达到备份上限，请在文件备份中检查。"); return success; };
   const rebuild = (withBackup: boolean) => {
@@ -217,8 +216,7 @@ export function GameServerCoreSelector({ open, onOpenChange, onBackup, onLog, on
           </section>
           <div className="gcore-rebuild-arrow"><ArrowDown size={21} aria-hidden="true" /></div>
           <section className="gcore-rebuild-core" aria-label="目标核心">
-            <div className="gcore-rebuild-section-heading"><h3>目标核心（将要安装）</h3><button className="gcore-rebuild-secondary" aria-expanded={corePickerOpen} aria-controls="gcore-rebuild-core-picker" onClick={() => setCorePickerOpen(value => !value)}>更换</button></div>
-            <div id="gcore-rebuild-core-picker" hidden={!corePickerOpen}>{corePickerOpen && <label className="gcore-rebuild-field">目标核心<select aria-label="更换目标核心" value={target.core.id} onChange={event => { const core = cores.find(core => core.id === event.target.value); if (core && getCoreBuilds(core).some(row => row.version === target.version)) setTarget(latestTarget(core, target.version)); setCorePickerOpen(false); }}>{cores.map(core => <option key={core.id} value={core.id} disabled={!getCoreBuilds(core).some(row => row.version === target.version)}>{core.name}{getCoreBuilds(core).some(row => row.version === target.version) ? "" : "（不支持此版本）"}</option>)}</select></label>}</div>
+            <h3>目标核心（将要安装）</h3>
             <div className="gcore-rebuild-core-row"><CoreImage core={target.core} /><div><strong>{target.core.name}</strong><p>版本：<b>{target.version}</b><span>Java：{target.core.java}</span></p></div></div>
             <div className="gcore-rebuild-selects">
               <label className="gcore-rebuild-field">构建号<select aria-label="目标核心构建号" value={target.build} onChange={event => setTarget({ ...target, build: event.target.value })}>{targetBuilds.map(row => <option key={row.build} value={row.build}>{row.build} · {row.channel}</option>)}</select></label>
