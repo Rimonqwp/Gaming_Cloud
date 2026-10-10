@@ -182,3 +182,6 @@
 .gcore-platform-icon img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .gcore-platform-icon:first-child { background: #1f2937; }
 @media (max-width: 1350px) { .gcore-detail-stats { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+
+/* 统计栏上方不显示横向分隔线，仅保留统计项之间的竖向分隔线。 */
+.gcore-detail-hero { border-bottom: 0; }
