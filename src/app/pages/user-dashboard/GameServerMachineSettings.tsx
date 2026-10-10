@@ -117,7 +117,6 @@ export function GameServerMachineSettings({ server, onNotice, onLog }: {
             </div>}
           </dd>
         </div>)}</dl>
-        <aside className="gsm-tip"><Info size={21} fill="currentColor" /><div><strong>提示</strong><p>点击地址或密码右侧的按钮可快速复制。</p></div></aside>
       </section>
       <section className="gsm-card gsm-maintenance"><PanelHeading icon={Wrench}>快捷维护</PanelHeading><div className="gsm-maintenance-grid">{maintenance.map(({ id, title, description, icon: Icon, tone }) => <button className={tone} key={id} onClick={() => setAction(id)}><Icon size={27} /><strong>{title}</strong><span>{description}</span></button>)}</div><div className="gsm-reinstall"><PanelHeading icon={Database}>重装系统</PanelHeading><label className="gsm-system-picker"><span className="gsm-os-icon">{selectedSystem.startsWith("Ubuntu") ? <img src="/console/machine/ubuntu.svg" alt="" /> : <Database size={24} />}</span><span><select aria-label="选择重装系统" value={selectedSystem} onChange={event => setSelectedSystem(event.target.value)}>{systems.map(value => <option key={value}>{value}</option>)}</select><small>稳定、通用，推荐使用</small></span></label><button className="gsd-button primary gsm-reinstall-button" onClick={() => setAction("reinstall")}>立即重装系统</button><p className="gsm-warning"><AlertTriangle size={18} fill="currentColor" /><span><strong>重装系统将清空系统盘数据，包括已安装的环境与文件。</strong><br />请提前做好数据备份，此操作不可恢复。</span></p></div></section>
     </div>
