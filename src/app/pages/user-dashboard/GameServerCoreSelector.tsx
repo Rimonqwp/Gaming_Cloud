@@ -32,6 +32,14 @@ const paperVersions: VersionRow[] = [
   { version: "1.20.6", build: "#124", date: "2024-10-19 08:15", channel: "测试版", size: "52.9 MB" },
 ];
 
+function getCoreBuilds(core: Core): VersionRow[] {
+  return core.id === "paper" ? paperVersions : core.versions.map((version, index) => ({ version, build: `#${520 - index}`, date: `2024-10-${String(25 - index * 2).padStart(2, "0")} 12:00`, channel: "稳定版", size: `${50 + index}.2 MB`, latest: version === core.latest, recommended: version === core.latest }));
+}
+
+function newestBuildFirst(a: VersionRow, b: VersionRow) {
+  return b.date.localeCompare(a.date) || b.build.localeCompare(a.build, undefined, { numeric: true });
+}
+
 const coreResources: Record<string, { site: string; docs: string }> = {
   paper: { site: "https://papermc.io/", docs: "https://docs.papermc.io/paper/getting-started/" },
   purpur: { site: "https://purpurmc.org/", docs: "https://purpurmc.org/docs/purpur/installation/" },
@@ -49,7 +57,7 @@ function Filter({ label, value, options, onChange, icon = false }: { label: stri
   return <label className="gcore-filter">{icon && <Box size={17} />}<select aria-label={label} value={value} onChange={event => onChange(event.target.value)}>{options.map(option => <option key={option}>{option}</option>)}</select><ChevronDown size={15} /></label>;
 }
 
-function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Core; onBack: () => void; onSelectCore: (core: Core) => void; onSelectVersion: (version: string) => void }) {
+function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Core; onBack: () => void; onSelectCore: (core: Core) => void; onSelectVersion: (row: VersionRow) => void }) {
   const [activeTab, setActiveTab] = useState("versions");
   const [coreQuery, setCoreQuery] = useState("");
   const [version, setVersion] = useState("全部版本");
@@ -57,16 +65,18 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
   const [buildQuery, setBuildQuery] = useState("");
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
+  const [expandedVersions, setExpandedVersions] = useState<string[]>([]);
   const isPaper = core.id === "paper";
   const name = isPaper ? "PaperMC" : core.name;
   const resources = coreResources[core.id];
-  const rows: VersionRow[] = isPaper ? paperVersions : core.versions.map((version, index) => ({ version, build: `#${520 - index}`, date: `2024-10-${String(25 - index * 2).padStart(2, "0")} 12:00`, channel: "稳定版", size: `${50 + index}.2 MB`, latest: version === core.latest, recommended: version === core.latest }));
+  const rows = getCoreBuilds(core);
   const recommended = rows.find(row => row.recommended) ?? rows[0];
   const releaseRows = [...rows].sort((a, b) => b.date.localeCompare(a.date));
   const filteredRows = rows.filter(row => (version === "全部版本" || row.version === version) && (channel === "全部渠道" || row.channel === channel) && (!buildQuery.trim() || `${row.version} ${row.build}`.toLowerCase().includes(buildQuery.trim().toLowerCase())));
-  const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+  const versionGroups = Array.from(new Set(filteredRows.map(row => row.version)), version => ({ version, builds: filteredRows.filter(row => row.version === version).sort(newestBuildFirst) }));
+  const pageCount = Math.max(1, Math.ceil(versionGroups.length / pageSize));
   const currentPage = Math.min(page, pageCount);
-  const visibleRows = filteredRows.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const visibleGroups = versionGroups.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   const visibleCores = cores.filter(item => `${item.name} ${item.description} ${item.tags.join(" ")}`.toLowerCase().includes(coreQuery.trim().toLowerCase()));
 
   useEffect(() => {
@@ -74,9 +84,15 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
     setChannel("全部渠道");
     setBuildQuery("");
     setPage(1);
+    setExpandedVersions([]);
   }, [core.id]);
 
   const clearFilters = () => { setVersion("全部版本"); setChannel("全部渠道"); setBuildQuery(""); setPage(1); };
+  const historyId = (version: string) => `gcore-build-history-${core.id}-${version.replaceAll(".", "-")}`;
+  const renderBuildRow = (row: VersionRow, builds?: VersionRow[]) => <div className={`gcore-version-row${builds ? "" : " historical"}`} key={`${row.version}-${row.build}`}>
+    <div className="gcore-version-name"><strong>{row.version}</strong>{builds && builds.length > 1 && <button className="gcore-build-toggle" aria-label={`${expandedVersions.includes(row.version) ? "收起" : "展开"} ${row.version} 历史构建`} aria-expanded={expandedVersions.includes(row.version)} aria-controls={historyId(row.version)} onClick={() => setExpandedVersions(previous => previous.includes(row.version) ? previous.filter(value => value !== row.version) : [...previous, row.version])}><ChevronDown size={14} aria-hidden="true" /><span>{builds.length} 个构建</span></button>}</div>
+    <span>{row.build}</span><span>{row.date}</span><span><em className={`channel-badge ${row.channel === "测试版" ? "beta" : ""}`}>{row.channel}</em></span><span>{row.size}</span><span className="passed"><Check size={14} />通过</span><button className="gcore-build-install" aria-label={`安装 ${name} ${row.version} ${row.build}`} onClick={() => onSelectVersion(row)}><Download size={15} />安装</button>
+  </div>;
   return <div className="gcore-detail">
     <aside className="gcore-detail-sidebar">
       <div className="gcore-detail-sidebar-toolbar">
@@ -102,15 +118,18 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
           </div>
           <div className="gcore-version-table">
             <div className="gcore-version-row table-head"><span>版本</span><span>构建号</span><span>发布时间</span><span>渠道</span><span>文件大小</span><span>校验状态</span><span>操作</span></div>
-            {visibleRows.map(row => <div className="gcore-version-row" key={`${row.version}-${row.build}`}><strong>{row.version}</strong><span>{row.build}</span><span>{row.date}</span><span><em className={`channel-badge ${row.channel === "测试版" ? "beta" : ""}`}>{row.channel}</em></span><span>{row.size}</span><span className="passed"><Check size={14} />通过</span><button aria-label={`安装 ${name} ${row.version} ${row.build}`} onClick={() => onSelectVersion(row.version)}><Download size={15} />安装</button></div>)}
+            {visibleGroups.map(group => <div className="gcore-version-group" key={group.version}>
+              {renderBuildRow(group.builds[0], group.builds)}
+              {group.builds.length > 1 && <div id={historyId(group.version)} className="gcore-build-history" role="region" aria-label={`${group.version} 历史构建`} hidden={!expandedVersions.includes(group.version)}>{expandedVersions.includes(group.version) && group.builds.slice(1).map(row => renderBuildRow(row))}</div>}
+            </div>)}
           </div>
           {!filteredRows.length && <div className="gcore-version-empty" role="status"><Search size={26} /><h3>没有找到匹配的版本</h3><p>试试其他版本、发布渠道或构建号。</p><button className="gsd-button" onClick={clearFilters}>清除筛选</button></div>}
           <div className="gcore-pagination">
-            <span className="gcore-result-count" role="status">共 {filteredRows.length} 个构建</span>
+            <span className="gcore-result-count" role="status">共 {versionGroups.length} 个版本 · {filteredRows.length} 个构建</span>
             <button aria-label="上一页" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>‹</button>
             {Array.from({ length: pageCount }, (_, index) => <button key={index} className={currentPage === index + 1 ? "active" : ""} aria-label={`第 ${index + 1} 页`} aria-current={currentPage === index + 1 ? "page" : undefined} onClick={() => setPage(index + 1)}>{index + 1}</button>)}
             <button aria-label="下一页" disabled={currentPage === pageCount} onClick={() => setPage(currentPage + 1)}>›</button>
-            <select aria-label="每页显示数量" value={pageSize} onChange={event => { setPageSize(Number(event.target.value)); setPage(1); }}>{[5, 10, 20].map(size => <option key={size} value={size}>{size} 条/页</option>)}</select>
+            <select aria-label="每页显示数量" value={pageSize} onChange={event => { setPageSize(Number(event.target.value)); setPage(1); }}>{[5, 10, 20].map(size => <option key={size} value={size}>{size} 版本/页</option>)}</select>
           </div>
         </Tabs.Content>
         <Tabs.Content value="changelog" className="gcore-information-panel gcore-changelog">
@@ -143,7 +162,7 @@ export function GameServerCoreSelector({ open, onOpenChange, onBackup, onLog }: 
   const [versionFilter, setVersionFilter] = useState("全部版本");
   const [trait, setTrait] = useState("全部特性");
   const [sort, setSort] = useState("综合排序");
-  const [target, setTarget] = useState<{ core: Core; version: string } | null>(null);
+  const [target, setTarget] = useState<{ core: Core; version: string; build?: string } | null>(null);
   const [detailCore, setDetailCore] = useState<Core | null>(null);
   const [keepWorld, setKeepWorld] = useState(true);
   const [confirmation, setConfirmation] = useState<"backup" | "direct" | null>(null);
@@ -154,14 +173,15 @@ export function GameServerCoreSelector({ open, onOpenChange, onBackup, onLog }: 
   const visible = sort === "名称排序" ? [...filtered].sort((a, b) => a.name.localeCompare(b.name)) : sort === "版本优先" ? [...filtered].sort((a, b) => b.latest.localeCompare(a.latest, undefined, { numeric: true })) : filtered;
   const choose = (core: Core) => { setTarget({ core, version: versionFilter === "全部版本" ? core.latest : versionFilter }); setDetailCore(core); setFeedback(""); };
   const selectDetailCore = (core: Core) => { setDetailCore(core); setTarget({ core, version: core.latest }); };
-  const selectDetailVersion = (version: string) => { if (!detailCore) return; setTarget({ core: detailCore, version }); setConfirmation("backup"); };
+  const selectDetailVersion = (row: VersionRow) => { if (!detailCore) return; setTarget({ core: detailCore, version: row.version, build: row.build }); setConfirmation("backup"); };
+  const targetBuilds = target ? getCoreBuilds(target.core).filter(row => row.version === target.version).sort(newestBuildFirst) : [];
   const backup = () => { const success = onBackup(); setFeedback(success ? "世界存档备份已创建（演示操作）" : "备份创建失败，可能已达到备份上限，请在文件备份中检查。"); return success; };
   const rebuild = () => {
     if (!target) return;
     if (confirmation === "backup" && !backup()) { setConfirmation(null); return; }
-    onLog(`Machine: 重建容器为 ${target.core.name} ${target.version}，${keepWorld ? "保留" : "清空"}世界数据（演示操作）`);
+    onLog(`Machine: 重建容器为 ${target.core.name} ${target.version}${target.build ? ` ${target.build}` : ""}，${keepWorld ? "保留" : "清空"}世界数据（演示操作）`);
     setConfirmation(null);
-    setFeedback(`已重建为 ${target.core.name} ${target.version}，${keepWorld ? "保留世界数据" : "清空世界数据"}（演示操作）`);
+    setFeedback(`已重建为 ${target.core.name} ${target.version}${target.build ? ` ${target.build}` : ""}，${keepWorld ? "保留世界数据" : "清空世界数据"}（演示操作）`);
   };
 
   return <>
@@ -172,7 +192,19 @@ export function GameServerCoreSelector({ open, onOpenChange, onBackup, onLog }: 
         <div className="gcore-frame gsd-page">{detailCore ? <CoreDetail core={detailCore} onBack={() => setDetailCore(null)} onSelectCore={selectDetailCore} onSelectVersion={selectDetailVersion} /> : <div className="gcore-layout"><main className="gcore-catalog"><section className="gcore-banner"><img src="/console/cores/banner-change.png" alt="草方块切换为宝箱" /><div><h2>更换核心，打造你专属的 Minecraft 服务器</h2><p>支持多种主流服务端核心，一键切换并重装容器，轻松搭建插件服或模组服。</p></div></section><div className="gcore-filters"><label className="gcore-search"><Search size={20} /><input aria-label="搜索服务端核心" placeholder="搜索核心名称、关键词，如：Paper、Purpur、模组、插件..." value={query} onChange={event => setQuery(event.target.value)} /></label><Filter label="核心类型" value={type} onChange={setType} options={["全部类型", "插件服", "原版", "模组服", "混合核心"]} /><Filter label="兼容版本" value={versionFilter} onChange={setVersionFilter} options={["全部版本", ...versions]} icon /><Filter label="核心特性" value={trait} onChange={setTrait} options={["全部特性", ...traits]} icon /><label className="gcore-filter"><SlidersHorizontal size={17} /><select aria-label="核心排序" value={sort} onChange={event => setSort(event.target.value)}>{["综合排序", "名称排序", "版本优先"].map(value => <option key={value}>{value}</option>)}</select><ChevronDown size={15} /></label></div><div className="gcore-cards">{visible.map(core => <article key={core.id} className={`gcore-card${target?.core.id === core.id ? " selected" : ""}`}><div className="gcore-card-main"><CoreImage core={core} /><div><h3>{core.name}{core.id === "paper" && <span className="gcore-recommend"><BadgeCheck size={14} />推荐</span>}</h3><p>{core.description}</p><div className="gcore-tags">{core.tags.map((tag, index) => <span key={tag} className={index === 0 && core.type !== "原版" ? core.type === "混合核心" ? "orange" : "purple" : ""}>{tag}</span>)}</div></div></div><div className="gcore-meta"><span><Gamepad2 size={17} />{core.range}</span><span className="latest"><Box size={17} />{core.latest} (最新)</span><span><Download size={17} />{core.java}</span></div><button className="gcore-pick" aria-label={`选择 ${core.name} 核心`} aria-pressed={target?.core.id === core.id} onClick={() => choose(core)}>选择此核心</button></article>)}</div>{!visible.length && <div className="gcore-empty"><Search size={30} /><h3>没有找到匹配的核心</h3><p>试试其他关键词，或清除筛选条件。</p><button className="gsd-button" onClick={() => { setQuery(""); setType("全部类型"); setVersionFilter("全部版本"); setTrait("全部特性"); }}>清除筛选</button></div>}{feedback && <p className="gcore-feedback" role="status">{feedback}</p>}</main></div>}</div>
       </DialogContent>
     </Dialog>
-    {target && <Dialog open={confirmation !== null && open} onOpenChange={value => { if (!value) setConfirmation(null); }}><DialogContent className="cloud-modal gsd-dialog gsm-dialog"><DialogTitle>确认重建容器</DialogTitle><DialogDescription>将安装 {target.core.name} 核心，替换核心文件和启动环境，并清空容器配置。请确认已备份重要数据。当前为演示操作，不会连接真实机器。</DialogDescription><div className="gcore-config"><label className="gcore-version">安装版本<select aria-label="目标核心版本" value={target.version} onChange={event => setTarget(previous => previous ? { ...previous, version: event.target.value } : null)}>{target.core.versions.map(value => <option key={value}>{value}</option>)}</select></label><div className="gcore-keep"><Database size={24} /><div><strong>保留世界数据</strong><p>{keepWorld ? "保留 /world 存档及玩家数据" : "重装时清空世界存档及玩家数据"}</p></div><Switch className="gsd-switch" checked={keepWorld} onCheckedChange={setKeepWorld} aria-label="保留世界数据" /></div><label className="gcore-version">备份方式<select aria-label="重装前备份方式" value={confirmation ?? "backup"} onChange={event => setConfirmation(event.target.value as "backup" | "direct")}><option value="backup">创建备份并重装（推荐）</option><option value="direct">直接重装，不创建备份</option></select></label></div><footer><button className="gsd-button" onClick={() => setConfirmation(null)}>取消</button><button className="gsd-button primary" onClick={rebuild}>确认重装</button></footer></DialogContent></Dialog>}
+    {target && <Dialog open={confirmation !== null && open} onOpenChange={value => { if (!value) setConfirmation(null); }}>
+      <DialogContent className="cloud-modal gsd-dialog gsm-dialog">
+        <DialogTitle>确认重建容器</DialogTitle>
+        <DialogDescription>将安装 {target.core.name} 核心，替换核心文件和启动环境，并清空容器配置。请确认已备份重要数据。当前为演示操作，不会连接真实机器。</DialogDescription>
+        <div className="gcore-config">
+          <label className="gcore-version">安装版本<select aria-label="目标核心版本" value={target.version} onChange={event => { const version = event.target.value; const build = getCoreBuilds(target.core).filter(row => row.version === version).sort(newestBuildFirst)[0]?.build; setTarget(previous => previous ? { ...previous, version, build } : null); }}>{Array.from(new Set(getCoreBuilds(target.core).map(row => row.version)), value => <option key={value}>{value}</option>)}</select></label>
+          <label className="gcore-version">构建号<select aria-label="目标核心构建号" value={target.build ?? targetBuilds[0]?.build ?? ""} onChange={event => setTarget(previous => previous ? { ...previous, build: event.target.value } : null)}>{targetBuilds.map(row => <option key={row.build} value={row.build}>{row.build} · {row.channel}</option>)}</select></label>
+          <div className="gcore-keep"><Database size={24} /><div><strong>保留世界数据</strong><p>{keepWorld ? "保留 /world 存档及玩家数据" : "重装时清空世界存档及玩家数据"}</p></div><Switch className="gsd-switch" checked={keepWorld} onCheckedChange={setKeepWorld} aria-label="保留世界数据" /></div>
+          <label className="gcore-version">备份方式<select aria-label="重装前备份方式" value={confirmation ?? "backup"} onChange={event => setConfirmation(event.target.value as "backup" | "direct")}><option value="backup">创建备份并重装（推荐）</option><option value="direct">直接重装，不创建备份</option></select></label>
+        </div>
+        <footer><button className="gsd-button" onClick={() => setConfirmation(null)}>取消</button><button className="gsd-button primary" onClick={rebuild}>确认重装</button></footer>
+      </DialogContent>
+    </Dialog>}
   </>;
 }
 
