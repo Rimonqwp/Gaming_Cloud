@@ -468,3 +468,9 @@ final result: passed
 - 检查：新调度测试与现有定时任务测试合计 9 项通过；`npm run build`、`git diff --check` 通过，浏览器 error 日志为空。当前仍沿用页面会话中的演示配置，没有新增后台调度服务。
 - Findings / comparison history: 首次桌面与手机视觉检查无待修复 P0/P1/P2；无额外 P3。Implementation checklist: 星期、月份日期、频率适配、保存恢复、摘要、Cron、月末说明及响应式布局均完成。
 - final result: passed
+
+## 自动备份强制压缩（2026-10-11）
+
+- 按用户要求，主设置与存储高级选项的压缩开关均固定 checked / disabled；载入旧配置与保存时归一为 compression=true，文件命名示例固定 ZIP。
+- 浏览器检查两个开关均开启且禁用，压缩级别仍可调整；保存重开保持强制开启。桌面截图 `output/design/backup-compression/desktop.png`（1742 × 1238）已查看，沿用原布局与禁用控件样式。
+- npm run build 与 git diff --check 通过；final result: passed。

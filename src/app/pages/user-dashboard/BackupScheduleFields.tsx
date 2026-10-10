@@ -16,7 +16,7 @@ function SettingRow({ icon: Icon, title, description, children, className = "" }
 }
 
 export function BackupScheduleFields({ value, onChange }: Props) {
-  const toggle = (key: "enabled" | "compression" | "verify", label: string) => <label className="gsbs-setting-toggle"><Switch className="gsbs-switch" aria-label={label} checked={value[key]} onCheckedChange={checked => onChange(key, checked)} /><span>{value[key] ? "已开启" : "已关闭"}</span></label>;
+  const toggle = (key: "enabled" | "verify", label: string) => <label className="gsbs-setting-toggle"><Switch className="gsbs-switch" aria-label={label} checked={value[key]} onCheckedChange={checked => onChange(key, checked)} /><span>{value[key] ? "已开启" : "已关闭"}</span></label>;
   const example = value.filenameTemplate.replace("{server_name}", "Minecraft生存服").replace("{date}", "20241026").replace("{time}", `${value.executionTime.replace(":", "")}00`);
   const hasDate = value.frequency === "weekly" || value.frequency === "monthly";
   return <>
@@ -39,8 +39,8 @@ export function BackupScheduleFields({ value, onChange }: Props) {
       <div className="gsbs-setting-rows">
         <SettingRow icon={Folder} title="备份路径" description="选择要备份的目录，或填写自定义地址。" className="gsbs-setting-tall"><BackupPathPicker value={value.sourcePath} mode={value.sourcePathMode} onChange={(path, mode) => { onChange("sourcePath", path); onChange("sourcePathMode", mode); }} /></SettingRow>
         <SettingRow icon={Layers} title="备份模式" description="选择备份的类型。" className="gsbs-setting-mode"><div className="gsbs-backup-modes" role="radiogroup" aria-label="备份模式">{[{ id: "full", title: "完整备份", text: "备份全部文件，数据最完整" }, { id: "incremental", title: "增量备份", text: "仅备份有变动的文件，更节省空间" }].map(mode => <label key={mode.id} className={value.backupMode === mode.id ? "selected" : ""}><input type="radio" name="backupMode" value={mode.id} checked={value.backupMode === mode.id} onChange={() => onChange("backupMode", mode.id as "full" | "incremental")} /><div><strong>{mode.title}</strong><p>{mode.text}</p></div></label>)}</div></SettingRow>
-        <SettingRow icon={FileText} title="文件命名规则" description="设置备份文件的命名格式。" className="gsbs-setting-tall"><select aria-label="文件命名规则" value={value.filenameTemplate} onChange={event => onChange("filenameTemplate", event.target.value)}><option value="{server_name}_{date}_{time}">{"{server_name}_{date}_{time}"}</option><option value="{server_name}_{date}">{"{server_name}_{date}"}</option><option value="backup_{date}_{time}">{"backup_{date}_{time}"}</option></select><small>示例：{example}.{value.compression ? "zip" : "tar"}</small></SettingRow>
-        <SettingRow icon={FolderArchive} title="压缩备份文件" description="将备份文件压缩为 ZIP 格式，节省存储空间。">{toggle("compression", "压缩备份文件")}</SettingRow>
+        <SettingRow icon={FileText} title="文件命名规则" description="设置备份文件的命名格式。" className="gsbs-setting-tall"><select aria-label="文件命名规则" value={value.filenameTemplate} onChange={event => onChange("filenameTemplate", event.target.value)}><option value="{server_name}_{date}_{time}">{"{server_name}_{date}_{time}"}</option><option value="{server_name}_{date}">{"{server_name}_{date}"}</option><option value="backup_{date}_{time}">{"backup_{date}_{time}"}</option></select><small>示例：{example}.zip</small></SettingRow>
+        <SettingRow icon={FolderArchive} title="压缩备份文件" description="强制使用 ZIP 格式压缩备份文件，节省存储空间。"><label className="gsbs-setting-toggle" title="压缩备份文件强制开启"><Switch className="gsbs-switch" aria-label="压缩备份文件" checked disabled /><span>已开启</span></label></SettingRow>
         <SettingRow icon={ShieldCheck} title="备份完成后校验" description="备份完成后自动验证文件完整性（SHA256）。">{toggle("verify", "备份完成后校验")}</SettingRow>
       </div>
     </section>

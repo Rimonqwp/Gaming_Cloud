@@ -50,7 +50,7 @@ export function BackupStorageSettings({ open, onOpenChange, value, onSave, trigg
 }
 
 function BackupStorageForm({ value, onSave, onCancel, backupPoolId }: { value: BackupStorageConfig; onSave: (value: BackupStorageConfig) => void; onCancel: () => void; backupPoolId?: string }) {
-  const [draft, setDraft] = useState(() => ({ ...value, targets: value.targets.map(target => ({ ...target })) }));
+  const [draft, setDraft] = useState(() => ({ ...value, compression: true, targets: value.targets.map(target => ({ ...target })) }));
   const [kind, setKind] = useState<StorageKind>(() => value.targets.find(target => target.id === value.activeId)?.kind ?? "local");
   const [adding, setAdding] = useState(false);
   const [storageEditor, setStorageEditor] = useState(false);
@@ -106,7 +106,7 @@ function BackupStorageForm({ value, onSave, onCancel, backupPoolId }: { value: B
     const existing = draft.targets.find(target => target.id === draft.activeId);
     const target: StorageTarget = { id: existing?.id ?? crypto.randomUUID(), kind, name: draft.name.trim(), path: draft.path.trim(), capacity: Number(draft.capacity), used: existing?.used ?? 0 };
     const targets = existing ? draft.targets.map(item => item.id === target.id ? target : item) : [...draft.targets, target];
-    return { ...draft, targets, activeId: target.id, name: target.name, path: target.path };
+    return { ...draft, compression: true, targets, activeId: target.id, name: target.name, path: target.path };
   };
   const addTarget = () => {
     setStorageEditor(true);
@@ -122,7 +122,7 @@ function BackupStorageForm({ value, onSave, onCancel, backupPoolId }: { value: B
   const capacity = draft.targets.reduce((total, target) => total + target.capacity, 0);
   const percent = capacity ? Math.round(used / capacity * 100) : 0;
   const chartData = draft.targets.filter(target => target.used > 0);
-  const optionSwitch = (key: "compression" | "deduplication" | "encryption" | "bandwidth" | "multiSync" | "specifiedDirectories", label: string) => <Switch className="gsbs-switch" aria-label={label} checked={draft[key]} onCheckedChange={checked => update(key, checked)} />;
+  const optionSwitch = (key: "compression" | "deduplication" | "encryption" | "bandwidth" | "multiSync" | "specifiedDirectories", label: string) => <Switch className="gsbs-switch" aria-label={label} checked={key === "compression" || draft[key]} disabled={key === "compression"} onCheckedChange={key === "compression" ? undefined : checked => update(key, checked)} />;
 
   return <div className="gsbs-content">
     <header className="gsbs-banner"><span className="gsbs-icon blue"><Cloud size={34} /></span><div><DialogTitle className="gsbs-title">文件备份 <ChevronRight size={20} /> 自动备份设置</DialogTitle><DialogDescription className="gsbs-description">配置自动备份策略、备份内容与范围，定期保护服务器数据。</DialogDescription></div><button type="button" className="gsbs-button" onClick={() => setEditor(editor === "help" ? null : "help")}><CircleHelp size={17} />使用帮助</button></header>
