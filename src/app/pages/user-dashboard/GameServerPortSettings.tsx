@@ -66,7 +66,7 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
 
   return <>
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent ref={setEditorContainer} className="cloud-modal gport-dialog" onCloseAutoFocus={event => { event.preventDefault(); document.querySelector<HTMLButtonElement>(".gsm-network-ports button")?.focus(); }}>
+      <DialogContent ref={setEditorContainer} showCloseButton={false} className="cloud-modal gport-dialog" onCloseAutoFocus={event => { event.preventDefault(); document.querySelector<HTMLButtonElement>(".gsm-network-ports button")?.focus(); }}>
         <div className="gport-settings-layout">
           <aside className="gport-settings-sidebar">
             <div className="gport-settings-brand"><Settings size={23} /><div><strong>机器设定</strong><span>{machineName}</span></div></div>
