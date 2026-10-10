@@ -105,13 +105,13 @@
 .gcore-rebuild-dialog .gcore-rebuild-message { margin: 10px 0 0; color: #e33247; font-size: 12px; line-height: 20px; }
 .gcore-rebuild-dialog .gcore-rebuild-message.success { color: #00a879; }
 .gcore-rebuild-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: none; padding: 12px 20px 18px; }
-.gcore-rebuild-actions button { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 58px; padding: 10px 8px; border: 1px solid #087bff; border-radius: 8px; font-size: 14px; font-weight: 600; line-height: 20px; }
+.gcore-rebuild-actions button { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 5px 8px; border: 1px solid #087bff; border-radius: 8px; font-size: 14px; font-weight: 600; line-height: 18px; }
 .gcore-rebuild-actions svg { flex: none; }
 .gcore-rebuild-primary { background: #087bff; color: #fff; }
 .gcore-rebuild-primary:hover { background: #0068eb; }
 .gcore-rebuild-direct { background: #fff; color: #087bff; }
 .gcore-rebuild-direct:hover { background: #eef5ff; }
-.gcore-rebuild-direct span { display: grid; gap: 2px; }
+.gcore-rebuild-direct span { display: grid; gap: 0; }
 .gcore-rebuild-direct small { color: #718aaf; font-size: 12px; font-weight: 400; }
 .gcore-rebuild-dialog button:focus-visible, .gcore-rebuild-dialog select:focus-visible { outline: 2px solid #087bff; outline-offset: 2px; }
 @media (max-width: 540px) {
