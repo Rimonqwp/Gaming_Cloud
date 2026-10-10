@@ -99,7 +99,7 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
           </div>
           <div role="tabpanel" className="gport-advice" id="gport-panel-安全建议" aria-labelledby="gport-tab-安全建议" hidden={!showPortTabs || tab !== "安全建议"}><h3><ShieldCheck size={23} />服务器端口安全建议</h3><p>优先开放游戏所需端口，将管理端口的来源限制为可信 IP。</p>{rules.filter(isExposedManagementPort).map(rule => <div className="gport-risk-note" key={rule.id}><AlertTriangle size={22} /><div><strong>{rule.title} · {rule.protocol} {rule.range}</strong><p>当前对所有 IPv4 地址开放，建议编辑规则并设置来源 IP 白名单。</p></div><button className="gport-button" onClick={() => { setError(""); setEditor({ id: rule.id, draft: { ...rule } }); }}>编辑规则</button></div>)}{!riskCount && <p className="gport-advice-success"><ShieldCheck size={22} />当前未发现对公网开放的高风险管理端口。</p>}<ul>{recommendations.map(text => <li key={text}>{text}</li>)}</ul></div>
         </div>
-        <div className="gport-content gport-settings-page" hidden={currentSetting !== "blacklist"}><GameServerIpBlacklist entries={blacklist} onEntriesChange={setBlacklist} onNotice={onNotice} /></div>
+        <div className="gport-content gport-settings-page" hidden={currentSetting !== "blacklist"}><GameServerIpBlacklist container={editorContainer} entries={blacklist} onEntriesChange={setBlacklist} onNotice={onNotice} /></div>
         <GameServerPortRuleDrawer container={editorContainer} editor={editor} error={error} templates={templates} onDraftChange={draft => { setError(""); setEditor(previous => previous ? { ...previous, draft } : null); }} onClose={() => setEditor(null)} onSave={saveRule} />
         </div>
           </div>
