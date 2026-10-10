@@ -57,7 +57,7 @@
 .gsm-warning { display: flex; align-items: flex-start; gap: 8px; margin: 10px 0 0; font-size: 11px; line-height: 18px; color: #7d8eae; }
 .gsm-warning svg { color: #ff5261; stroke: white; flex: none; margin-top: 2px; }
 .gsm-warning strong { color: #ff5261; font-weight: 400; }
-.gsm-bottom-grid { display: grid; grid-template-columns: minmax(0, 1.69fr) minmax(0, 1fr); gap: 12px; }
+.gsm-bottom-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 .cloud-shell .gsm-bottom-grid h2 { margin-bottom: 7px; }
 .gsm-startup-content { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 24px; }
 .gsm-toggle-row { display: flex; align-items: center; gap: 16px; min-height: 36px; border-bottom: 1px solid #edf2fb; }
@@ -72,13 +72,6 @@
 .gsm-script-row > span { display: flex; align-items: center; gap: 15px; flex: none; width: 93px; font-size: 12px; }
 .gsm-script-row code { padding: 9px 12px; border-radius: 7px; background: #f4f7fc; flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .gsm-script-row .gsd-button { height: 33px; padding: 0 11px; gap: 6px; font-size: 12px; }
-.gsm-security-row { display: grid; grid-template-columns: 200px minmax(0, 1fr); align-items: center; border-bottom: 1px solid #edf2fb; min-height: 27px; }
-.gsm-security-row:last-child { border-bottom: 0; }
-.gsm-security-row dt { font-size: 12px; gap: 12px; }
-.gsm-security-row dd { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.gsm-security-row .gsd-button { height: 26px; padding: 0 10px; font-size: 11px; border-color: #cbdfff; }
-.gsm-badge { display: inline-flex; align-items: center; gap: 5px; background: #def9ef; color: #00b783; padding: 1px 10px; border-radius: 14px; font-size: 12px; line-height: 18px; white-space: nowrap; }
-.gsm-badge .gsm-dot { width: 5px; height: 5px; }
 .gsm-port-badge { background: #edf5ff; border-radius: 12px; padding: 2px 9px; overflow-wrap: anywhere; }
 .gsm-dialog { color: #526b99; }
 .gsm-dialog footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
@@ -87,12 +80,6 @@
 .gsm-dialog textarea { min-height: 130px; resize: vertical; }
 .gsm-form-error { color: #d94351; font-size: 12px; line-height: 20px; }
 .gsm-dialog-note { color: #7d8eae; font-size: 12px; }
-.gsm-rule-list label { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #edf2fb; }
-.gsm-rule-list small { display: block; color: #7d8eae; margin-top: 4px; }
-.gsm-protection { display: flex; flex-direction: column; align-items: center; gap: 10px; color: #00b783; padding: 15px; }
-.gsm-protection p { color: #7d8eae; font-size: 12px; }
-.gsm-protection-details > div { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #edf2fb; }
-.gsm-protection-details dd { margin: 0; }
 .gsm-workspace button:focus-visible, .gsm-workspace select:focus-visible, .gsm-dialog input:focus-visible, .gsm-dialog textarea:focus-visible { outline: 2px solid #087bff; outline-offset: 3px; }
 @media (min-width: 1500px) {
   .cloud-shell .gsm-maintenance h2 { line-height: 22px; }
@@ -112,7 +99,6 @@
   .gsm-toggle-row > span { width: 100px; gap: 10px; }
   .gsm-scripts { padding-left: 15px; }
   .gsm-script-row > span { width: 78px; gap: 8px; }
-  .gsm-security-row { grid-template-columns: 135px minmax(0, 1fr); }
 }
 @media (max-width: 1150px) {
   .gsm-specs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -149,8 +135,5 @@
   .gsm-toggle-row b { font-size: 11px; }
   .gsm-scripts { padding: 8px 0 0; border-left: 0; border-top: 1px solid #edf2fb; }
   .gsm-script-row code { font-size: 11px; padding: 9px; }
-  .gsm-security-row { grid-template-columns: 120px minmax(0, 1fr); min-height: 38px; }
-  .gsm-security-row dt { font-size: 11px; gap: 8px; }
-  .gsm-security-row .gsd-button { font-size: 10px; padding: 0 7px; flex: none; }
   .gsm-port-badge { font-size: 10px; }
 }

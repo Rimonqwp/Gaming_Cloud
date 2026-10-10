@@ -6,7 +6,6 @@ import type { ConsoleInstance } from "./cloudDashboardData";
 import "../../../styles/cloud-machine-settings.css";
 
 type Maintenance = "container" | "rescue" | "reinstall";
-type SecurityPanel = "firewall" | "ports" | "ddos" | "keys";
 type Script = "start" | "stop";
 const systems = ["Ubuntu 22.04 LTS", "Ubuntu 24.04 LTS", "Debian 12"];
 const maintenance = [
@@ -35,12 +34,9 @@ export function GameServerMachineSettings({ server, onNotice, onLog }: {
   const [script, setScript] = useState<Script | null>(null);
   const [scriptDraft, setScriptDraft] = useState("");
   const [formError, setFormError] = useState("");
-  const [securityPanel, setSecurityPanel] = useState<SecurityPanel | null>(null);
+  const [portsOpen, setPortsOpen] = useState(false);
   const [ports, setPorts] = useState([22, server.port, 8080]);
   const [portDraft, setPortDraft] = useState("");
-  const [sshKey, setSshKey] = useState("");
-  const [keyDraft, setKeyDraft] = useState("");
-  const [firewallRules, setFirewallRules] = useState({ ssh: true, game: true, panel: true });
   const region = server.region.match(/（(.+)）/);
   const city = region?.[1] ?? server.region;
   const location = region ? `中国 · ${city}` : city;
@@ -86,13 +82,13 @@ export function GameServerMachineSettings({ server, onNotice, onLog }: {
     onNotice(`${title}已完成（演示操作）`);
     setAction(null);
   };
-  const openSecurity = (panel: SecurityPanel) => { setSecurityPanel(panel); setPortDraft(ports.join(" / ")); setKeyDraft(sshKey); setFormError(""); };
+  const openPorts = () => { setPortsOpen(true); setPortDraft(ports.join(" / ")); setFormError(""); };
   const savePorts = () => {
     const tokens = portDraft.trim().split(/[\s/,，]+/);
     const values = tokens.map(Number);
     if (!portDraft.trim() || values.some((value, index) => !/^\d+$/.test(tokens[index]) || !Number.isInteger(value) || value < 1 || value > 65535)) { setFormError("请输入 1 至 65535 的端口号，用空格、逗号或 / 分隔。"); return; }
     if (![22, server.port, 8080].every(value => values.includes(value))) { setFormError(`请保留 SSH、游戏和面板端口：22、${server.port}、8080。`); return; }
-    setPorts([...new Set(values)]); setSecurityPanel(null); onNotice("开放端口已保存（演示操作）");
+    setPorts([...new Set(values)]); setPortsOpen(false); onNotice("开放端口已保存（演示操作）");
   };
 
   return <div className="gsm-workspace">
@@ -119,7 +115,7 @@ export function GameServerMachineSettings({ server, onNotice, onLog }: {
         </div>)}
           <div className="gsm-network-row gsm-network-ports">
             <dt><Network size={18} />端口信息</dt>
-            <dd><code className="gsm-port-badge">{ports.join(" / ")}</code><button type="button" className="gsd-button" onClick={() => openSecurity("ports")}>配置端口</button></dd>
+            <dd><code className="gsm-port-badge">{ports.join(" / ")}</code><button type="button" className="gsd-button" onClick={openPorts}>配置端口</button></dd>
           </div>
         </dl>
       </section>
@@ -127,19 +123,20 @@ export function GameServerMachineSettings({ server, onNotice, onLog }: {
     </div>
     <div className="gsm-bottom-grid">
       <section className="gsm-card gsm-startup"><PanelHeading icon={CirclePlay}>启动与运行设置</PanelHeading><div className="gsm-startup-content"><div className="gsm-toggles">{startupOptions.map(({ id, title, description, icon: Icon }) => <div className="gsm-toggle-row" key={id}><span><Icon size={16} />{title}</span><small>{description}{id === "boot" ? ` ${server.game.split(" / ")[0]} 服务` : ""}</small><Switch className="gsd-switch" aria-label={title} checked={startup[id]} onCheckedChange={checked => { setStartup(previous => ({ ...previous, [id]: checked })); onNotice(`${title}已${checked ? "开启" : "关闭"}（演示操作）`); }} /><b>{startup[id] ? "已开启" : "已关闭"}</b></div>)}</div><div className="gsm-scripts">{(["start", "stop"] as const).map(id => <div className="gsm-script-row" key={id}><span>{id === "start" ? <Play size={17} /> : <Square size={17} />}{id === "start" ? "启动脚本" : "停止脚本"}</span><code>{scripts[id]}</code><button className="gsd-button" aria-label={`编辑${id === "start" ? "启动" : "停止"}脚本`} onClick={() => { setScript(id); setScriptDraft(scripts[id]); setFormError(""); }}><Pencil size={14} />编辑</button></div>)}</div></div></section>
-      <section className="gsm-card gsm-security"><PanelHeading icon={ShieldCheck}>安全与规则</PanelHeading><dl>{[
-        { label: "防火墙状态", value: <span className="gsm-badge"><span className="gsm-dot" />已开启</span>, button: "管理规则", panel: "firewall", icon: BadgeCheck },
-        { label: "DDoS 防护", value: <span className="gsm-badge"><span className="gsm-dot" />已开启</span>, button: "查看详情", panel: "ddos", icon: Shield },
-        { label: "SSH 密钥登录", value: <span className="gsm-badge"><span className="gsm-dot" />已启用</span>, button: "管理密钥", panel: "keys", icon: KeyRound },
-      ].map(({ label, value, button, panel, icon: Icon }) => <div className="gsm-security-row" key={label}><dt><Icon size={16} />{label}</dt><dd>{value}<button className="gsd-button" onClick={() => openSecurity(panel as SecurityPanel)}>{button}</button></dd></div>)}</dl></section>
     </div>
     <Dialog open={action !== null} onOpenChange={open => { if (!open) setAction(null); }}><DialogContent className="cloud-modal gsd-dialog gsm-dialog"><DialogTitle>{action === "reinstall" ? "确认重装系统" : maintenance.find(item => item.id === action)?.title}</DialogTitle><DialogDescription>{action === "reinstall" ? `将重装为 ${selectedSystem}，系统盘环境与文件将被清空，请确认已完成备份。` : maintenance.find(item => item.id === action)?.confirmation} 当前为演示操作，不会连接真实机器。</DialogDescription><footer><button className="gsd-button" onClick={() => setAction(null)}>取消</button><button className={`gsd-button ${action === "reinstall" ? "danger" : "primary"}`} onClick={confirmAction}>确认{action === "reinstall" ? "重装" : "执行"}</button></footer></DialogContent></Dialog>
     <Dialog open={script !== null} onOpenChange={open => { if (!open) setScript(null); }}><DialogContent className="cloud-modal gsd-dialog gsm-dialog"><DialogTitle>编辑{script === "start" ? "启动" : "停止"}脚本</DialogTitle><DialogDescription>设置服务器脚本的绝对路径（演示配置）。</DialogDescription><form onSubmit={event => { event.preventDefault(); if (!/^\/(?:[^/\s]+\/)*[^/\s]+\.sh$/.test(scriptDraft.trim())) { setFormError("请输入以 / 开头、以 .sh 结尾的绝对路径，不能包含空格。"); return; } if (script) setScripts(previous => ({ ...previous, [script]: scriptDraft.trim() })); setScript(null); onNotice("脚本路径已保存（演示操作）"); }}><label>脚本路径<input aria-label="脚本路径" value={scriptDraft} onChange={event => setScriptDraft(event.target.value)} /></label>{formError && <p className="gsm-form-error" role="alert">{formError}</p>}<footer><button type="button" className="gsd-button" onClick={() => setScript(null)}>取消</button><button type="submit" className="gsd-button primary">保存脚本</button></footer></form></DialogContent></Dialog>
-    <Dialog open={securityPanel !== null} onOpenChange={open => { if (!open) setSecurityPanel(null); }}><DialogContent className="cloud-modal gsd-dialog gsm-dialog"><DialogTitle>{{ firewall: "防火墙规则", ports: "配置开放端口", ddos: "DDoS 防护详情", keys: "管理 SSH 密钥" }[securityPanel ?? "firewall"]}</DialogTitle><DialogDescription>查看和调整当前实例的安全配置（演示数据）。</DialogDescription>
-      {securityPanel === "firewall" && <><div className="gsm-rule-list">{([{ id: "ssh", name: "SSH 远程连接", port: 22 }, { id: "game", name: "游戏服务", port: server.port }, { id: "panel", name: "控制面板", port: 8080 }] as const).map(rule => <label key={rule.id}><span>{rule.name}<small>TCP / {rule.port}</small></span><Switch className="gsd-switch" aria-label={`允许${rule.name}`} checked={firewallRules[rule.id]} onCheckedChange={checked => setFirewallRules(previous => ({ ...previous, [rule.id]: checked }))} /></label>)}</div><p className="gsm-dialog-note">默认拒绝未匹配规则的入站连接。</p><footer><button className="gsd-button primary" onClick={() => { setSecurityPanel(null); onNotice("防火墙规则已保存（演示操作）"); }}>完成</button></footer></>}
-      {securityPanel === "ports" && <form onSubmit={event => { event.preventDefault(); savePorts(); }}><label>允许访问的端口<input aria-label="开放端口" value={portDraft} onChange={event => setPortDraft(event.target.value)} /></label><p className="gsm-dialog-note">使用逗号、空格或 / 分隔，保留 SSH、游戏与面板端口。</p>{formError && <p className="gsm-form-error" role="alert">{formError}</p>}<footer><button type="button" className="gsd-button" onClick={() => setSecurityPanel(null)}>取消</button><button type="submit" className="gsd-button primary">保存端口</button></footer></form>}
-      {securityPanel === "ddos" && <><div className="gsm-protection"><ShieldCheck size={38} /><strong>防护已开启</strong><p>节点网络防护正常，当前未检测到攻击。</p></div><dl className="gsm-protection-details"><div><dt>防护节点</dt><dd>{city}节点</dd></div><div><dt>防护方式</dt><dd>自动检测与流量清洗</dd></div><div><dt>当前状态</dt><dd>正常</dd></div></dl></>}
-      {securityPanel === "keys" && <form onSubmit={event => { event.preventDefault(); if (!/^(ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp(?:256|384|521)) [A-Za-z0-9+/]+={0,3}(?: [^\r\n]+)?$/.test(keyDraft.trim())) { setFormError("请输入有效的 SSH 公钥，例如 ssh-ed25519 AAAA…；请勿填写私钥。"); return; } setSshKey(keyDraft.trim()); setSecurityPanel(null); onNotice("SSH 公钥已保存（演示操作）"); }}><label>SSH 公钥<textarea aria-label="SSH 公钥" placeholder="ssh-ed25519 AAAA…" value={keyDraft} onChange={event => setKeyDraft(event.target.value)} /></label>{formError && <p className="gsm-form-error" role="alert">{formError}</p>}<footer><button type="button" className="gsd-button" onClick={() => setSecurityPanel(null)}>取消</button><button type="submit" className="gsd-button primary">保存公钥</button></footer></form>}
-    </DialogContent></Dialog>
+    <Dialog open={portsOpen} onOpenChange={setPortsOpen}>
+      <DialogContent className="cloud-modal gsd-dialog gsm-dialog">
+        <DialogTitle>配置开放端口</DialogTitle>
+        <DialogDescription>调整当前实例的开放端口（演示配置）。</DialogDescription>
+        <form onSubmit={event => { event.preventDefault(); savePorts(); }}>
+          <label>允许访问的端口<input aria-label="开放端口" value={portDraft} onChange={event => setPortDraft(event.target.value)} /></label>
+          <p className="gsm-dialog-note">使用逗号、空格或 / 分隔，保留 SSH、游戏与面板端口。</p>
+          {formError && <p className="gsm-form-error" role="alert">{formError}</p>}
+          <footer><button type="button" className="gsd-button" onClick={() => setPortsOpen(false)}>取消</button><button type="submit" className="gsd-button primary">保存端口</button></footer>
+        </form>
+      </DialogContent>
+    </Dialog>
   </div>;
 }
