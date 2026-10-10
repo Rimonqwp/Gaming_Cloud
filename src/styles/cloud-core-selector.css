@@ -156,13 +156,43 @@
 .gcore-panel-heading h3 { margin: 0 0 5px; color: #152454; font-size: 16px; font-weight: 650; }
 .gcore-panel-heading p { margin: 0; color: #718aaf; }
 .gcore-panel-heading .gcore-detail-link { flex: none; }
-.gcore-release-list { display: grid; gap: 12px; }
-.gcore-release { padding: 16px; border: 1px solid #dfeaf8; border-radius: 8px; background: #fbfdff; }
-.gcore-release header { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
-.gcore-release h4 { margin: 0; color: #152454; font-size: 14px; font-weight: 650; }
-.gcore-release h4 span { margin-left: 5px; color: #718aaf; font-weight: 400; }
-.gcore-release time { display: block; margin-top: 5px; color: #718aaf; font-size: 12px; }
-.gcore-release p { margin: 10px 0; }
+.gcore-changelog .gcore-panel-heading { align-items: center; margin-bottom: 16px; }
+.gcore-changelog-heading { display: flex; align-items: center; gap: 12px; }
+.gcore-changelog-icon { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 42px; height: 42px; border: 1px solid #deebff; border-radius: 12px; background: #f0f6ff; color: #087bff; }
+.gcore-changelog-heading p { font-size: 12px; }
+.gcore-release-list { position: relative; display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.gcore-release { position: relative; display: grid; grid-template-columns: 108px minmax(0, 1fr); align-items: start; gap: 28px; }
+.gcore-release:not(:last-child)::after { content: ''; position: absolute; top: 22px; bottom: -22px; left: 121px; width: 1px; background: #e1ebf7; }
+.gcore-release::before { content: ''; position: absolute; z-index: 1; top: 18px; left: 117px; width: 9px; height: 9px; border: 2px solid #fff; border-radius: 50%; background: #b5c9e6; box-shadow: 0 0 0 1px #dbe7f6; }
+.gcore-release.recommended::before { background: #087bff; box-shadow: 0 0 0 3px #e9f2ff; }
+.gcore-release time { display: grid; gap: 2px; padding-top: 9px; color: #526d95; font-size: 12px; font-variant-numeric: tabular-nums; }
+.gcore-release time small { color: #8296b2; font-size: 11px; }
+.gcore-release-body { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 68px; padding: 8px 14px; border: 1px solid transparent; border-bottom-color: #edf2f9; border-radius: 8px; }
+.gcore-release:last-child .gcore-release-body { border-bottom-color: transparent; }
+.gcore-release.recommended .gcore-release-body { border-color: #dbeaff; background: #f5f9ff; }
+.gcore-release-details { min-width: 0; }
+.gcore-release header { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; }
+.gcore-release h4 { margin: 0; color: #152454; font-size: 16px; line-height: 24px; font-weight: 650; }
+.gcore-release-build { color: #7b8fae; font-size: 12px; font-variant-numeric: tabular-nums; }
+.gcore-release header em { margin-left: 0; line-height: 16px; }
+.gcore-release-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 18px; margin-top: 5px; color: #7186a6; font-size: 12px; }
+.gcore-release-meta > span { display: inline-flex; align-items: center; gap: 5px; }
+.gcore-release-meta .gcore-release-caution { color: #ac791b; }
+.gcore-release-action { display: inline-flex; align-items: center; justify-content: center; flex: none; gap: 8px; min-height: 34px; padding: 0 10px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: #087bff; font-size: 12px; white-space: nowrap; }
+.gcore-release-action:hover { border-color: #cfe0f5; background: #eaf3ff; }
+.gcore-release-action:focus-visible { outline: 2px solid #087bff; outline-offset: 2px; }
+.gcore-changelog-note { display: flex; align-items: center; gap: 7px; margin: 14px 0 0; padding: 12px 14px; border-radius: 7px; background: #f7f9fc; color: #7b8da9; font-size: 12px; line-height: 19px; }
+.gcore-changelog-note svg { flex: none; }
+@media (max-width: 760px) {
+  .gcore-changelog .gcore-panel-heading { gap: 12px; }
+  .gcore-release:not(:last-child)::after { left: 4px; top: 21px; bottom: -21px; }
+  .gcore-release { grid-template-columns: minmax(0, 1fr); gap: 4px; padding-left: 20px; }
+  .gcore-release::before { left: 0; top: 17px; }
+  .gcore-release time { display: flex; align-items: baseline; gap: 8px; padding-top: 8px; }
+  .gcore-release-body { flex-wrap: wrap; gap: 8px; padding: 10px 12px; }
+  .gcore-release-action { min-height: 30px; padding-left: 0; }
+  .gcore-release-meta { column-gap: 12px; }
+}
 .gcore-install-requirements { padding: 16px; border: 1px solid #dbe8f8; border-radius: 8px; background: #f5f9ff; }
 .gcore-install-requirements h4, .gcore-install-steps h4 { margin: 0 0 6px; color: #152454; font-size: 14px; font-weight: 650; }
 .gcore-install-requirements p { margin: 6px 0 0; }

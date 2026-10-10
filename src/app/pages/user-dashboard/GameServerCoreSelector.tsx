@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 import {
-  ArrowLeft, BadgeCheck, BookOpen, Box, Check, ChevronDown, Database, Download,
-  ExternalLink, FileText, Gamepad2, Layers, Package, Search, SlidersHorizontal,
+  ArrowLeft, ArrowRight, BadgeCheck, BookOpen, Box, Check, ChevronDown, Database, Download,
+  ExternalLink, FileText, Gamepad2, History, Info, Layers, Package, Search, SlidersHorizontal,
   Wrench, X, Zap,
 } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
@@ -62,6 +62,7 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
   const resources = coreResources[core.id];
   const rows: VersionRow[] = isPaper ? paperVersions : core.versions.map((version, index) => ({ version, build: `#${520 - index}`, date: `2024-10-${String(25 - index * 2).padStart(2, "0")} 12:00`, channel: "稳定版", size: `${50 + index}.2 MB`, latest: version === core.latest, recommended: version === core.latest }));
   const recommended = rows.find(row => row.recommended) ?? rows[0];
+  const releaseRows = [...rows].sort((a, b) => b.date.localeCompare(a.date));
   const filteredRows = rows.filter(row => (version === "全部版本" || row.version === version) && (channel === "全部渠道" || row.channel === channel) && (!buildQuery.trim() || `${row.version} ${row.build}`.toLowerCase().includes(buildQuery.trim().toLowerCase())));
   const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize));
   const currentPage = Math.min(page, pageCount);
@@ -118,14 +119,22 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
             <select aria-label="每页显示数量" value={pageSize} onChange={event => { setPageSize(Number(event.target.value)); setPage(1); }}>{[5, 10, 20].map(size => <option key={size} value={size}>{size} 条/页</option>)}</select>
           </div>
         </Tabs.Content>
-        <Tabs.Content value="changelog" className="gcore-information-panel">
-          <div className="gcore-panel-heading"><div><h3>{name} 更新日志</h3><p>以下为演示发布记录，完整变更请查阅项目文档。</p></div><a className="gcore-detail-link" href={resources.docs} target="_blank" rel="noreferrer"><ExternalLink size={15} />项目文档</a></div>
-          <div className="gcore-release-list">{rows.map(row => <article className="gcore-release" key={`${row.version}-${row.build}`}>
-            <header><h4>{name} {row.version} <span>{row.build}</span></h4><em className={`channel-badge ${row.channel === "测试版" ? "beta" : ""}`}>{row.channel}</em>{row.latest && <em className="table-badge latest">最新</em>}{row.recommended && <em className="table-badge">推荐</em>}</header>
-            <time dateTime={row.date.replace(" ", "T")}>{row.date}</time>
-            <p>适用 Minecraft {row.version}，安装包大小 {row.size}。{row.channel === "测试版" ? "测试构建，安装前请确认插件、模组与存档兼容性。" : "稳定渠道构建，升级前请备份服务器数据。"}</p>
-            <button className="gsd-button" onClick={() => { setVersion(row.version); setChannel("全部渠道"); setBuildQuery(row.build); setPage(1); setActiveTab("versions"); }}>查看此构建</button>
-          </article>)}</div>
+        <Tabs.Content value="changelog" className="gcore-information-panel gcore-changelog">
+          <div className="gcore-panel-heading">
+            <div className="gcore-changelog-heading"><span className="gcore-changelog-icon"><History size={21} aria-hidden="true" /></span><div><h3>{name} 更新日志</h3><p>共 {rows.length} 个构建 · 按发布时间排序</p></div></div>
+            <a className="gcore-detail-link" href={resources.docs} target="_blank" rel="noreferrer"><ExternalLink size={15} />项目文档</a>
+          </div>
+          <ol className="gcore-release-list" aria-label={`${name} 发布记录`}>{releaseRows.map(row => <li className={`gcore-release ${row.recommended ? "recommended" : ""}`} key={`${row.version}-${row.build}`}>
+            <time dateTime={row.date.replace(" ", "T")}><span>{row.date.split(" ")[0]}</span><small>{row.date.split(" ")[1]}</small></time>
+            <article className="gcore-release-body">
+              <div className="gcore-release-details">
+                <header><h4>{row.version}</h4><span className="gcore-release-build">{row.build}</span><em className={`channel-badge ${row.channel === "测试版" ? "beta" : ""}`}>{row.channel}</em>{row.latest && <em className="table-badge latest">最新</em>}{row.recommended && <em className="table-badge">推荐</em>}</header>
+                <div className="gcore-release-meta"><span><Gamepad2 size={14} aria-hidden="true" />Minecraft {row.version}</span><span><Package size={14} aria-hidden="true" />{row.size}</span>{row.channel === "测试版" && <span className="gcore-release-caution">安装前请确认兼容性</span>}</div>
+              </div>
+              <button className="gcore-release-action" aria-label={`查看 ${name} ${row.version} ${row.build} 构建`} onClick={() => { setVersion(row.version); setChannel("全部渠道"); setBuildQuery(row.build); setPage(1); setActiveTab("versions"); }}>查看构建<ArrowRight size={15} aria-hidden="true" /></button>
+            </article>
+          </li>)}</ol>
+          <p className="gcore-changelog-note"><Info size={15} aria-hidden="true" />当前为演示发布记录，实际变更请以项目文档为准。</p>
         </Tabs.Content>
         <Tabs.Content value="installation" className="gcore-information-panel">
           <div className="gcore-panel-heading"><div><h3>{name} 安装说明</h3><p>按以下步骤在控制台选择版本并重建容器。</p></div><a className="gcore-detail-link" href={resources.docs} target="_blank" rel="noreferrer"><BookOpen size={15} />项目文档</a></div>
