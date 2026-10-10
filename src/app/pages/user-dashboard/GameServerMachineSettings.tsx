@@ -1,19 +1,17 @@
 import { useState, type ReactNode } from "react";
-import { AlertTriangle, BadgeCheck, Box, ChartColumnBig, CirclePlay, Copy, Cpu, Database, Eye, EyeOff, Folder, Gamepad2, Globe2, HardDrive, House, Info, KeyRound, LifeBuoy, MapPin, MemoryStick, Network, Pencil, Play, RefreshCw, Settings, Shield, ShieldCheck, Square, Terminal, Timer, Wrench, type LucideIcon } from "lucide-react";
+import { AlertTriangle, BadgeCheck, Box, ChartColumnBig, CirclePlay, Copy, Cpu, Database, Eye, EyeOff, Folder, Gamepad2, Globe2, HardDrive, House, Info, KeyRound, LifeBuoy, MapPin, MemoryStick, Network, Pencil, Play, Settings, Shield, ShieldCheck, Square, Terminal, Timer, Wrench, type LucideIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
 import type { ConsoleInstance } from "./cloudDashboardData";
 import "../../../styles/cloud-machine-settings.css";
 
-type Maintenance = "restart" | "container" | "rescue" | "environment" | "reinstall";
+type Maintenance = "container" | "rescue" | "reinstall";
 type SecurityPanel = "firewall" | "ports" | "ddos" | "keys";
 type Script = "start" | "stop";
 const systems = ["Ubuntu 22.04 LTS", "Ubuntu 24.04 LTS", "Debian 12"];
 const maintenance = [
-  { id: "restart", title: "重启机器", description: "安全重启主机", icon: RefreshCw, tone: "orange", confirmation: "重启后，当前游戏服务将暂时中断，请先保存游戏进度。" },
   { id: "container", title: "重建容器", description: "重新创建游戏容器", icon: Box, tone: "blue", confirmation: "重新创建游戏容器并保留游戏数据，服务将暂时中断。" },
   { id: "rescue", title: "进入救援模式", description: "进入系统救援环境", icon: LifeBuoy, tone: "purple", confirmation: "进入救援环境后，游戏服务将暂时不可用。" },
-  { id: "environment", title: "重置环境", description: "清理并恢复初始环境", icon: Wrench, tone: "orange", confirmation: "恢复游戏运行环境的初始配置，请提前备份自定义配置。" },
 ] as const;
 const startupOptions = [
   { id: "boot", title: "开机启动", description: "服务器重启后自动启动", icon: Timer },
@@ -25,8 +23,8 @@ function PanelHeading({ icon: Icon, children }: { icon: LucideIcon; children: Re
   return <h2><Icon size={22} strokeWidth={2} />{children}</h2>;
 }
 
-export function GameServerMachineSettings({ server, onNotice, onRestart, onLog }: {
-  server: ConsoleInstance; onNotice: (message: string) => void; onRestart: () => void; onLog: (message: string) => void;
+export function GameServerMachineSettings({ server, onNotice, onLog }: {
+  server: ConsoleInstance; onNotice: (message: string) => void; onLog: (message: string) => void;
 }) {
   const [system, setSystem] = useState(systems[0]);
   const [selectedSystem, setSelectedSystem] = useState(systems[0]);
@@ -82,7 +80,6 @@ export function GameServerMachineSettings({ server, onNotice, onRestart, onLog }
   };
   const confirmAction = () => {
     if (!action) return;
-    if (action === "restart") { setAction(null); onRestart(); return; }
     if (action === "reinstall") setSystem(selectedSystem);
     const title = action === "reinstall" ? `重装系统为 ${selectedSystem}` : maintenance.find(item => item.id === action)!.title;
     onLog(`Machine: ${title}（演示操作）`);
@@ -122,7 +119,7 @@ export function GameServerMachineSettings({ server, onNotice, onRestart, onLog }
         </div>)}</dl>
         <aside className="gsm-tip"><Info size={21} fill="currentColor" /><div><strong>提示</strong><p>点击地址或密码右侧的按钮可快速复制。</p></div></aside>
       </section>
-      <section className="gsm-card gsm-maintenance"><PanelHeading icon={Wrench}>快捷维护</PanelHeading><div className="gsm-maintenance-grid">{maintenance.map(({ id, title, description, icon: Icon, tone }) => <button className={tone} key={id} onClick={() => id === "restart" ? onRestart() : setAction(id)}><Icon size={27} /><strong>{title}</strong><span>{description}</span></button>)}</div><div className="gsm-reinstall"><PanelHeading icon={Database}>重装系统</PanelHeading><label className="gsm-system-picker"><span className="gsm-os-icon">{selectedSystem.startsWith("Ubuntu") ? <img src="/console/machine/ubuntu.svg" alt="" /> : <Database size={24} />}</span><span><select aria-label="选择重装系统" value={selectedSystem} onChange={event => setSelectedSystem(event.target.value)}>{systems.map(value => <option key={value}>{value}</option>)}</select><small>稳定、通用，推荐使用</small></span></label><button className="gsd-button primary gsm-reinstall-button" onClick={() => setAction("reinstall")}>立即重装系统</button><p className="gsm-warning"><AlertTriangle size={18} fill="currentColor" /><span><strong>重装系统将清空系统盘数据，包括已安装的环境与文件。</strong><br />请提前做好数据备份，此操作不可恢复。</span></p></div></section>
+      <section className="gsm-card gsm-maintenance"><PanelHeading icon={Wrench}>快捷维护</PanelHeading><div className="gsm-maintenance-grid">{maintenance.map(({ id, title, description, icon: Icon, tone }) => <button className={tone} key={id} onClick={() => setAction(id)}><Icon size={27} /><strong>{title}</strong><span>{description}</span></button>)}</div><div className="gsm-reinstall"><PanelHeading icon={Database}>重装系统</PanelHeading><label className="gsm-system-picker"><span className="gsm-os-icon">{selectedSystem.startsWith("Ubuntu") ? <img src="/console/machine/ubuntu.svg" alt="" /> : <Database size={24} />}</span><span><select aria-label="选择重装系统" value={selectedSystem} onChange={event => setSelectedSystem(event.target.value)}>{systems.map(value => <option key={value}>{value}</option>)}</select><small>稳定、通用，推荐使用</small></span></label><button className="gsd-button primary gsm-reinstall-button" onClick={() => setAction("reinstall")}>立即重装系统</button><p className="gsm-warning"><AlertTriangle size={18} fill="currentColor" /><span><strong>重装系统将清空系统盘数据，包括已安装的环境与文件。</strong><br />请提前做好数据备份，此操作不可恢复。</span></p></div></section>
     </div>
     <div className="gsm-bottom-grid">
       <section className="gsm-card gsm-startup"><PanelHeading icon={CirclePlay}>启动与运行设置</PanelHeading><div className="gsm-startup-content"><div className="gsm-toggles">{startupOptions.map(({ id, title, description, icon: Icon }) => <div className="gsm-toggle-row" key={id}><span><Icon size={16} />{title}</span><small>{description}{id === "boot" ? ` ${server.game.split(" / ")[0]} 服务` : ""}</small><Switch className="gsd-switch" aria-label={title} checked={startup[id]} onCheckedChange={checked => { setStartup(previous => ({ ...previous, [id]: checked })); onNotice(`${title}已${checked ? "开启" : "关闭"}（演示操作）`); }} /><b>{startup[id] ? "已开启" : "已关闭"}</b></div>)}</div><div className="gsm-scripts">{(["start", "stop"] as const).map(id => <div className="gsm-script-row" key={id}><span>{id === "start" ? <Play size={17} /> : <Square size={17} />}{id === "start" ? "启动脚本" : "停止脚本"}</span><code>{scripts[id]}</code><button className="gsd-button" aria-label={`编辑${id === "start" ? "启动" : "停止"}脚本`} onClick={() => { setScript(id); setScriptDraft(scripts[id]); setFormError(""); }}><Pencil size={14} />编辑</button></div>)}</div></div></section>
@@ -133,7 +130,7 @@ export function GameServerMachineSettings({ server, onNotice, onRestart, onLog }
         { label: "SSH 密钥登录", value: <span className="gsm-badge"><span className="gsm-dot" />已启用</span>, button: "管理密钥", panel: "keys", icon: KeyRound },
       ].map(({ label, value, button, panel, icon: Icon }) => <div className="gsm-security-row" key={label}><dt><Icon size={16} />{label}</dt><dd>{value}<button className="gsd-button" onClick={() => openSecurity(panel as SecurityPanel)}>{button}</button></dd></div>)}</dl></section>
     </div>
-    <Dialog open={action !== null} onOpenChange={open => { if (!open) setAction(null); }}><DialogContent className="cloud-modal gsd-dialog gsm-dialog"><DialogTitle>{action === "reinstall" ? "确认重装系统" : maintenance.find(item => item.id === action)?.title}</DialogTitle><DialogDescription>{action === "reinstall" ? `将重装为 ${selectedSystem}，系统盘环境与文件将被清空，请确认已完成备份。` : maintenance.find(item => item.id === action)?.confirmation} 当前为演示操作，不会连接真实机器。</DialogDescription><footer><button className="gsd-button" onClick={() => setAction(null)}>取消</button><button className={`gsd-button ${action === "reinstall" || action === "environment" ? "danger" : "primary"}`} onClick={confirmAction}>确认{action === "reinstall" ? "重装" : "执行"}</button></footer></DialogContent></Dialog>
+    <Dialog open={action !== null} onOpenChange={open => { if (!open) setAction(null); }}><DialogContent className="cloud-modal gsd-dialog gsm-dialog"><DialogTitle>{action === "reinstall" ? "确认重装系统" : maintenance.find(item => item.id === action)?.title}</DialogTitle><DialogDescription>{action === "reinstall" ? `将重装为 ${selectedSystem}，系统盘环境与文件将被清空，请确认已完成备份。` : maintenance.find(item => item.id === action)?.confirmation} 当前为演示操作，不会连接真实机器。</DialogDescription><footer><button className="gsd-button" onClick={() => setAction(null)}>取消</button><button className={`gsd-button ${action === "reinstall" ? "danger" : "primary"}`} onClick={confirmAction}>确认{action === "reinstall" ? "重装" : "执行"}</button></footer></DialogContent></Dialog>
     <Dialog open={script !== null} onOpenChange={open => { if (!open) setScript(null); }}><DialogContent className="cloud-modal gsd-dialog gsm-dialog"><DialogTitle>编辑{script === "start" ? "启动" : "停止"}脚本</DialogTitle><DialogDescription>设置服务器脚本的绝对路径（演示配置）。</DialogDescription><form onSubmit={event => { event.preventDefault(); if (!/^\/(?:[^/\s]+\/)*[^/\s]+\.sh$/.test(scriptDraft.trim())) { setFormError("请输入以 / 开头、以 .sh 结尾的绝对路径，不能包含空格。"); return; } if (script) setScripts(previous => ({ ...previous, [script]: scriptDraft.trim() })); setScript(null); onNotice("脚本路径已保存（演示操作）"); }}><label>脚本路径<input aria-label="脚本路径" value={scriptDraft} onChange={event => setScriptDraft(event.target.value)} /></label>{formError && <p className="gsm-form-error" role="alert">{formError}</p>}<footer><button type="button" className="gsd-button" onClick={() => setScript(null)}>取消</button><button type="submit" className="gsd-button primary">保存脚本</button></footer></form></DialogContent></Dialog>
     <Dialog open={securityPanel !== null} onOpenChange={open => { if (!open) setSecurityPanel(null); }}><DialogContent className="cloud-modal gsd-dialog gsm-dialog"><DialogTitle>{{ firewall: "防火墙规则", ports: "配置开放端口", ddos: "DDoS 防护详情", keys: "管理 SSH 密钥" }[securityPanel ?? "firewall"]}</DialogTitle><DialogDescription>查看和调整当前实例的安全配置（演示数据）。</DialogDescription>
       {securityPanel === "firewall" && <><div className="gsm-rule-list">{([{ id: "ssh", name: "SSH 远程连接", port: 22 }, { id: "game", name: "游戏服务", port: server.port }, { id: "panel", name: "控制面板", port: 8080 }] as const).map(rule => <label key={rule.id}><span>{rule.name}<small>TCP / {rule.port}</small></span><Switch className="gsd-switch" aria-label={`允许${rule.name}`} checked={firewallRules[rule.id]} onCheckedChange={checked => setFirewallRules(previous => ({ ...previous, [rule.id]: checked }))} /></label>)}</div><p className="gsm-dialog-note">默认拒绝未匹配规则的入站连接。</p><footer><button className="gsd-button primary" onClick={() => { setSecurityPanel(null); onNotice("防火墙规则已保存（演示操作）"); }}>完成</button></footer></>}
