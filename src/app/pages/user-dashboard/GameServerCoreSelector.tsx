@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import * as Tabs from "@radix-ui/react-tabs";
 import {
   ArrowLeft, BadgeCheck, BookOpen, Box, Check, ChevronDown, Database, Download,
   ExternalLink, FileText, Gamepad2, Layers, Package, Search, SlidersHorizontal,
@@ -31,28 +32,114 @@ const paperVersions: VersionRow[] = [
   { version: "1.20.6", build: "#124", date: "2024-10-19 08:15", channel: "测试版", size: "52.9 MB" },
 ];
 
+const coreResources: Record<string, { site: string; docs: string }> = {
+  paper: { site: "https://papermc.io/", docs: "https://docs.papermc.io/paper/getting-started/" },
+  purpur: { site: "https://purpurmc.org/", docs: "https://purpurmc.org/docs/purpur/installation/" },
+  spigot: { site: "https://www.spigotmc.org/", docs: "https://www.spigotmc.org/wiki/buildtools/" },
+  vanilla: { site: "https://www.minecraft.net/", docs: "https://www.minecraft.net/en-us/download/server" },
+  forge: { site: "https://files.minecraftforge.net/", docs: "https://docs.minecraftforge.net/en/latest/gettingstarted/" },
+  fabric: { site: "https://fabricmc.net/", docs: "https://fabricmc.net/use/server/" },
+  mohist: { site: "https://mohistmc.com/", docs: "https://mohistmc.com/docs" },
+  folia: { site: "https://papermc.io/software/folia/", docs: "https://docs.papermc.io/folia/" },
+  quilt: { site: "https://quiltmc.org/", docs: "https://quiltmc.org/en/install/server/" },
+};
+
 function CoreImage({ core, detail = false }: { core: Core; detail?: boolean }) { return <img className={detail ? "gcore-detail-image" : "gcore-image"} src={`/console/cores/${core.id}.png`} alt={`${core.name} 核心图标`} />; }
 function Filter({ label, value, options, onChange, icon = false }: { label: string; value: string; options: string[]; onChange: (value: string) => void; icon?: boolean }) {
   return <label className="gcore-filter">{icon && <Box size={17} />}<select aria-label={label} value={value} onChange={event => onChange(event.target.value)}>{options.map(option => <option key={option}>{option}</option>)}</select><ChevronDown size={15} /></label>;
 }
 
 function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Core; onBack: () => void; onSelectCore: (core: Core) => void; onSelectVersion: (version: string) => void }) {
+  const [activeTab, setActiveTab] = useState("versions");
+  const [coreQuery, setCoreQuery] = useState("");
+  const [version, setVersion] = useState("全部版本");
+  const [channel, setChannel] = useState("全部渠道");
+  const [buildQuery, setBuildQuery] = useState("");
+  const [pageSize, setPageSize] = useState(10);
+  const [page, setPage] = useState(1);
   const isPaper = core.id === "paper";
-  const rows = isPaper ? paperVersions : core.versions.slice(0, 6).map((version, index) => ({ version, build: `#${520 - index}`, date: `2024-10-${String(25 - index * 2).padStart(2, "0")} 12:00`, channel: "稳定版" as const, size: `${50 + index}.2 MB`, latest: index === 0 }));
+  const name = isPaper ? "PaperMC" : core.name;
+  const resources = coreResources[core.id];
+  const rows: VersionRow[] = isPaper ? paperVersions : core.versions.map((version, index) => ({ version, build: `#${520 - index}`, date: `2024-10-${String(25 - index * 2).padStart(2, "0")} 12:00`, channel: "稳定版", size: `${50 + index}.2 MB`, latest: version === core.latest, recommended: version === core.latest }));
+  const recommended = rows.find(row => row.recommended) ?? rows[0];
+  const filteredRows = rows.filter(row => (version === "全部版本" || row.version === version) && (channel === "全部渠道" || row.channel === channel) && (!buildQuery.trim() || `${row.version} ${row.build}`.toLowerCase().includes(buildQuery.trim().toLowerCase())));
+  const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+  const currentPage = Math.min(page, pageCount);
+  const visibleRows = filteredRows.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const visibleCores = cores.filter(item => `${item.name} ${item.description} ${item.tags.join(" ")}`.toLowerCase().includes(coreQuery.trim().toLowerCase()));
+
+  useEffect(() => {
+    setVersion("全部版本");
+    setChannel("全部渠道");
+    setBuildQuery("");
+    setPage(1);
+  }, [core.id]);
+
+  const clearFilters = () => { setVersion("全部版本"); setChannel("全部渠道"); setBuildQuery(""); setPage(1); };
   return <div className="gcore-detail">
     <aside className="gcore-detail-sidebar">
       <div className="gcore-detail-sidebar-toolbar">
         <button className="gcore-detail-back" aria-label="返回核心列表" title="返回核心列表" onClick={onBack}><ArrowLeft size={17} aria-hidden="true" /></button>
-        <label className="gcore-detail-search"><Search size={17} /><input aria-label="搜索核心" placeholder="搜索核心名称，例如：Paper、Spigot..." /></label>
+        <label className="gcore-detail-search"><Search size={17} /><input aria-label="搜索核心" placeholder="搜索核心名称，例如：Paper、Spigot..." value={coreQuery} onChange={event => setCoreQuery(event.target.value)} /></label>
       </div>
-      <div className="gcore-detail-pills"><button className="active">稳定版</button><button>测试版</button><button className="recommended-pill"><BadgeCheck size={14} />推荐</button><button>Java 17</button><button>Java 21</button></div>
-      <nav className="gcore-detail-core-list" aria-label="服务端核心列表">{cores.map(item => <button key={item.id} className={item.id === core.id ? "active" : ""} onClick={() => onSelectCore(item)}><CoreImage core={item} /><span><strong>{item.id === "paper" ? "PaperMC" : item.name}<em>{item.range}</em></strong><small>{item.description.length > 29 ? `${item.description.slice(0, 29)}...` : item.description}</small></span></button>)}</nav>
+      <div className="gcore-detail-pills">
+        {["稳定版", "测试版"].map(value => <button key={value} className={channel === value ? "active" : ""} aria-pressed={channel === value} onClick={() => { setChannel(channel === value ? "全部渠道" : value); setPage(1); setActiveTab("versions"); }}>{value}</button>)}
+        <button className="recommended-pill" onClick={() => { setVersion(recommended.version); setBuildQuery(recommended.build); setChannel("全部渠道"); setPage(1); setActiveTab("versions"); }}><BadgeCheck size={14} />推荐</button>
+        <span>Java 17</span><span>Java 21</span>
+      </div>
+      <nav className="gcore-detail-core-list" aria-label="服务端核心列表">{visibleCores.map(item => <button key={item.id} className={item.id === core.id ? "active" : ""} onClick={() => onSelectCore(item)}><CoreImage core={item} /><span><strong>{item.id === "paper" ? "PaperMC" : item.name}<em>{item.range}</em></strong><small>{item.description.length > 29 ? `${item.description.slice(0, 29)}...` : item.description}</small></span></button>)}</nav>
+      {!visibleCores.length && <p className="gcore-sidebar-empty">没有找到匹配的核心<button onClick={() => setCoreQuery("")}>清除搜索</button></p>}
     </aside>
     <main className="gcore-detail-content">
-      <section className="gcore-detail-hero"><div className="gcore-detail-heading"><CoreImage core={core} detail /><div><h2>{isPaper ? "PaperMC" : core.name}<span className="gcore-recommend"><BadgeCheck size={14} />推荐</span><span className="gcore-selected-check"><Check size={14} /></span></h2><p>作者：{isPaper ? "PaperMC Team" : `${core.name} Team`}</p><p>{isPaper ? "PaperMC 是目前最受欢迎的 Minecraft 服务端，基于 Spigot 深度优化，提供更高的性能、更好的稳定性和更广泛的插件兼容性。" : core.description}</p><div className="gcore-tags">{core.tags.map(tag => <span key={tag}>{tag}</span>)}</div></div></div><div className="gcore-detail-links"><a className="gcore-detail-link" href="#official-site"><ExternalLink size={15} />官方网站</a><a className="gcore-detail-link" href="#project-docs"><BookOpen size={15} />项目文档</a></div></section>
-      <section className="gcore-detail-stats"><div><Package size={20} /><span><dd>支持版本</dd><dt>{core.range}</dt></span></div><div><Wrench size={20} /><span><dd>支持 Java</dd><dt>Java 17 / Java 21</dt></span></div><div><FileText size={20} /><span><dd>最新构建</dd><dt>{core.latest} #{isPaper ? "123" : "520"}</dt></span></div><div className="highlight"><Zap size={20} /><span><dd>推荐版本</dd><dt>1.20.4 #499</dt><em>稳定版</em></span></div><div><Layers size={20} /><span><dd>支持服务端</dd><div className="gcore-platform-icons"><span className="gcore-platform-icon"><img src="/console/server-platforms/paper.svg" alt="Paper" /></span><span className="gcore-platform-icon"><img src="/console/server-platforms/spigot.png" alt="Spigot" /></span><span className="gcore-platform-icon"><img src="/console/server-platforms/purpur.svg" alt="Purpur" /></span></div></span></div></section>
-      <div className="gcore-detail-tabs"><button className="active">版本列表</button><button>更新日志</button><button>安装说明</button><button>重装记录</button></div>
-      <section className="gcore-version-panel"><div className="gcore-version-toolbar"><Filter label="选择版本" value={isPaper ? "1.20.4（推荐）" : core.latest} options={isPaper ? ["1.20.4（推荐）", ...core.versions] : core.versions} onChange={() => undefined} /><Filter label="发布渠道" value="全部渠道" options={["全部渠道", "稳定版", "测试版"]} onChange={() => undefined} /><label className="gcore-detail-search compact"><Search size={17} /><input aria-label="搜索构建号" placeholder="搜索构建号，例如：499、498..." /></label></div><div className="gcore-version-table"><div className="gcore-version-row table-head"><span>版本</span><span>构建号</span><span>发布时间</span><span>渠道</span><span>文件大小</span><span>校验状态</span><span>操作</span></div>{rows.map(row => <div className="gcore-version-row" key={`${row.version}-${row.build}`}><strong>{row.version}</strong><span>{row.build}{row.recommended && <em className="table-badge">推荐</em>}{row.latest && <em className="table-badge latest">最新</em>}</span><span>{row.date}</span><span><em className={`channel-badge ${row.channel === "测试版" ? "beta" : ""}`}>{row.channel}</em></span><span>{row.size}</span><span className="passed"><Check size={14} />通过</span><button onClick={() => onSelectVersion(row.version)}><Download size={15} />安装</button></div>)}</div><div className="gcore-pagination"><button>‹</button><button className="active">1</button><button>2</button><button>3</button><button>›</button><select aria-label="每页显示数量"><option>10 条/页</option></select></div></section>
+      <section className="gcore-detail-hero"><div className="gcore-detail-heading"><CoreImage core={core} detail /><div><h2>{name}<span className="gcore-recommend"><BadgeCheck size={14} />推荐</span><span className="gcore-selected-check"><Check size={14} /></span></h2><p>作者：{isPaper ? "PaperMC Team" : `${core.name} Team`}</p><p>{isPaper ? "PaperMC 是目前最受欢迎的 Minecraft 服务端，基于 Spigot 深度优化，提供更高的性能、更好的稳定性和更广泛的插件兼容性。" : core.description}</p><div className="gcore-tags">{core.tags.map(tag => <span key={tag}>{tag}</span>)}</div></div></div><div className="gcore-detail-links"><a className="gcore-detail-link" href={resources.site} target="_blank" rel="noreferrer"><ExternalLink size={15} />官方网站</a><a className="gcore-detail-link" href={resources.docs} target="_blank" rel="noreferrer"><BookOpen size={15} />项目文档</a></div></section>
+      <section className="gcore-detail-stats"><div><Package size={20} /><span><dd>支持版本</dd><dt>{core.range}</dt></span></div><div><Wrench size={20} /><span><dd>支持 Java</dd><dt>Java 17 / Java 21</dt></span></div><div><FileText size={20} /><span><dd>最新构建</dd><dt>{core.latest} {rows.find(row => row.latest)?.build}</dt></span></div><div className="highlight"><Zap size={20} /><span><dd>推荐版本</dd><dt>{recommended.version} {recommended.build}</dt><em>{recommended.channel}</em></span></div><div><Layers size={20} /><span><dd>支持服务端</dd><div className="gcore-platform-icons"><span className="gcore-platform-icon"><img src="/console/server-platforms/paper.svg" alt="Paper" /></span><span className="gcore-platform-icon"><img src="/console/server-platforms/spigot.png" alt="Spigot" /></span><span className="gcore-platform-icon"><img src="/console/server-platforms/purpur.svg" alt="Purpur" /></span></div></span></div></section>
+      <Tabs.Root value={activeTab} onValueChange={setActiveTab}>
+        <Tabs.List className="gcore-detail-tabs" aria-label="核心详情页面">
+          <Tabs.Trigger value="versions">版本列表</Tabs.Trigger>
+          <Tabs.Trigger value="changelog">更新日志</Tabs.Trigger>
+          <Tabs.Trigger value="installation">安装说明</Tabs.Trigger>
+        </Tabs.List>
+        <Tabs.Content value="versions" className="gcore-version-panel">
+          <div className="gcore-version-toolbar">
+            <Filter label="选择版本" value={version} options={["全部版本", ...new Set(rows.map(row => row.version))]} onChange={value => { setVersion(value); setPage(1); }} />
+            <Filter label="发布渠道" value={channel} options={["全部渠道", "稳定版", "测试版"]} onChange={value => { setChannel(value); setPage(1); }} />
+            <label className="gcore-detail-search compact"><Search size={17} /><input aria-label="搜索构建号" placeholder="搜索版本或构建号，例如：499、498..." value={buildQuery} onChange={event => { setBuildQuery(event.target.value); setPage(1); }} /></label>
+          </div>
+          <div className="gcore-version-table">
+            <div className="gcore-version-row table-head"><span>版本</span><span>构建号</span><span>发布时间</span><span>渠道</span><span>文件大小</span><span>校验状态</span><span>操作</span></div>
+            {visibleRows.map(row => <div className="gcore-version-row" key={`${row.version}-${row.build}`}><strong>{row.version}</strong><span>{row.build}{row.recommended && <em className="table-badge">推荐</em>}{row.latest && <em className="table-badge latest">最新</em>}</span><span>{row.date}</span><span><em className={`channel-badge ${row.channel === "测试版" ? "beta" : ""}`}>{row.channel}</em></span><span>{row.size}</span><span className="passed"><Check size={14} />通过</span><button aria-label={`安装 ${name} ${row.version} ${row.build}`} onClick={() => onSelectVersion(row.version)}><Download size={15} />安装</button></div>)}
+          </div>
+          {!filteredRows.length && <div className="gcore-version-empty" role="status"><Search size={26} /><h3>没有找到匹配的版本</h3><p>试试其他版本、发布渠道或构建号。</p><button className="gsd-button" onClick={clearFilters}>清除筛选</button></div>}
+          <div className="gcore-pagination">
+            <span className="gcore-result-count" role="status">共 {filteredRows.length} 个构建</span>
+            <button aria-label="上一页" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>‹</button>
+            {Array.from({ length: pageCount }, (_, index) => <button key={index} className={currentPage === index + 1 ? "active" : ""} aria-label={`第 ${index + 1} 页`} aria-current={currentPage === index + 1 ? "page" : undefined} onClick={() => setPage(index + 1)}>{index + 1}</button>)}
+            <button aria-label="下一页" disabled={currentPage === pageCount} onClick={() => setPage(currentPage + 1)}>›</button>
+            <select aria-label="每页显示数量" value={pageSize} onChange={event => { setPageSize(Number(event.target.value)); setPage(1); }}>{[5, 10, 20].map(size => <option key={size} value={size}>{size} 条/页</option>)}</select>
+          </div>
+        </Tabs.Content>
+        <Tabs.Content value="changelog" className="gcore-information-panel">
+          <div className="gcore-panel-heading"><div><h3>{name} 更新日志</h3><p>以下为演示发布记录，完整变更请查阅项目文档。</p></div><a className="gcore-detail-link" href={resources.docs} target="_blank" rel="noreferrer"><ExternalLink size={15} />项目文档</a></div>
+          <div className="gcore-release-list">{rows.map(row => <article className="gcore-release" key={`${row.version}-${row.build}`}>
+            <header><h4>{name} {row.version} <span>{row.build}</span></h4><em className={`channel-badge ${row.channel === "测试版" ? "beta" : ""}`}>{row.channel}</em>{row.latest && <em className="table-badge latest">最新</em>}{row.recommended && <em className="table-badge">推荐</em>}</header>
+            <time dateTime={row.date.replace(" ", "T")}>{row.date}</time>
+            <p>适用 Minecraft {row.version}，安装包大小 {row.size}。{row.channel === "测试版" ? "测试构建，安装前请确认插件、模组与存档兼容性。" : "稳定渠道构建，升级前请备份服务器数据。"}</p>
+            <button className="gsd-button" onClick={() => { setVersion(row.version); setChannel("全部渠道"); setBuildQuery(row.build); setPage(1); setActiveTab("versions"); }}>查看此构建</button>
+          </article>)}</div>
+        </Tabs.Content>
+        <Tabs.Content value="installation" className="gcore-information-panel">
+          <div className="gcore-panel-heading"><div><h3>{name} 安装说明</h3><p>按以下步骤在控制台选择版本并重建容器。</p></div><a className="gcore-detail-link" href={resources.docs} target="_blank" rel="noreferrer"><BookOpen size={15} />项目文档</a></div>
+          <section className="gcore-install-requirements"><h4>安装前准备</h4><p>确认目标 Minecraft 版本在 {core.range} 范围内，并按该版本的项目文档选择 Java 环境。</p><p>{core.type === "原版" ? "使用原版客户端和对应版本的世界存档。" : `确认现有${core.type === "插件服" ? "插件" : core.type === "混合核心" ? "插件和模组" : "模组及加载器"}与 ${name} 和目标 Minecraft 版本兼容。`}</p></section>
+          <ol className="gcore-install-steps">
+            <li><h4>备份服务器数据</h4><p>备份世界存档、玩家数据、配置文件及插件或模组。可以在重建确认窗口选择“创建备份并重装”。</p></li>
+            <li><h4>选择核心和版本</h4><p>切换到“版本列表”，按 Minecraft 版本、发布渠道或构建号筛选，点击对应行的“安装”。</p></li>
+            <li><h4>确认数据保留方式</h4><p>在确认窗口核对目标核心与版本，选择是否保留世界数据和重装前备份方式，再确认重装。</p></li>
+            <li><h4>检查启动结果</h4><p>重装后检查控制台日志，确认核心成功启动、插件或模组正常加载，再使用匹配版本的客户端连接。</p></li>
+          </ol>
+          <p className="gcore-install-note">当前安装为演示操作，不会连接或修改真实服务器。</p>
+          <button className="gsd-button primary" onClick={() => { clearFilters(); setActiveTab("versions"); }}>前往版本列表</button>
+        </Tabs.Content>
+      </Tabs.Root>
     </main>
   </div>;
 }

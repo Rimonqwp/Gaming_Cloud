@@ -89,7 +89,7 @@
 .gcore-detail-search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: #345581; font: inherit; font-size: 13px; }
 .gcore-detail-search.compact { flex: 1.4; margin: 0; }
 .gcore-detail-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 9px; }
-.gcore-detail-pills button { display: inline-flex; align-items: center; gap: 3px; padding: 6px 9px; border: 1px solid transparent; border-radius: 15px; background: #f4f7fc; color: #6680a6; font-size: 12px; }
+.gcore-detail-pills button, .gcore-detail-pills > span { display: inline-flex; align-items: center; gap: 3px; padding: 6px 9px; border: 1px solid transparent; border-radius: 15px; background: #f4f7fc; color: #6680a6; font-size: 12px; }
 .gcore-detail-pills button.active, .gcore-detail-pills button:hover { border-color: #8bc0ff; background: #edf6ff; color: #087bff; }
 .gcore-detail-pills .recommended-pill { color: #00a879; background: #e5fbf2; }
 .gcore-detail-core-list { display: grid; gap: 4px; }
@@ -122,8 +122,8 @@
 .gcore-detail-stats em { width: fit-content; padding: 1px 5px; border-radius: 3px; background: #dff8ed; color: #00a978; font-size: 11px; font-style: normal; }
 .gcore-detail-tabs { display: flex; gap: 22px; padding: 0 16px; border-bottom: 1px solid #dfeaf8; }
 .gcore-detail-tabs button { position: relative; padding: 12px 2px 10px; border: 0; background: transparent; color: #728aae; font-size: 13px; }
-.gcore-detail-tabs button.active { color: #087bff; font-weight: 700; }
-.gcore-detail-tabs button.active::after { content: ''; position: absolute; right: 0; bottom: -1px; left: 0; height: 3px; border-radius: 3px 3px 0 0; background: #087bff; }
+.gcore-detail-tabs button[data-state="active"] { color: #087bff; font-weight: 700; }
+.gcore-detail-tabs button[data-state="active"]::after { content: ''; position: absolute; right: 0; bottom: -1px; left: 0; height: 3px; border-radius: 3px 3px 0 0; background: #087bff; }
 .gcore-version-panel { padding: 12px 14px 7px; }
 .gcore-version-toolbar { display: flex; gap: 8px; margin-bottom: 10px; }
 .gcore-version-toolbar .gcore-filter { flex: 0 0 160px; }
@@ -145,7 +145,34 @@
 .gcore-pagination button { width: 25px; height: 25px; border: 1px solid #dbe8f7; border-radius: 4px; background: #fff; color: #55759f; font-size: 12px; }
 .gcore-pagination button.active { border-color: #087bff; background: #087bff; color: #fff; }
 .gcore-pagination select { height: 25px; margin-left: 5px; border: 1px solid #dbe8f7; border-radius: 4px; color: #55759f; font-size: 11px; }
-@media (max-width: 1350px) { .gcore-detail { grid-template-columns: 245px minmax(0, 1fr); }.gcore-detail-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }.gcore-detail-stats > div:nth-child(3) { border-right: 0; }.gcore-detail-stats > div:nth-child(n+4) { border-top: 1px solid #edf2f9; } }
+.gcore-pagination button:disabled { opacity: .45; }
+.gcore-result-count { margin-right: auto; color: #718aaf; font-size: 12px; }
+.gcore-version-empty { display: grid; justify-items: center; align-content: center; gap: 12px; min-height: 220px; text-align: center; }
+.gcore-version-empty h3, .gcore-version-empty p { margin: 0; }
+.gcore-sidebar-empty { display: grid; justify-items: center; gap: 10px; padding: 20px 0; text-align: center; }
+.gcore-sidebar-empty button { border: 0; background: transparent; color: #087bff; }
+.gcore-information-panel { padding: 20px; font-size: 13px; line-height: 21px; }
+.gcore-panel-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
+.gcore-panel-heading h3 { margin: 0 0 5px; color: #152454; font-size: 16px; font-weight: 650; }
+.gcore-panel-heading p { margin: 0; color: #718aaf; }
+.gcore-panel-heading .gcore-detail-link { flex: none; }
+.gcore-release-list { display: grid; gap: 12px; }
+.gcore-release { padding: 16px; border: 1px solid #dfeaf8; border-radius: 8px; background: #fbfdff; }
+.gcore-release header { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.gcore-release h4 { margin: 0; color: #152454; font-size: 14px; font-weight: 650; }
+.gcore-release h4 span { margin-left: 5px; color: #718aaf; font-weight: 400; }
+.gcore-release time { display: block; margin-top: 5px; color: #718aaf; font-size: 12px; }
+.gcore-release p { margin: 10px 0; }
+.gcore-install-requirements { padding: 16px; border: 1px solid #dbe8f8; border-radius: 8px; background: #f5f9ff; }
+.gcore-install-requirements h4, .gcore-install-steps h4 { margin: 0 0 6px; color: #152454; font-size: 14px; font-weight: 650; }
+.gcore-install-requirements p { margin: 6px 0 0; }
+.gcore-install-steps { display: grid; gap: 18px; margin: 22px 0; padding-left: 24px; list-style: decimal; }
+.gcore-install-steps li { padding-left: 5px; }
+.gcore-install-steps li::marker { color: #087bff; font-weight: 650; }
+.gcore-install-steps p { margin: 0; }
+.gcore-install-note { color: #718aaf; margin: 0 0 16px; }
+@media (max-width: 760px) { .gcore-version-toolbar { flex-wrap: wrap; }.gcore-version-toolbar .gcore-filter { flex: 1; }.gcore-version-toolbar .gcore-detail-search { flex: 1 0 100%; }.gcore-information-panel { padding: 14px; }.gcore-panel-heading { flex-wrap: wrap; }.gcore-pagination { flex-wrap: wrap; } }
+@media (max-width: 1350px) { .gcore-detail { grid-template-columns: 245px minmax(0, 1fr); } }
 @media (max-width: 900px) { .gcore-detail { grid-template-columns: 1fr; }.gcore-detail-sidebar { order: 2; }.gcore-detail-content { order: 1; }.gcore-detail-hero { flex-direction: column; }.gcore-detail-links { align-items: center; }.gcore-detail-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .gcore-detail-links { display: flex; align-items: center; gap: 8px; flex: none; }
 .gcore-detail-link { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 34px; padding: 0 12px; border: 1px solid #cfe0f5; border-radius: 6px; background: #fff; color: #087bff; font-size: 13px; line-height: 1; text-decoration: none; white-space: nowrap; }
@@ -173,3 +200,9 @@
 .gcore-detail-link { width: 118px; }
 .gcore-detail-core-list strong { display: flex; align-items: baseline; gap: 6px; color: #152454; font-size: 14px; }
 .gcore-detail-core-list strong em { overflow: visible; color: #7490b7; font-size: 11px; font-style: normal; font-weight: 400; white-space: nowrap; }
+@media (max-width: 900px) {
+  .gcore-detail-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gcore-detail-stats dt { white-space: normal; }
+  .gcore-detail-stats > div:nth-child(n+3) { border-top: 1px solid #edf2f9; }
+  .gcore-detail-stats > div:nth-child(2n)::after { display: none; }
+}
