@@ -331,7 +331,7 @@ export function GameServerDetailWorkspace({ server, onBack, onCopy, onRestart, o
       if (next >= 0) { event.preventDefault(); setActiveTab(availableTabs[next].id); document.getElementById(`gsd-tab-${availableTabs[next].id}`)?.focus(); }
     }}><tab.icon size={17} />{tab.label}</button>)}</nav>
     <div ref={panelRef} id="gsd-panel" className="gsd-panel" role="tabpanel" tabIndex={0} aria-labelledby={`gsd-tab-${activeTab}`}>
-      <div hidden={activeTab !== "machine"}><GameServerMachineSettings terminal={consolePanel} server={server} onNotice={onNotice} onLog={log} rebuildHeader={serverHeader} onNavigate={id => setActiveTab(id as DetailTab)} onBackup={() => backupsRef.current?.createBackup() ?? false} /></div>
+      <div hidden={activeTab !== "machine"}><GameServerMachineSettings server={server} onNotice={onNotice} onLog={log} onBackup={() => backupsRef.current?.createBackup() ?? false} /></div>
       <div hidden={activeTab !== "files"}><InstanceDetailFilesView onNotice={onNotice} /></div>
       <div hidden={activeTab !== "logs"}><InstanceDetailLogsView serverName={server.name} onNotice={onNotice} /></div>
       <div hidden={activeTab !== "overview"}><GameServerOverview server={server} onStart={onStart} onStop={onStop} onRestart={onRestart} onBackup={save} onOpen={setActiveTab} onNotice={onNotice} terminal={consolePanel} /></div>

@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from "react";
-import { AlertTriangle, ArrowDown, BadgeCheck, Box, ChevronDown, ChevronRight, Clock3, Database, Download, FileText, FolderClosed, Gamepad2, House, Lightbulb, RefreshCw, Search, SquareTerminal, ChartNoAxesCombined, SlidersHorizontal, Timer, Users, X } from "lucide-react";
+import { useState } from "react";
+import { AlertTriangle, ArrowDown, BadgeCheck, Box, ChevronDown, Clock3, Database, Download, Gamepad2, Lightbulb, RefreshCw, Search, SlidersHorizontal, X } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { Switch } from "../../components/ui/switch";
 import "../../../styles/cloud-core-selector.css";
@@ -16,22 +16,16 @@ const cores = [
   { id: "quilt", name: "Quilt", type: "模组服", description: "另一个现代化的模组加载器，兼容大部分 Fabric 模组，提供更灵活的开发环境。", tags: ["模组服", "轻量", "兼容性好"], range: "1.14 - 1.21", latest: "1.20.6", java: "Java 17+", versions: ["1.21", "1.20.6", "1.20.4", "1.19.4", "1.18.2", "1.14.4"] },
 ];
 type Core = typeof cores[number];
-const navigation = [
-  { id: "overview", label: "概览", icon: House }, { id: "performance", label: "性能监控", icon: ChartNoAxesCombined }, { id: "players", label: "玩家管理", icon: Users },
-  { id: "files", label: "文件管理", icon: FileText }, { id: "cores", label: "版本选择器", icon: Box },
-  { id: "backups", label: "文件备份", icon: FolderClosed }, { id: "logs", label: "日志", icon: FileText }, { id: "tasks", label: "定时任务", icon: Timer },
-] as const;
 
 function CoreImage({ core }: { core: Core }) { return <img className="gcore-image" src={`/console/cores/${core.id}.png`} alt={`${core.name} 核心图标`} />; }
 function Filter({ label, value, options, onChange, icon = false }: { label: string; value: string; options: string[]; onChange: (value: string) => void; icon?: boolean }) {
   return <label className="gcore-filter">{icon && <Box size={17} />}<select aria-label={label} value={value} onChange={event => onChange(event.target.value)}>{options.map(option => <option key={option}>{option}</option>)}</select><ChevronDown size={15} /></label>;
 }
 
-export function GameServerCoreSelector({ open, onOpenChange, header, running, onNavigate, onBackup, onLog, terminal }: {
-  terminal: ReactNode; open: boolean; onOpenChange: (open: boolean) => void; header: ReactNode; running: boolean;
-  onNavigate: (id: string) => void; onBackup: () => boolean; onLog: (message: string) => void;
+export function GameServerCoreSelector({ open, onOpenChange, running, onBackup, onLog }: {
+  open: boolean; onOpenChange: (open: boolean) => void; running: boolean;
+  onBackup: () => boolean; onLog: (message: string) => void;
 }) {
-  const [terminalOpen, setTerminalOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [type, setType] = useState("全部类型");
   const [versionFilter, setVersionFilter] = useState("全部版本");
@@ -59,12 +53,9 @@ export function GameServerCoreSelector({ open, onOpenChange, header, running, on
   return <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="cloud-modal gcore-dialog" onCloseAutoFocus={event => { event.preventDefault(); document.querySelector<HTMLButtonElement>(".gsm-maintenance-grid .blue")?.focus(); }}>
-        <DialogTitle className="sr-only">Minecraft 版本选择器与重装容器设置</DialogTitle>
+        <header className="gcore-dialog-header"><DialogTitle>重建容器</DialogTitle><DialogClose className="gcore-close" aria-label="关闭版本选择器"><X size={21} /></DialogClose></header>
         <DialogDescription className="sr-only">选择服务端核心、版本和世界数据保留方式，再重建游戏容器。</DialogDescription>
         <div className="gcore-frame gsd-page">
-          <nav className="gsd-breadcrumb" aria-label="版本选择器面包屑"><span><button onClick={() => onOpenChange(false)}>控制台</button><ChevronRight size={13} /></span><span><button onClick={() => onOpenChange(false)}>实例</button><ChevronRight size={13} /></span><span><button onClick={() => onOpenChange(false)}>游戏服务器</button><ChevronRight size={13} /></span><strong>实例详情</strong><DialogClose className="gcore-close" aria-label="关闭版本选择器"><X size={20} /></DialogClose></nav>
-          <div className="gcore-server-header">{header}<button className="gsd-button dark gcore-terminal" onClick={() => setTerminalOpen(true)}><SquareTerminal size={18} />打开终端</button></div>
-          <nav className="gsd-tabs" aria-label="重建容器导航">{navigation.map(({ id, label, icon: Icon }) => <button key={id} className={id === "cores" ? "active" : ""} aria-current={id === "cores" ? "page" : undefined} onClick={() => { if (id !== "cores") { onOpenChange(false); onNavigate(id === "performance" ? "overview" : id); } }}><Icon size={17} />{label}</button>)}</nav>
           <div className="gcore-layout">
             <main className="gcore-catalog">
               <section className="gcore-banner"><img src="/console/cores/banner-change.png" alt="草方块切换为宝箱" /><div><h2>更换核心，打造你专属的 Minecraft 服务器</h2><p>支持多种主流服务端核心，一键切换并重装容器，轻松搭建插件服或模组服。</p></div></section>
@@ -92,6 +83,6 @@ export function GameServerCoreSelector({ open, onOpenChange, header, running, on
       </DialogContent>
     </Dialog>
     <Dialog open={confirmation !== null && open} onOpenChange={value => { if (!value) setConfirmation(null); }}><DialogContent className="cloud-modal gsd-dialog gsm-dialog"><DialogTitle>确认重建容器</DialogTitle><DialogDescription>将安装 {target.core.name} {target.version}，{keepWorld ? "保留世界存档及玩家数据" : "清空世界存档及玩家数据"}。{confirmation === "backup" ? "先创建备份，再重建容器。" : "本次不会创建备份。"}当前为演示操作，不会连接真实机器。</DialogDescription><footer><button className="gsd-button" onClick={() => setConfirmation(null)}>取消</button><button className="gsd-button primary" onClick={rebuild}>确认重装</button></footer></DialogContent></Dialog>
-    <Dialog open={terminalOpen && open} onOpenChange={setTerminalOpen}><DialogContent className="cloud-modal gsd-dialog gcore-terminal-dialog"><DialogTitle>服务器终端</DialogTitle><DialogDescription className="sr-only">查看服务器控制台并发送指令。</DialogDescription>{terminal}</DialogContent></Dialog>
+
   </>;
 }

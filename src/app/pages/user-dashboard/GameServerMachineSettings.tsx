@@ -25,8 +25,8 @@ function PanelHeading({ icon: Icon, children }: { icon: LucideIcon; children: Re
   return <h2><Icon size={22} strokeWidth={2} />{children}</h2>;
 }
 
-export function GameServerMachineSettings({ server, onNotice, onLog, rebuildHeader, onNavigate, onBackup, terminal }: {
-  terminal: ReactNode; rebuildHeader: ReactNode; onNavigate: (id: string) => void; onBackup: () => boolean;
+export function GameServerMachineSettings({ server, onNotice, onLog, onBackup }: {
+  onBackup: () => boolean;
   server: ConsoleInstance; onNotice: (message: string) => void; onLog: (message: string) => void;
 }) {
   const [coreSelectorOpen, setCoreSelectorOpen] = useState(false);
@@ -145,7 +145,7 @@ export function GameServerMachineSettings({ server, onNotice, onLog, rebuildHead
     </div>
     <Dialog open={action !== null} onOpenChange={open => { if (!open) setAction(null); }}><DialogContent className="cloud-modal gsd-dialog gsm-dialog"><DialogTitle>{action === "reinstall" ? "确认重装系统" : maintenance.find(item => item.id === action)?.title}</DialogTitle><DialogDescription>{action === "reinstall" ? `将重装为 ${selectedSystem}，系统盘环境与文件将被清空，请确认已完成备份。` : maintenance.find(item => item.id === action)?.confirmation} 当前为演示操作，不会连接真实机器。</DialogDescription><footer><button className="gsd-button" onClick={() => setAction(null)}>取消</button><button className={`gsd-button ${action === "reinstall" ? "danger" : "primary"}`} onClick={confirmAction}>确认{action === "reinstall" ? "重装" : "执行"}</button></footer></DialogContent></Dialog>
     <Dialog open={script !== null} onOpenChange={open => { if (!open) setScript(null); }}><DialogContent className="cloud-modal gsd-dialog gsm-dialog"><DialogTitle>编辑{script === "start" ? "启动" : "停止"}脚本</DialogTitle><DialogDescription>设置服务器脚本的绝对路径（演示配置）。</DialogDescription><form onSubmit={event => { event.preventDefault(); if (!/^\/(?:[^/\s]+\/)*[^/\s]+\.sh$/.test(scriptDraft.trim())) { setFormError("请输入以 / 开头、以 .sh 结尾的绝对路径，不能包含空格。"); return; } if (script) setScripts(previous => ({ ...previous, [script]: scriptDraft.trim() })); setScript(null); onNotice("脚本路径已保存（演示操作）"); }}><label>脚本路径<input aria-label="脚本路径" value={scriptDraft} onChange={event => setScriptDraft(event.target.value)} /></label>{formError && <p className="gsm-form-error" role="alert">{formError}</p>}<footer><button type="button" className="gsd-button" onClick={() => setScript(null)}>取消</button><button type="submit" className="gsd-button primary">保存脚本</button></footer></form></DialogContent></Dialog>
-    <GameServerCoreSelector terminal={terminal} open={coreSelectorOpen} onOpenChange={setCoreSelectorOpen} header={rebuildHeader} running={server.running} onNavigate={onNavigate} onBackup={onBackup} onLog={onLog} />
+    <GameServerCoreSelector open={coreSelectorOpen} onOpenChange={setCoreSelectorOpen} running={server.running} onBackup={onBackup} onLog={onLog} />
     <GameServerPortSettings open={portsOpen} onOpenChange={setPortsOpen} machineName={server.name} settingsPages={settingsPages} activeSetting={activeSetting} onSettingChange={setActiveSetting} rules={portRules} onRulesChange={setPortRules} onNotice={onNotice} />
   </div>;
 }
