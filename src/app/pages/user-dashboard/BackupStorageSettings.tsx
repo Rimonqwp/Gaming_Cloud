@@ -25,7 +25,7 @@ const kinds = [
 ] as const;
 export const defaultBackupStorageConfig = (): BackupStorageConfig => ({
   enabled: true, frequency: "daily", executionTime: "04:00", timezone: "Asia/Shanghai",
-  sourcePath: "/home/server", backupMode: "full", filenameTemplate: "{server_name}_{date}_{time}", verify: true,
+  sourcePath: "", backupMode: "full", filenameTemplate: "{server_name}_{date}_{time}", verify: true,
   targets: [
     { id: "local-backup", kind: "local", name: "本地备份存储", path: "/home/backups", used: 12.6, capacity: 50 },
     { id: "oss-backup", kind: "object", name: "阿里云 OSS", path: "oss://mc-backups", used: 8.4, capacity: 100 },
@@ -41,7 +41,7 @@ const timestamp = () => new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Shang
 export function BackupStorageSettings({ open, onOpenChange, value, onSave, triggerRef }: {
   open: boolean; onOpenChange: (open: boolean) => void; value: BackupStorageConfig; onSave: (value: BackupStorageConfig) => void; triggerRef: RefObject<HTMLButtonElement>;
 }) {
-  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="gsbs-dialog" onCloseAutoFocus={event => { event.preventDefault(); triggerRef.current?.focus({ preventScroll: true }); }}>
+  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="gsbs-dialog" onEscapeKeyDown={event => { if (event.target instanceof HTMLInputElement && event.target.closest(".gsbs-custom-path")) event.preventDefault(); }} onCloseAutoFocus={event => { event.preventDefault(); triggerRef.current?.focus({ preventScroll: true }); }}>
     {open && <BackupStorageForm key="storage-form" value={value} onSave={onSave} onCancel={() => onOpenChange(false)} />}
   </DialogContent></Dialog>;
 }
@@ -55,8 +55,7 @@ function BackupStorageForm({ value, onSave, onCancel }: { value: BackupStorageCo
   const [testTime, setTestTime] = useState("2024-10-26 14:28:12");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [editor, setEditor] = useState<"directories" | "folder" | "source" | "help" | "cost" | null>(null);
-  const [sourcePath, setSourcePath] = useState(draft.sourcePath);
+  const [editor, setEditor] = useState<"directories" | "folder" | "help" | "cost" | null>(null);
   const [directories, setDirectories] = useState(draft.directories);
   const [folderPath, setFolderPath] = useState(draft.path);
   const update = <K extends keyof BackupStorageConfig>(key: K, next: BackupStorageConfig[K]) => {
@@ -78,7 +77,8 @@ function BackupStorageForm({ value, onSave, onCancel }: { value: BackupStorageCo
     }
   };
   const validate = () => {
-    if (!draft.sourcePath.trim().startsWith("/")) return "备份源路径需要以 / 开头。";
+    if (!draft.sourcePath.trim()) return "请选择备份路径。";
+    if (!draft.sourcePath.trim().startsWith("/")) return "备份路径需要以 / 开头。";
     if (draft.enabled && !/^([01]\d|2[0-3]):[0-5]\d$/.test(draft.executionTime)) return "请设置有效的执行时间。";
     if (!draft.name.trim()) return "请输入存储名称。";
     if (!draft.path.trim()) return "请输入存储路径。";
@@ -124,8 +124,7 @@ function BackupStorageForm({ value, onSave, onCancel }: { value: BackupStorageCo
     <header className="gsbs-banner"><span className="gsbs-icon blue"><Cloud size={34} /></span><div><DialogTitle className="gsbs-title">文件备份 <ChevronRight size={20} /> 自动备份设置</DialogTitle><DialogDescription className="gsbs-description">配置自动备份策略、备份内容与范围，定期保护服务器数据。</DialogDescription></div><button type="button" className="gsbs-button" onClick={() => setEditor(editor === "help" ? null : "help")}><CircleHelp size={17} />使用帮助</button></header>
     {editor === "help" && <section className="gsbs-note" role="status"><Info size={18} /><div>设置备份频率、执行时间和源目录后保存；每周在周一、每月在 1 日执行。右侧存储目标可编辑或添加。当前为演示设置，仅在本次页面会话中生效。</div><button type="button" onClick={() => setEditor(null)}>收起</button></section>}
     <form className="gsbs-layout" onSubmit={event => { event.preventDefault(); const next = commitTarget(); if (next) onSave({ ...next, executionTime: String(new FormData(event.currentTarget).get("backupTime") ?? next.executionTime) }); }}>
-      <div className="gsbs-main"><BackupScheduleFields value={draft} onChange={update} onBrowse={() => { setSourcePath(draft.sourcePath); setEditor(editor === "source" ? null : "source"); }} />
-        {editor === "source" && <div className="gsbs-inline-editor"><label>备份源目录<input aria-label="自定义备份源目录" value={sourcePath} onChange={event => setSourcePath(event.target.value)} /></label><button type="button" className="gsbs-button" onClick={() => { if (!sourcePath.trim().startsWith("/")) { setError("备份源路径需要以 / 开头。"); return; } update("sourcePath", sourcePath.trim()); setEditor(null); }}>使用此目录</button></div>}
+      <div className="gsbs-main"><BackupScheduleFields value={draft} onChange={update} />
         {storageEditor && <><section className="gsbs-card gsbs-configuration"><h2><Settings size={19} />存储目标类型</h2><p className="gsbs-section-description">选择备份文件的存储位置，支持多种存储方式，可同时配置多个目标实现多重备份。</p>
         <div className="gsbs-types" role="group" aria-label="存储目标类型">{kinds.map(definition => <button type="button" key={definition.id} className={`gsbs-type${kind === definition.id ? " active" : ""}`} aria-pressed={kind === definition.id} onClick={() => chooseKind(definition.id)}><span className={`gsbs-icon ${definition.id === "remote" ? "ink" : "blue"}`}><definition.icon size={32} /></span><div><strong>{definition.title}</strong><p>{definition.description}</p></div>{kind === definition.id && <span className="gsbs-type-check"><Check size={12} /></span>}</button>)}</div>
         <h2 className="gsbs-subheading"><ClipboardList size={19} />存储配置</h2>

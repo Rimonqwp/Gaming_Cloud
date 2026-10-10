@@ -418,3 +418,18 @@ final result: passed
 - Comparison history: 首次实现后，全图和局部对照均通过，没有触发额外视觉修复。
 - Implementation checklist: 分组外框、分隔线、网格对齐、移动端适配、禁用时区、开关与频率验证完成。
 - final result: passed
+
+## 备份路径选择交互（2026-10-11）
+
+- Source visual truth: 用户 Comment 1 的路径行及交互要求；原页面样式基线 `output/design/backup-integrated/backup-desktop.png`。
+- Implementation screenshot: `output/design/backup-path/choices.png`（1742 × 1238）；手机行内自定义 `output/design/backup-path/custom-mobile.png`（390 × 844）；CSS viewport 与像素尺寸相同，密度 1。
+- State: 未选择路径时显示服务器目录、插件目录、世界目录、自定义；保存过的路径重新打开时直接显示地址和清除按钮。
+- Full-view comparison: 已查看上述基线和新页面完整截图；区域调整限定在路径行。Focused comparison: `output/design/backup-path/comparison-detail.png`（1720 × 68，左右同尺度，已打开比较）。
+- 字体、间距、颜色：沿用原面板 12/13/14px 文字、37px 控件、蓝色图标与浅色边框；四个选项在桌面同排，手机两列；行内输入与确认、取消按钮均可见，无横向溢出。
+- 图像质量：仅复用 Lucide 图标，无新增光栅资产。内容：“备份源路径”改为“备份路径”，移除原下拉框与分离的目录编辑区域。
+- 交互验证：三个预设分别得到 /home/server、/minecraft/plugins、/minecraft/world；清除恢复四个选项；空路径禁止保存；自定义拒绝相对地址，去除首尾空格；Enter 确认后保留面板；保存后重开恢复自定义地址。
+- 动画：选项、输入和已选地址使用 160ms 淡入淡出与轻微位移，尊重 prefers-reduced-motion。
+- Comparison history: [P2] 初轮 Escape 被外层弹窗捕获而关闭面板；已在 DialogContent 拦截行内路径输入的 Escape，再交由输入取消处理。修复后实测面板保持打开并恢复四选项。
+- 浏览器 error 日志为空；构建和 git diff --check 通过。没有遗留 P0/P1/P2。
+- Implementation checklist: 标题、四选项、行内自定义、清除、过渡、地址校验、键盘取消与保存恢复均已验证。
+- final result: passed

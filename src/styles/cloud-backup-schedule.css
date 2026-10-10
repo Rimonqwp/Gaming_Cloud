@@ -22,9 +22,18 @@
 .gsbs-setting-control :is(input, select) { height: 37px; font-size: 13px; border-color: #dbe7fa; border-radius: 5px; padding-left: 12px; padding-right: 10px; }
 .gsbs-execution-time select:disabled { cursor: not-allowed; }
 .gsbs-execution-time input::-webkit-calendar-picker-indicator { opacity: .65; cursor: pointer; }
-.gsbs-source-path { display: flex; gap: 6px; }
-.gsbs-source-path select { min-width: 0; flex: 1; background: #f8fbff; }
-.gsbs-source-path button { display: grid; place-items: center; flex: none; width: 32px; border: 1px solid #d4e3fa; border-radius: 5px; background: #fff; color: #5476ad; }
+.gsbs-path-picker { min-width: 0; }
+.gsbs-path-choices { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.gsbs-path-choices button, .gsbs-source-path button, .gsbs-custom-path button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 37px; padding: 6px 8px; border: 1px solid #dbe7fa; border-radius: 5px; background: #f8fbff; color: #5476ad; font-size: 12px; white-space: nowrap; }
+.gsbs-path-choices button:hover, .gsbs-source-path button:hover, .gsbs-custom-path button:hover { border-color: #80b4ff; background: #edf6ff; color: #087bff; }
+.gsbs-path-choices svg, .gsbs-selected-path svg { flex: none; color: #087bff; }
+.gsbs-source-path, .gsbs-custom-path { display: flex; align-items: flex-start; gap: 6px; }
+.gsbs-selected-path { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; min-height: 37px; padding: 8px 12px; border: 1px solid #dbe7fa; border-radius: 5px; background: #f8fbff; }
+.gsbs-selected-path output { min-width: 0; color: #283f73; font-size: 13px; line-height: 19px; overflow-wrap: anywhere; }
+.gsbs-source-path button, .gsbs-custom-path button { flex: none; }
+.gsbs-custom-path input { flex: 1; min-width: 0; }
+.gsbs-custom-path button { width: 33px; padding: 0; }
+.gsbs-path-error { margin: 5px 0 0; color: #dc3447; font-size: 12px; line-height: 18px; }
 .gsbs-backup-modes { display: flex; gap: 8px; }
 .gsbs-backup-modes label { display: flex; flex: 1; align-items: flex-start; gap: 9px; padding: 7px 10px; min-width: 0; border: 1px solid #e1ebfb; border-radius: 5px; cursor: pointer; }
 .gsbs-backup-modes label.selected { background: #f3f8ff; border-color: #80b4ff; box-shadow: inset 0 0 0 1px #eaf4ff; }
@@ -37,6 +46,7 @@
 .gsbs-savebar .gsbs-button { min-width: 102px; }.gsbs-savebar .primary { min-width: 130px; }
 .gsbs-savebar :is(.gsbs-message, .gsbs-error) { margin: 0 0 10px; }
 @media (max-width: 1200px) { .gsbs-setting-row { gap: 12px; padding: 8px 10px; }.gsbs-backup-modes { flex-direction: column; }.gsbs-execution-time { grid-template-columns: 1fr; } }
+@media (max-width: 1200px) { .gsbs-path-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 760px) {
   .gsbs-schedule-card { padding: 12px; }.gsbs-schedule-card .gsbs-section-description { font-size: 12px; }
   .gsbs-setting-row, .gsbs-schedule-card:nth-child(2) .gsbs-setting-row { grid-template-columns: 24px minmax(0, 1fr); min-height: 72px; gap: 8px 10px; padding: 10px; }
