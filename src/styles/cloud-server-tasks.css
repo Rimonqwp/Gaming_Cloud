@@ -18,7 +18,7 @@
 .gst-change small { display: block; color: #889abb; margin-top: 5px; font-size: 11px; }
 .gst-sparkline { position: absolute; left: 18px; right: 18px; bottom: 6px; height: 16px; }
 .gst-metric-caption { margin: 0; color: #8399ba; font-size: 11px; line-height: 16px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.gst-list { padding: 10px 12px 8px; min-width: 0; }
+.gst-list { padding: 10px 12px 8px; min-width: 0; display: flex; flex-direction: column; }
 .gst-list > header { margin: 0 4px 6px; min-height: 38px; }
 .cloud-shell .gst-list h2 { font-size: 16px; line-height: 23px; }
 .gst-list-actions { display: flex; align-items: center; gap: 8px; }
@@ -32,6 +32,14 @@
 .gst-filters select { flex: 0 1 130px; height: 38px; font-size: 13px; }
 .gst-filters select:nth-of-type(2) { flex-basis: 160px; }
 .gst-selection-count { margin-left: auto; color: #087bff; white-space: nowrap; font-size: 12px; }
+.gst-pagination { margin-top: auto; padding: 15px 4px 4px; display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.gst-pagination > span { margin-right: auto; }
+.gst-pagination nav, .gst-page-number { display: flex; align-items: center; gap: 6px; }
+.gst-pagination nav button { width: 32px; height: 32px; border: 1px solid #dce8f8; border-radius: 5px; display: grid; place-items: center; background: white; color: #5879ab; font-size: 12px; }
+.gst-pagination nav button.active { color: white; background: #0866ff; border-color: #0866ff; }
+.gst-pagination nav button:disabled { color: #a6bbda; cursor: default; }
+.gst-pagination select { height: 32px; font-size: 12px; }
+.gst-page-gap { padding: 0 3px; }
 .gst-table-scroll { min-width: 0; overflow-x: auto; scrollbar-width: thin; }
 .gst-task-table, .gst-history-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 12px; }
 .gst-task-table { min-width: 1120px; font-size: 13px; }
@@ -167,6 +175,9 @@
   .gst-filters .gsd-search { grid-column: 1 / -1; min-width: 0; }
   .gst-filters select { width: 100%; font-size: 10px; padding: 0 4px; }
   .gst-selection-count { grid-column: 1 / -1; margin-left: 0; }
+  .gst-pagination { flex-wrap: wrap; gap: 8px; }
+  .gst-pagination > span { flex-basis: 100%; }
+  .gst-pagination nav { margin-right: auto; }
   .gst-detail-fields { display: block; }
   .gst-detail { padding: 14px; }
   .gst-detail-title .gst-icon-tile { width: 46px; height: 46px; }
