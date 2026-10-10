@@ -195,3 +195,14 @@ final result: passed
 - 手机截图 `output/design/port-security-banner/mobile-final.png`（390 × 844），横幅标题正常换行，背景增加浅色覆盖确保可读性。浮层 clientWidth/scrollWidth 均为 358px，横幅宽 330px，端口表格独立横向滚动。
 - 浏览器确认顶部统计和底部说明区域均不存在；安全建议标签页仍可切换并显示 RCON 建议，返回端口规则正常。
 - 浏览器 error 日志为空，生产构建与 diff 空白检查通过。临时验证标签页已关闭，视口已恢复，用户原标签页未刷新。
+
+---
+
+# 端口横幅画面与文案调整验收（2026-10-10）
+
+final result: passed
+
+- 背景改为居中铺满，并减轻浅色渐变覆盖，保留左侧文字可读性，让场景更清楚。
+- 标题和说明改为端口、协议、访问来源与按需启用规则相关内容。
+- 桌面与手机证据：`output/design/port-banner-refinement/desktop-final.png`（1280 × 720）、`mobile-final.png`（390 × 844）。手机浮层 clientWidth/scrollWidth 均为 358px，没有整体横向溢出。
+- 浏览器 error 日志为空，生产构建通过。
