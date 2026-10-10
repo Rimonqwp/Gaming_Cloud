@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, Circle, Plus, Search, Settings, ShieldCheck, Network, X, type LucideIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, Circle, Plus, Search, Settings, ShieldCheck, Network, X } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { isExposedManagementPort, validatePortRule, type PortRule, type PortRuleDraft } from "./gameServerPortRules";
@@ -16,19 +16,18 @@ function Badge({ children, tone, dot = true }: { children: string; tone: string;
   return <span className={`gport-badge ${tone}`}>{dot && <Circle size={7} fill="currentColor" aria-hidden="true" />}{children}</span>;
 }
 
-export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChange, onNotice, machineName, settingsPages, activeSetting, onSettingChange }: {
+export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChange, onNotice, machineName, activeSetting, onSettingChange }: {
   open: boolean; onOpenChange: (value: boolean) => void; rules: PortRule[];
   onRulesChange: (rules: PortRule[]) => void; onNotice: (message: string) => void;
   machineName: string; activeSetting: string; onSettingChange: (value: string) => void;
-  settingsPages: { id: string; title: string; description: string; icon: LucideIcon; content: ReactNode }[];
 }) {
-  const activePage = settingsPages.find(item => item.id === activeSetting);
+  const currentSetting = activeSetting === "blacklist" ? "blacklist" : "ports";
   const [tab, setTab] = useState("端口规则");
   const [query, setQuery] = useState("");
   const [protocol, setProtocol] = useState("全部协议");
   const [status, setStatus] = useState("全部状态");
   const [networkExpanded, setNetworkExpanded] = useState(true);
-  useEffect(() => { if (open && (activeSetting === "ports" || activeSetting === "blacklist")) setNetworkExpanded(true); }, [open, activeSetting]);
+  useEffect(() => { if (open) setNetworkExpanded(true); }, [open, currentSetting]);
   const [selected, setSelected] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const pageSize = 10;
@@ -70,18 +69,21 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
         <div className="gport-settings-layout">
           <aside className="gport-settings-sidebar">
             <div className="gport-settings-brand"><Settings size={23} /><div><strong>机器设定</strong><span>{machineName}</span></div></div>
-            <nav aria-label="机器设定分页">
-              {[...settingsPages.slice(0, 2), { id: "network-settings", title: "网络设定", icon: Network }, ...settingsPages.slice(2)].map(({ id, title, icon: Icon }) => id === "network-settings" ? <div className="gport-nav-group" key={id}><button type="button" aria-expanded={networkExpanded} aria-controls="gport-network-subnav" className={activeSetting === "ports" || activeSetting === "blacklist" ? "gport-nav-parent-active" : ""} onClick={() => setNetworkExpanded(value => !value)}><Icon size={19} /><span>{title}</span><ChevronDown size={15} /></button><div id="gport-network-subnav" className="gport-subnav" hidden={!networkExpanded}>{[{ id: "ports", title: "开放端口设定" }, { id: "blacklist", title: "IP 黑名单" }].map(item => <button type="button" key={item.id} aria-current={activeSetting === item.id ? "page" : undefined} onClick={() => onSettingChange(item.id)}><span>{item.title}</span></button>)}</div></div> : <button type="button" key={id} aria-current={activeSetting === id ? "page" : undefined} onClick={() => onSettingChange(id)}><Icon size={19} /><span>{title}</span><ChevronRight size={15} /></button>)}
+            <nav aria-label="网络设定分页">
+              <div className="gport-nav-group">
+                <button type="button" aria-expanded={networkExpanded} aria-controls="gport-network-subnav" className="gport-nav-parent-active" onClick={() => setNetworkExpanded(value => !value)}><Network size={19} /><span>网络设定</span><ChevronDown size={15} /></button>
+                <div id="gport-network-subnav" className="gport-subnav" hidden={!networkExpanded}>{[{ id: "ports", title: "开放端口设定" }, { id: "blacklist", title: "IP 黑名单" }].map(item => <button type="button" key={item.id} aria-current={currentSetting === item.id ? "page" : undefined} onClick={() => onSettingChange(item.id)}><span>{item.title}</span></button>)}</div>
+              </div>
             </nav>
           </aside>
           <div className="gport-settings-main">
           <header className="gport-content gport-header">
-            <DialogTitle>{activePage?.title ?? (activeSetting === "blacklist" ? "IP 黑名单" : "开放端口设定")}</DialogTitle>
-            <DialogDescription className="sr-only">{activePage?.description ?? "管理服务器的防火墙规则，控制端口的开放范围，保障服务器安全。"}</DialogDescription>
+            <DialogTitle>{currentSetting === "blacklist" ? "IP 黑名单" : "开放端口设定"}</DialogTitle>
+            <DialogDescription className="sr-only">管理服务器的防火墙规则，控制端口的开放范围，保障服务器安全。</DialogDescription>
             <DialogClose className="gport-header-close" aria-label="关闭机器设定"><X size={21} /></DialogClose>
           </header>
         <div className="gport-settings-stage">
-        <div className="gport-content" hidden={activeSetting !== "ports"}>
+        <div className="gport-content" hidden={currentSetting !== "ports"}>
           <section className="gport-security-banner" aria-label="端口访问设定">
             <span className="gport-banner-shield"><ShieldCheck size={34} /></span>
             <div><h3>按需开放端口，让服务器连接更安全</h3><p>配置 {machineName} 的端口、协议和访问来源，按需启用规则，减少不必要的公网暴露。</p></div>
@@ -94,8 +96,7 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
           </div>
           <div role="tabpanel" className="gport-advice" id="gport-panel-安全建议" aria-labelledby="gport-tab-安全建议" hidden={tab !== "安全建议"}><h3><ShieldCheck size={23} />服务器端口安全建议</h3><p>优先开放游戏所需端口，将管理端口的来源限制为可信 IP。</p>{rules.filter(isExposedManagementPort).map(rule => <div className="gport-risk-note" key={rule.id}><AlertTriangle size={22} /><div><strong>{rule.title} · {rule.protocol} {rule.range}</strong><p>当前对所有 IPv4 地址开放，建议编辑规则并设置来源 IP 白名单。</p></div><button className="gport-button" onClick={() => { setError(""); setEditor({ id: rule.id, draft: { ...rule } }); }}>编辑规则</button></div>)}{!riskCount && <p className="gport-advice-success"><ShieldCheck size={22} />当前未发现对公网开放的高风险管理端口。</p>}<ul>{recommendations.map(text => <li key={text}>{text}</li>)}</ul></div>
         </div>
-        <div className="gport-content gport-settings-page" hidden={activeSetting !== "blacklist"}><GameServerIpBlacklist entries={blacklist} onEntriesChange={setBlacklist} onNotice={onNotice} /></div>
-        {activePage && <div className="gport-content gport-settings-page"><div className="gsm-workspace gport-machine-panel">{activePage.content}</div></div>}
+        <div className="gport-content gport-settings-page" hidden={currentSetting !== "blacklist"}><GameServerIpBlacklist entries={blacklist} onEntriesChange={setBlacklist} onNotice={onNotice} /></div>
         <GameServerPortRuleDrawer container={editorContainer} editor={editor} error={error} templates={templates} onDraftChange={draft => { setError(""); setEditor(previous => previous ? { ...previous, draft } : null); }} onClose={() => setEditor(null)} onSave={saveRule} />
         </div>
           </div>
