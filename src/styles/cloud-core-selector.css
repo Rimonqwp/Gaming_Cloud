@@ -25,7 +25,6 @@
 .gcore-search:focus-within, .gcore-filter:focus-within { outline: 2px solid #a9ccff; outline-offset: 1px; }
 .gcore-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 11px; padding: 0 7px 7px; background: #fff; border-radius: 0 0 8px 8px; }
 .gcore-card { display: flex; flex-direction: column; min-width: 0; padding: 15px 17px 11px; border: 1px solid #dfebfb; border-radius: 9px; background: #fff; }
-.gcore-card.recommended { border-color: #77adff; background: #f6fbff; }
 .gcore-card.selected { border-color: #087bff; box-shadow: 0 0 0 1px #087bff20; }
 .gcore-card:hover { border-color: #87b6ff; }
 .gcore-card-main { display: flex; flex: 1; gap: 18px; align-items: flex-start; min-height: 111px; }
