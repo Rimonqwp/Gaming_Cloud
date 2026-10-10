@@ -1,16 +1,11 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { AlertTriangle, Check, ChevronDown, ChevronLeft, ChevronRight, Circle, Clock3, Database, Info, Plus, Search, Settings, ShieldCheck, Upload, type LucideIcon } from "lucide-react";
+import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, Circle, Clock3, Database, Plus, Search, Settings, ShieldCheck, Upload, type LucideIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { isExposedManagementPort, parsePortRuleImport, validatePortRule, type PortRule, type PortRuleDraft } from "./gameServerPortRules";
 import "../../../styles/cloud-port-settings.css";
 
 const blankRule: PortRuleDraft = { protocol: "TCP", range: "", source: "0.0.0.0/0", title: "", description: "", enabled: true, risk: "低风险" };
-const portHelp = [
-  ["25565", "Minecraft Java 版默认游戏端口"], ["19132", "Minecraft 基岩版默认游戏端口"],
-  ["25575", "RCON 远程控制端口"], ["8080", "Web 控制面板访问端口"],
-  ["22", "SSH 远程连接端口"], ["443", "HTTPS 安全访问端口"],
-];
 const recommendations = ["开放 25565 TCP（Minecraft Java 版）", "开放 19132 UDP（Minecraft 基岩版）", "仅允许特定 IP 访问管理端口（如 22、25575）", "启用 DDoS 防护，防止恶意流量攻击"];
 
 function SelectField({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: string[] }) {
@@ -40,7 +35,6 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
   const [importOpen, setImportOpen] = useState(false);
   const [importText, setImportText] = useState("");
   const [deleteIds, setDeleteIds] = useState<string[]>([]);
-  const [info, setInfo] = useState<"安全提示" | "端口说明" | null>(null);
   const [error, setError] = useState("");
   const [updatedAt, setUpdatedAt] = useState("2024-10-26 14:28");
   const selectAllRef = useRef<HTMLInputElement>(null);
@@ -58,13 +52,6 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
     onNotice(`${message}（演示操作）`);
   };
   const toggle = (ids: string[], enabled: boolean) => update(rules.map(rule => ids.includes(rule.id) ? { ...rule, enabled } : rule), `已${enabled ? "启用" : "禁用"} ${ids.length} 条端口规则`);
-  const applyRecommendations = () => {
-    const next = rules.map(rule => rule.range === "25565" || rule.range === "19132" ? { ...rule, enabled: true } : rule);
-    for (const [range, protocol, title] of [["25565", "TCP", "Minecraft Java 版游戏端口"], ["19132", "UDP", "Minecraft 基岩版端口"]] as const) {
-      if (!next.some(rule => rule.range === range && rule.protocol === protocol)) next.push({ ...blankRule, id: crypto.randomUUID(), range, protocol, title });
-    }
-    update(next, "已应用推荐游戏端口；管理 IP 白名单与 DDoS 防护需按实例环境配置");
-  };
   const saveRule = () => {
     if (!editor) return;
     const draft = { ...editor.draft, range: editor.draft.range.replace(/\s/g, ""), source: editor.draft.source.trim(), title: editor.draft.title.trim(), description: editor.draft.description.trim() };
@@ -113,11 +100,6 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
             <footer className="gport-pagination"><span>共 {rules.length} 条规则，已启用 {enabledCount} 条，已停用 {rules.length - enabledCount} 条{filtered.length !== rules.length && ` · 筛选后 ${filtered.length} 条`}</span><nav aria-label="端口规则分页"><button className="gport-page" aria-label="上一页" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}><ChevronLeft size={16} /></button>{Array.from({ length: totalPages }, (_, index) => index + 1).filter(value => value === 1 || value === totalPages || Math.abs(value - currentPage) < 2).map((value, index, pages) => <span className="gport-page-group" key={value}>{index > 0 && value - pages[index - 1] > 1 && <span>…</span>}<button className={`gport-page ${currentPage === value ? "active" : ""}`} aria-label={`第 ${value} 页`} aria-current={currentPage === value ? "page" : undefined} onClick={() => setPage(value)}>{value}</button></span>)}<button className="gport-page" aria-label="下一页" disabled={currentPage === totalPages} onClick={() => setPage(currentPage + 1)}><ChevronRight size={16} /></button><SelectField label="每页规则数量" value={`${pageSize} 条/页`} onChange={value => { setPageSize(parseInt(value)); setPage(1); }} options={["5 条/页", "10 条/页", "20 条/页"]} /></nav></footer>
           </div>
           <div role="tabpanel" className="gport-advice" id="gport-panel-安全建议" aria-labelledby="gport-tab-安全建议" hidden={tab !== "安全建议"}><h3><ShieldCheck size={23} />服务器端口安全建议</h3><p>优先开放游戏所需端口，将管理端口的来源限制为可信 IP。</p>{rules.filter(isExposedManagementPort).map(rule => <div className="gport-risk-note" key={rule.id}><AlertTriangle size={22} /><div><strong>{rule.title} · {rule.protocol} {rule.range}</strong><p>当前对所有 IPv4 地址开放，建议编辑规则并设置来源 IP 白名单。</p></div><button className="gport-button" onClick={() => { setError(""); setEditor({ id: rule.id, draft: { ...rule } }); }}>编辑规则</button></div>)}{!riskCount && <p className="gport-advice-success"><ShieldCheck size={22} />当前未发现对公网开放的高风险管理端口。</p>}<ul>{recommendations.map(text => <li key={text}>{text}</li>)}</ul></div>
-          <section className="gport-bottom" aria-label="端口说明与建议">
-            <article><header><h3><Info size={24} fill="currentColor" className="gport-info-icon" />安全提示</h3><button onClick={() => setInfo("安全提示")}>查看详情<ChevronRight size={13} /></button></header><ul className="gport-tips"><li>仅开放必要的端口，避免不必要的安全风险。</li><li>建议通过 IP 白名单限制管理类端口（如 SSH、RCON）。</li><li>定期检查和清理不再使用的端口规则。</li></ul></article>
-            <article><header><h3><ShieldCheck size={24} />推荐规则</h3><button className="gport-apply" onClick={applyRecommendations}>一键应用</button></header><ul className="gport-recommendations">{recommendations.map(text => <li key={text}><span><Check size={16} /></span>{text}</li>)}</ul></article>
-            <article><header><h3><Database size={24} />端口说明</h3><button onClick={() => setInfo("端口说明")}>查看全部<ChevronRight size={13} /></button></header><dl className="gport-port-help">{portHelp.map(([port, text]) => <div key={port}><dt>{port}</dt><dd>{text}</dd></div>)}</dl></article>
-          </section>
         </div>
         {activePage && <div className="gport-content gport-settings-page"><div className="gsm-workspace gport-machine-panel">{activePage.content}</div></div>}
           </div>
@@ -127,6 +109,5 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
     <Dialog open={editor !== null} onOpenChange={value => { if (!value) setEditor(null); }}><DialogContent className="cloud-modal gport-form-dialog"><DialogTitle>{editor?.id ? "编辑端口规则" : "新增端口规则"}</DialogTitle><DialogDescription>规则保存在当前页面会话，不会连接真实防火墙。</DialogDescription>{editor && <form onSubmit={event => { event.preventDefault(); saveRule(); }}><div className="gport-form-grid"><label>协议<SelectField label="端口协议" value={editor.draft.protocol} options={["TCP", "UDP"]} onChange={value => setEditor({ ...editor, draft: { ...editor.draft, protocol: value as PortRule["protocol"] } })} /></label><label>端口范围<input aria-label="端口范围" value={editor.draft.range} placeholder="例如：25565 或 25565-25570" onChange={event => setEditor({ ...editor, draft: { ...editor.draft, range: event.target.value } })} /></label><label className="wide">来源 IP / CIDR<input aria-label="来源 IP / CIDR" value={editor.draft.source} onChange={event => setEditor({ ...editor, draft: { ...editor.draft, source: event.target.value } })} /></label><label className="wide">说明<input aria-label="端口说明" value={editor.draft.title} onChange={event => setEditor({ ...editor, draft: { ...editor.draft, title: event.target.value } })} /></label><label className="wide">补充说明<input aria-label="补充说明" value={editor.draft.description} onChange={event => setEditor({ ...editor, draft: { ...editor.draft, description: event.target.value } })} /></label><label>风险等级<SelectField label="端口风险等级" value={editor.draft.risk} options={["低风险", "中风险", "高风险"]} onChange={value => setEditor({ ...editor, draft: { ...editor.draft, risk: value as PortRule["risk"] } })} /></label><label className="gport-form-checkbox"><input type="checkbox" checked={editor.draft.enabled} onChange={event => setEditor({ ...editor, draft: { ...editor.draft, enabled: event.target.checked } })} />启用此规则</label></div>{error && <p role="alert" className="gport-form-error">{error}</p>}<footer><button type="button" className="gport-button muted" onClick={() => setEditor(null)}>取消</button><button type="submit" className="gport-button primary">保存规则</button></footer></form>}</DialogContent></Dialog>
     <Dialog open={importOpen} onOpenChange={setImportOpen}><DialogContent className="cloud-modal gport-form-dialog"><DialogTitle>批量导入端口规则</DialogTitle><DialogDescription>每行一条规则：协议,端口范围,来源 IP/CIDR,说明,补充说明（可选）。</DialogDescription><form onSubmit={event => { event.preventDefault(); importRules(); }}><textarea aria-label="批量端口规则" placeholder={"TCP,25566,0.0.0.0/0,备用游戏端口,玩家连接\nUDP,19133,0.0.0.0/0,备用基岩版端口"} value={importText} onChange={event => setImportText(event.target.value)} />{error && <p role="alert" className="gport-form-error">{error}</p>}<footer><button type="button" className="gport-button muted" onClick={() => setImportOpen(false)}>取消</button><button type="submit" className="gport-button primary">导入规则</button></footer></form></DialogContent></Dialog>
     <Dialog open={deleteIds.length > 0} onOpenChange={value => { if (!value) setDeleteIds([]); }}><DialogContent className="cloud-modal gport-form-dialog"><DialogTitle>删除端口规则</DialogTitle><DialogDescription>确认删除所选的 {deleteIds.length} 条规则？当前操作仅影响演示页面。</DialogDescription><footer><button className="gport-button muted" onClick={() => setDeleteIds([])}>取消</button><button className="gport-button danger" onClick={() => { update(rules.filter(rule => !deleteIds.includes(rule.id)), `已删除 ${deleteIds.length} 条端口规则`); setSelected(previous => previous.filter(id => !deleteIds.includes(id))); setDeleteIds([]); }}>确认删除</button></footer></DialogContent></Dialog>
-    <Dialog open={info !== null} onOpenChange={value => { if (!value) setInfo(null); }}><DialogContent className="cloud-modal gport-form-dialog"><DialogTitle>{info}</DialogTitle><DialogDescription>{info === "安全提示" ? "按业务需要开放端口，并限制管理端口的访问来源。" : "常见游戏与管理服务的默认端口，可根据实际配置调整。"}</DialogDescription>{info === "安全提示" ? <ul className="gport-tips"><li>SSH 和 RCON 建议仅允许可信 IP 访问。</li><li>定期停用不再使用的规则，保持最小开放范围。</li><li>启用 DDoS 防护需要在实际托管平台配置。</li></ul> : <dl className="gport-port-help">{portHelp.map(([port, text]) => <div key={port}><dt>{port}</dt><dd>{text}</dd></div>)}</dl>}</DialogContent></Dialog>
   </>;
 }
