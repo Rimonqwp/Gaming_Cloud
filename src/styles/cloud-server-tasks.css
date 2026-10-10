@@ -3,7 +3,7 @@
 .gst-layout:has(.gst-detail) { grid-template-columns: minmax(0, 3.22fr) minmax(340px, 1fr); }
 .gst-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .gst-metric { --gst-tone: #087bff; position: relative; min-width: 0; height: 128px; padding: 15px 18px 10px; border: 1px solid #e0eaf7; border-radius: 7px; background: #fff; }
-.gst-metric.green, .gst-enable { --gst-tone: #00bf89; }
+.gst-metric.green { --gst-tone: #00bf89; }
 .gst-metric.purple, .gst-detail-title.purple { --gst-tone: #a146ff; }
 .gst-metric.orange, .gst-detail-title.orange { --gst-tone: #ff8709; }
 .gst-metric-top { display: flex; gap: 14px; align-items: flex-start; min-height: 51px; }
@@ -23,8 +23,6 @@
 .cloud-shell .gst-list h2 { font-size: 16px; line-height: 23px; }
 .gst-list-actions { display: flex; align-items: center; gap: 8px; }
 .gst-list-actions .gsd-button { height: 38px; padding: 0 14px; gap: 8px; font-size: 13px; }
-.gsd-page .gst-enable { color: #00b985; border-color: #d6f0e7; }
-.gst-list-actions .danger { border-color: #fde2e4; }
 .gst-filters { display: grid; grid-template-columns: minmax(180px, 2fr) repeat(3, minmax(110px, 1fr)) auto; align-items: center; gap: 8px; margin: 0 5px 8px; }
 .gst-filters .gsd-search { width: 100%; min-width: 0; height: 38px; }
 .gst-filters .gsd-search input { width: 100%; outline: 0; border: 0; color: #5d759e; background: transparent; font: inherit; font-size: 15px; }
