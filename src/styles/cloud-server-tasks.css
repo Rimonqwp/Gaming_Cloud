@@ -96,12 +96,13 @@
 .gst-detail-value { display: inline-block; min-width: 0; max-width: 100%; vertical-align: top; }
 .gst-detail-title h3, .gst-detail-title p, .gst-detail-fields dd { overflow: hidden; }
 .gst-detail-fields { margin: 0 0 17px; }
-.gst-detail-fields > div { display: grid; grid-template-columns: 100px minmax(0, 1fr); align-items: start; gap: 11px; min-height: 28px; }
+.gst-detail-fields > div { display: grid; grid-template-columns: 100px minmax(0, 1fr); align-items: center; gap: 11px; min-height: 28px; }
 .gst-detail-fields dt { color: #7c91b4; font-size: 13px; line-height: 21px; }
 .gst-detail-fields dd { margin: 0; color: #4e6b99; font-size: 13px; line-height: 21px; display: flex; align-items: center; min-width: 0; overflow-wrap: anywhere; }
 .gst-detail-fields dd > span[title] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gst-detail-fields dd button { margin-left: auto; border: 0; background: transparent; color: #6584b2; padding: 2px 0 2px 6px; display: inline-flex; flex: none; }
 .gst-detail-fields .gst-last-run { font-size: 11px; white-space: nowrap; }
+.gst-detail-fields .gst-detail-value:has(.gst-result) { display: inline-flex; align-items: center; }
 .gst-detail-fields .gst-result { gap: 5px; }
 .gst-detail-fields .gst-result svg { height: 20px; width: 20px; border-radius: 50%; background: currentColor; fill: currentColor; stroke: white; }
 .gst-detail-fields .gst-result.pending svg { background: transparent; fill: none; stroke: currentColor; }
