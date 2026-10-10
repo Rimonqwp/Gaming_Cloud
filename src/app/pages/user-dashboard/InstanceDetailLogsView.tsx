@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowDown, ArrowUp, Bell, Bot, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, CodeXml, Download, Monitor, RefreshCw, Search, Settings, ShieldCheck, ShieldAlert, TriangleAlert, Users, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Bell, Bot, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, ClipboardList, CodeXml, Download, Monitor, RefreshCw, Search, Settings, ShieldCheck, ShieldAlert, TriangleAlert, X } from "lucide-react";
 import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import "../../../styles/cloud-logs.css";
@@ -62,7 +62,7 @@ export function InstanceDetailLogsView({ serverName, onNotice }: { serverName: s
     const link = document.createElement("a"); link.href = url; link.download = `${serverName}-审计日志.csv`; link.click(); window.setTimeout(() => URL.revokeObjectURL(url), 1000);
     onNotice(`已导出 ${exported.length} 条${visibleSelected.length ? "选中" : "筛选后"}日志`);
   };
-  const metricDefinitions = [ { title: "管理员操作", value: 128, change: "12%", up: true, tone: "blue", icon: Settings }, { title: "登录记录", value: 356, change: "8%", up: false, tone: "blue", icon: Users }, { title: "敏感指令", value: 42, change: "35%", up: true, tone: "red", icon: CodeXml }, { title: "权限变更", value: 18, change: "20%", up: false, tone: "orange", icon: ShieldCheck }, { title: "失败尝试", value: 23, change: "", up: false, tone: "purple", icon: TriangleAlert } ];
+  const metricDefinitions = [ { title: "管理员操作", value: 128, change: "12%", up: true, tone: "blue", icon: Settings }, { title: "敏感指令", value: 42, change: "35%", up: true, tone: "red", icon: CodeXml }, { title: "权限变更", value: 18, change: "20%", up: false, tone: "orange", icon: ShieldCheck }, { title: "失败尝试", value: 23, change: "", up: false, tone: "purple", icon: TriangleAlert } ];
   return <div className="ial-layout">
     <section className="ial-metrics" aria-label="近七天审计统计">{metricDefinitions.map((metric, index) => <article className={`gsd-card ial-metric ${metric.tone}`} key={metric.title}><div className="ial-metric-top"><span className="ial-icon-tile"><metric.icon size={23} /></span><div><h2>{metric.title}</h2><strong>{metric.value}<small>次</small></strong></div>{metric.change && <span className={`ial-change ${metric.up && metric.tone === "red" ? "red" : "green"}`}>{metric.up ? <ArrowUp size={13} /> : <ArrowDown size={13} />}{metric.change}</span>}</div><span className="ial-metric-period">近 7 天</span><div className="ial-sparkline" aria-hidden="true"><ResponsiveContainer width="100%" height="100%"><BarChart data={[5, 8, 11, 18, 12, 8, 10, 15, 20, 18, 26, 30, 22, 17, 22, 17, 9].map((value, point) => ({ value: value + (point * (index + 2) % 9) }))} barCategoryGap="32%"><Bar dataKey="value" fill={metric.tone === "red" ? "#ff9ea7" : metric.tone === "orange" ? "#ffc276" : metric.tone === "purple" ? "#c79bff" : "#8cbfff"} isAnimationActive={false} /></BarChart></ResponsiveContainer></div></article>)}</section>
     <div className="ial-main">
