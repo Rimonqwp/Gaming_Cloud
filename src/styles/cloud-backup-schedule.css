@@ -1,46 +1,48 @@
-.gsbs-schedule-card { padding: 14px 17px 13px; }
+.gsbs-schedule-card { padding: 13px 17px; }
 .gsbs-schedule-card .gsbs-section-description { margin-top: 4px; font-size: 13px; line-height: 18px; }
-.gsbs-setting-rows { margin-top: 11px; }
-.gsbs-setting-row { display: flex; align-items: center; gap: 22px; min-height: 58px; padding: 9px 18px; border: 1px solid #e2ebfa; border-radius: 5px; }
-.gsbs-setting-row + .gsbs-setting-row { margin-top: -1px; }
+.gsbs-setting-rows { margin-top: 11px; border: 1px solid #e3edfc; border-radius: 5px; }
+.gsbs-setting-row { display: grid; grid-template-columns: 27px minmax(0, 1fr) minmax(0, 52%); align-items: center; gap: 13px; min-height: 49px; padding: 8px 16px; }
+.gsbs-setting-row + .gsbs-setting-row { border-top: 1px solid #eaf0fa; }
 .gsbs-setting-icon { color: #087bff; flex: none; }
 .gsbs-setting-label { flex: 1; min-width: 0; }
 .gsbs-setting-label > strong { color: #102047; font-size: 14px; font-weight: 650; line-height: 21px; }
-.gsbs-setting-label p, .gsbs-backup-modes p { color: #7e94b8; font-size: 13px; line-height: 18px; margin: 1px 0 0; }
-.gsbs-setting-control { flex: 0 0 50%; min-width: 0; }
+.gsbs-setting-label p, .gsbs-backup-modes p { color: #7b91b6; font-size: 12px; line-height: 18px; margin: 1px 0 0; }
+.gsbs-setting-control { min-width: 0; }
 .gsbs-setting-control > small { display: block; color: #8296b9; font-size: 12px; line-height: 18px; margin-top: 3px; }
-.gsbs-setting-tall { min-height: 73px; padding-top: 8px; padding-bottom: 8px; }
-.gsbs-setting-mode { padding-top: 3px; padding-bottom: 3px; }
-.gsbs-setting-toggle { display: flex; align-items: center; justify-content: flex-end; gap: 11px; font-size: 14px; font-weight: 500; color: #087bff; cursor: pointer; }
+.gsbs-setting-tall { min-height: 65px; }
+.gsbs-setting-mode { padding-top: 8px; padding-bottom: 8px; }
+.gsbs-setting-toggle { display: flex; align-items: center; justify-content: flex-end; gap: 10px; font-size: 12px; font-weight: 500; color: #087bff; cursor: pointer; }
 .gsbs-frequency { display: flex; gap: 3px; }
 .gsbs-frequency label { position: relative; flex: 1; cursor: pointer; text-align: center; color: #7287ab; font-size: 13px; line-height: 34px; border: 1px solid transparent; border-radius: 5px; background: #f1f6fd; }
-.gsbs-frequency label.selected { color: #087bff; font-weight: 650; border-color: #087bff; background: #f9fcff; }
+.gsbs-frequency label.selected { color: #087bff; font-weight: 650; border-color: #80b4ff; background: #f7fbff; box-shadow: inset 0 0 0 2px #e8f3ff; }
 .gsbs-setting-control .gsbs-frequency input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
 .gsbs-frequency label:has(input:disabled) { opacity: .6; cursor: not-allowed; }.gsbs-frequency input:disabled { cursor: not-allowed; }
 .gsbs-frequency label:has(input:focus-visible) { outline: 2px solid #087bff; outline-offset: 3px; }
 .gsbs-execution-time { display: grid; grid-template-columns: 1fr 1.8fr; gap: 9px; }
-.gsbs-setting-control :is(input, select) { height: 36px; font-size: 13px; padding-left: 12px; padding-right: 10px; }
+.gsbs-setting-control :is(input, select) { height: 37px; font-size: 13px; border-color: #dbe7fa; border-radius: 5px; padding-left: 12px; padding-right: 10px; }
+.gsbs-execution-time select:disabled { cursor: not-allowed; }
 .gsbs-execution-time input::-webkit-calendar-picker-indicator { opacity: .65; cursor: pointer; }
 .gsbs-source-path { display: flex; gap: 6px; }
 .gsbs-source-path select { min-width: 0; flex: 1; background: #f8fbff; }
 .gsbs-source-path button { display: grid; place-items: center; flex: none; width: 32px; border: 1px solid #d4e3fa; border-radius: 5px; background: #fff; color: #5476ad; }
 .gsbs-backup-modes { display: flex; gap: 8px; }
 .gsbs-backup-modes label { display: flex; flex: 1; align-items: flex-start; gap: 9px; padding: 7px 10px; min-width: 0; border: 1px solid #e1ebfb; border-radius: 5px; cursor: pointer; }
-.gsbs-backup-modes label.selected { background: #f0f7ff; }
+.gsbs-backup-modes label.selected { background: #f3f8ff; border-color: #80b4ff; box-shadow: inset 0 0 0 1px #eaf4ff; }
 .gsbs-setting-control .gsbs-backup-modes input { appearance: auto; accent-color: #087bff; flex: none; width: 17px; height: 17px; padding: 0; margin: 3px 0 0; }
 .gsbs-backup-modes strong { color: #182d58; font-size: 14px; line-height: 19px; font-weight: 650; }
 .gsbs-backup-modes p { font-size: 12px; line-height: 17px; }
-.gsbs-schedule-card:nth-child(2) .gsbs-setting-control { flex-basis: 55.5%; }
+.gsbs-schedule-card:nth-child(2) .gsbs-setting-row { grid-template-columns: 27px minmax(0, 1fr) minmax(0, 55.5%); }
+.gsbs-savebar { padding-top: 12px; border-top: 1px solid #dfeafa; }
 .gsbs-savebar footer { display: flex; align-items: center; gap: 12px; }
 .gsbs-savebar .gsbs-button { min-width: 102px; }.gsbs-savebar .primary { min-width: 130px; }
 .gsbs-savebar :is(.gsbs-message, .gsbs-error) { margin: 0 0 10px; }
-@media (max-width: 1200px) { .gsbs-setting-row { gap: 12px; padding: 10px; }.gsbs-setting-control { flex-basis: 55%; }.gsbs-setting-label p { font-size: 12px; }.gsbs-backup-modes { flex-direction: column; }.gsbs-execution-time { grid-template-columns: 1fr; } }
+@media (max-width: 1200px) { .gsbs-setting-row { gap: 12px; padding: 8px 10px; }.gsbs-backup-modes { flex-direction: column; }.gsbs-execution-time { grid-template-columns: 1fr; } }
 @media (max-width: 760px) {
   .gsbs-schedule-card { padding: 12px; }.gsbs-schedule-card .gsbs-section-description { font-size: 12px; }
-  .gsbs-setting-row { flex-wrap: wrap; min-height: 72px; gap: 8px 12px; padding: 12px 10px; }
-  .gsbs-setting-icon { width: 21px; }.gsbs-setting-label { flex: 1 0 calc(100% - 40px); }.gsbs-setting-label > strong { font-size: 13px; }
-  .gsbs-setting-control, .gsbs-schedule-card:nth-child(2) .gsbs-setting-control { flex: 1 0 calc(100% - 33px); margin-left: 33px; }
-  .gsbs-setting-control:has(.gsbs-setting-toggle) { flex: none; width: 100%; margin: 0; }
+  .gsbs-setting-row, .gsbs-schedule-card:nth-child(2) .gsbs-setting-row { grid-template-columns: 24px minmax(0, 1fr); min-height: 72px; gap: 8px 10px; padding: 10px; }
+  .gsbs-setting-icon { width: 21px; }.gsbs-setting-label > strong { font-size: 13px; }
+  .gsbs-setting-control { grid-column: 2; }
+  .gsbs-setting-toggle { justify-content: flex-start; }
   .gsbs-setting-toggle { font-size: 12px; }.gsbs-execution-time { grid-template-columns: 1fr; }.gsbs-frequency label { font-size: 12px; line-height: 31px; }
   .gsbs-backup-modes { flex-direction: column; }.gsbs-backup-modes strong { font-size: 13px; }
 }

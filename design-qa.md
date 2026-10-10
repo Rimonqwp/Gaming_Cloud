@@ -398,3 +398,23 @@ final result: passed
 - 备份检查：“立即备份”成功后按钮禁用并显示状态；随后“创建备份并重装”没有重复创建备份，备份日志次数维持 1。未提前备份时该主按钮自动创建备份，次数增加到 2，并完成演示重装。备份失败分支保留弹窗并显示错误，未将其模拟为成功。
 - 关闭按钮及 Esc 检查通过，Esc 仅关闭重装设置、保留核心详情。浏览器 error 日志为空，`npm run build` 与 `git diff --check` 通过；构建保留已有的大 bundle 提示。
 - 无未解决 P0/P1。真实容器接口与真实版本数据未在本次请求中接入，沿用既有演示数据和备份回调；当前核心初始信息沿用页面现有 Paper 1.20.4 演示值，完成演示重装后在本页面会话更新。
+
+## 自动备份一体式设置（2026-10-11）
+
+- 范围：参照用户选中的定时任务面板，将自动备份的基础设置、备份内容与范围改为共享外框和细分隔线；保留备份内容、侧栏与交互。
+- Source visual truth: `output/design/backup-integrated/task-reference.png`（当前定时任务新建面板，与用户参考截图一致的分组样式）。
+- Implementation: `output/design/backup-integrated/backup-desktop.png`；手机验证：`output/design/backup-integrated/backup-mobile.png`。
+- Viewport: 桌面 1742 × 1238，参考和实现截图均为 1742 × 1238 像素，密度 1；手机 CSS 与截图均为 390 × 844，密度 1。对照未缩放。
+- State: 对应面板打开、开关开启、每天 04:00、上海时区。参考为定时任务，实现为自动备份，内容和面板高度按各自业务保留；本次迁移分组样式，不复制定时任务字段。
+- Full-view comparison: `output/design/backup-integrated/comparison.png`（3484 × 1238，左右同尺度）。Focused comparison: `output/design/backup-integrated/comparison-detail.png`（1701 × 202，基础设置行组同尺度），已打开并比较。
+- 字体与排版：沿用相同 Inter / Noto Sans SC / Microsoft YaHei 字体；标题 14px，辅助文案 12px / 18px，开关状态 12px，与参考一致，桌面文案无截断。
+- 间距与布局：每组仅一个 5px 圆角外框，行间细分隔线；27px 图标列、13px 列间距、8px / 16px 内边距和 49px 常规行高对齐参考。较长备份路径说明和模式卡片保留所需行高。手机控件置于文字下方，组内 scrollWidth = clientWidth = 312，无横向溢出。
+- 颜色与 tokens：外框 #e3edfc、分隔线 #eaf0fa、控件边框 #dbe7fa、选中边框 #80b4ff 与参考一致，开关沿用 #087bff。
+- 图片与图标：本次没有新增图片资产，保留现有 Lucide 图标，清晰无拉伸。
+- 文案与内容：所有备份字段、说明和侧栏数据保留；时区仍禁用。
+- 交互验证：关闭备份时频率禁用、时区始终禁用；重新开启后频率恢复；切换每周显示周一说明，再恢复每天。浏览器 error 日志为空。保存逻辑未改，本轮未提交表单。
+- 检查：`npm run build` 通过；保留原有大 bundle 提示。
+- Findings: 无需修复的 P0/P1/P2；无额外 P3。
+- Comparison history: 首次实现后，全图和局部对照均通过，没有触发额外视觉修复。
+- Implementation checklist: 分组外框、分隔线、网格对齐、移动端适配、禁用时区、开关与频率验证完成。
+- final result: passed
