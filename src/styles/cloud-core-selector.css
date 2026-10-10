@@ -88,10 +88,6 @@
 .gcore-detail-sidebar-toolbar .gcore-detail-search > svg { flex: none; }
 .gcore-detail-search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: #345581; font: inherit; font-size: 13px; }
 .gcore-detail-search.compact { flex: 1.4; margin: 0; }
-.gcore-detail-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 9px; }
-.gcore-detail-pills button, .gcore-detail-pills > span { display: inline-flex; align-items: center; gap: 3px; padding: 6px 9px; border: 1px solid transparent; border-radius: 15px; background: #f4f7fc; color: #6680a6; font-size: 12px; }
-.gcore-detail-pills button.active, .gcore-detail-pills button:hover { border-color: #8bc0ff; background: #edf6ff; color: #087bff; }
-.gcore-detail-pills .recommended-pill { color: #00a879; background: #e5fbf2; }
 .gcore-detail-core-list { display: grid; gap: 4px; }
 .gcore-detail-core-list > button { position: relative; display: flex; align-items: center; gap: 10px; width: 100%; min-width: 0; padding: 10px 8px; border: 1px solid transparent; border-radius: 7px; background: #fff; color: #243e75; text-align: left; }
 .gcore-detail-core-list > button:hover { background: #f4f9ff; }

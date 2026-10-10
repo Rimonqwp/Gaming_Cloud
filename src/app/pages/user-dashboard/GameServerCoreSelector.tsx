@@ -83,11 +83,6 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
         <button className="gcore-detail-back" aria-label="返回核心列表" title="返回核心列表" onClick={onBack}><ArrowLeft size={17} aria-hidden="true" /></button>
         <label className="gcore-detail-search"><Search size={17} /><input aria-label="搜索核心" placeholder="搜索核心名称，例如：Paper、Spigot..." value={coreQuery} onChange={event => setCoreQuery(event.target.value)} /></label>
       </div>
-      <div className="gcore-detail-pills">
-        {["稳定版", "测试版"].map(value => <button key={value} className={channel === value ? "active" : ""} aria-pressed={channel === value} onClick={() => { setChannel(channel === value ? "全部渠道" : value); setPage(1); setActiveTab("versions"); }}>{value}</button>)}
-        <button className="recommended-pill" onClick={() => { setVersion(recommended.version); setBuildQuery(recommended.build); setChannel("全部渠道"); setPage(1); setActiveTab("versions"); }}><BadgeCheck size={14} />推荐</button>
-        <span>Java 17</span><span>Java 21</span>
-      </div>
       <nav className="gcore-detail-core-list" aria-label="服务端核心列表">{visibleCores.map(item => <button key={item.id} className={item.id === core.id ? "active" : ""} onClick={() => onSelectCore(item)}><CoreImage core={item} /><span><strong>{item.id === "paper" ? "PaperMC" : item.name}<em>{item.range}</em></strong><small>{item.description.length > 29 ? `${item.description.slice(0, 29)}...` : item.description}</small></span></button>)}</nav>
       {!visibleCores.length && <p className="gcore-sidebar-empty">没有找到匹配的核心<button onClick={() => setCoreQuery("")}>清除搜索</button></p>}
     </aside>
