@@ -57,7 +57,6 @@
 .ial-col-target { width: 14.5%; }
 .ial-col-result { width: 6.6%; }
 .ial-col-risk { width: 8.8%; }
-.ial-col-action { width: 4%; }
 .ial-table th { background: #f4f8fd; height: 30px; color: #6d83a8; font-weight: 500; padding: 0 6px; }
 .ial-table td { height: 34.7px; padding: 2px 6px; border-bottom: 1px solid #e8eff8; overflow: hidden; text-overflow: ellipsis; color: #627ca8; }
 .ial-table tbody tr:hover, .ial-table tr.selected { background: #f4f9ff; }
@@ -119,10 +118,8 @@
 .ial-status.green { background: #e1faf2; }
 .ial-ban time { color: #8a9dbd; white-space: nowrap; font-size: 10px; }
 .ial-ban .ial-badge { margin-left: auto; padding: 1px 5px; min-width: 36px; white-space: nowrap; font-size: 10px; }
-.ial-dialog .ial-actor img { width: 40px; height: 40px; }
 .ial-dialog label { display: grid; gap: 6px; font-size: 13px; }
 .ial-dialog input[type="date"] { border: 1px solid #dce7f7; padding: 9px; border-radius: 5px; color: #425c87; }
-.ial-dialog dd { overflow-wrap: anywhere; }
 .ial-terminal-dialog { width: min(900px, calc(100vw - 32px)); max-width: 900px; }
 .ial-terminal-dialog .gsd-console > pre { height: min(50vh, 430px); }
 @media (max-width: 1450px) {
@@ -161,7 +158,6 @@
   .ial-pagination button { min-width: 27px; height: 32px; }
   .ial-pagination select { margin-left: 0; padding: 0 5px; }
   .ial-heading .ial-link { min-height: 28px; }
-  .ial-table .ial-link { min-height: 32px; }
   .ial-risk-content { justify-content: space-around; }
   .ial-risk-content .ial-legend { max-width: 160px; }
   .ial-alert time { font-size: 10px; }
