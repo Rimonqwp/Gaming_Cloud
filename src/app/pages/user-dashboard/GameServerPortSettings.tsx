@@ -66,7 +66,7 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
 
   return <>
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="cloud-modal gport-dialog" onCloseAutoFocus={event => { event.preventDefault(); document.querySelector<HTMLButtonElement>(".gsm-network-ports button")?.focus(); }}>
+      <DialogContent ref={setEditorContainer} className="cloud-modal gport-dialog" onCloseAutoFocus={event => { event.preventDefault(); document.querySelector<HTMLButtonElement>(".gsm-network-ports button")?.focus(); }}>
         <div className="gport-settings-layout">
           <aside className="gport-settings-sidebar">
             <div className="gport-settings-brand"><Settings size={23} /><div><strong>机器设定</strong><span>{machineName}</span></div></div>
@@ -80,7 +80,7 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
             <DialogDescription className="sr-only">{activePage?.description ?? "管理服务器的防火墙规则，控制端口的开放范围，保障服务器安全。"}</DialogDescription>
             <DialogClose className="gport-header-close" aria-label="关闭机器设定"><X size={21} /></DialogClose>
           </header>
-        <div className="gport-settings-stage" ref={setEditorContainer}>
+        <div className="gport-settings-stage">
         <div className="gport-content" hidden={activeSetting !== "ports"}>
           <section className="gport-security-banner" aria-label="端口访问设定">
             <span className="gport-banner-shield"><ShieldCheck size={34} /></span>
