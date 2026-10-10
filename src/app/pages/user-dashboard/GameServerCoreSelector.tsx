@@ -102,7 +102,7 @@ function CoreDetail({ core, onBack, onSelectCore, onSelectVersion }: { core: Cor
           </div>
           <div className="gcore-version-table">
             <div className="gcore-version-row table-head"><span>版本</span><span>构建号</span><span>发布时间</span><span>渠道</span><span>文件大小</span><span>校验状态</span><span>操作</span></div>
-            {visibleRows.map(row => <div className="gcore-version-row" key={`${row.version}-${row.build}`}><strong>{row.version}</strong><span>{row.build}{row.recommended && <em className="table-badge">推荐</em>}</span><span>{row.date}</span><span><em className={`channel-badge ${row.channel === "测试版" ? "beta" : ""}`}>{row.channel}</em></span><span>{row.size}</span><span className="passed"><Check size={14} />通过</span><button aria-label={`安装 ${name} ${row.version} ${row.build}`} onClick={() => onSelectVersion(row.version)}><Download size={15} />安装</button></div>)}
+            {visibleRows.map(row => <div className="gcore-version-row" key={`${row.version}-${row.build}`}><strong>{row.version}</strong><span>{row.build}</span><span>{row.date}</span><span><em className={`channel-badge ${row.channel === "测试版" ? "beta" : ""}`}>{row.channel}</em></span><span>{row.size}</span><span className="passed"><Check size={14} />通过</span><button aria-label={`安装 ${name} ${row.version} ${row.build}`} onClick={() => onSelectVersion(row.version)}><Download size={15} />安装</button></div>)}
           </div>
           {!filteredRows.length && <div className="gcore-version-empty" role="status"><Search size={26} /><h3>没有找到匹配的版本</h3><p>试试其他版本、发布渠道或构建号。</p><button className="gsd-button" onClick={clearFilters}>清除筛选</button></div>}
           <div className="gcore-pagination">
