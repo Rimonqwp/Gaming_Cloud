@@ -232,3 +232,13 @@ final result: passed
 - 桌面证据：`output/design/machine-settings-titlebar/desktop-final.png`（1561 × 1238）。切换到启动与运行设置后标题更新，弹窗仍为 1305 × 783px。
 - 手机证据：`mobile-scrolled.png`（390 × 844）。滚动至分页后标题栏 top 191px、height 60px 保持不变，关闭按钮始终可见。
 - 点击标题栏关闭按钮成功关闭弹窗，焦点返回配置端口入口。浏览器 error 日志为空，生产构建通过。已关闭临时页面并恢复视口。
+
+---
+
+# 端口分页数量选择精简验收（2026-10-10）
+
+final result: passed
+
+- 移除每页规则数量下拉框和无用样式，每页固定为原默认的 10 条，保留页码与前后翻页按钮。
+- 浏览器确认该下拉框数量为 0，六条演示规则完整显示，分页按钮正常保留。截图：`output/design/port-pagination-simple/desktop-final.png`。
+- 生产构建通过，浏览器 error 日志为空，已关闭临时验证页面。
