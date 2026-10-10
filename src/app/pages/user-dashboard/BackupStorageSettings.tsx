@@ -1,4 +1,5 @@
-import { useState, type RefObject } from "react";
+import { useRef, useState, type RefObject } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowDown, ArrowUp, BadgeDollarSign, Check, ChevronDown, ChevronRight, CircleHelp, ClipboardList, Cloud, FileText, Folder, HardDrive, Info, Link, MoreVertical, Plus, Save, Server, Settings, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
@@ -52,6 +53,8 @@ function BackupStorageForm({ value, onSave, onCancel, backupPoolId }: { value: B
   const [kind, setKind] = useState<StorageKind>(() => value.targets.find(target => target.id === value.activeId)?.kind ?? "local");
   const [adding, setAdding] = useState(false);
   const [storageEditor, setStorageEditor] = useState(false);
+  const storageEditorRef = useRef<HTMLElement>(null);
+  const reducedMotion = useReducedMotion();
   const [tested, setTested] = useState(true);
   const [testTime, setTestTime] = useState("2024-10-26 14:28:12");
   const [message, setMessage] = useState("");
@@ -63,8 +66,13 @@ function BackupStorageForm({ value, onSave, onCancel, backupPoolId }: { value: B
     setDraft(previous => ({ ...previous, [key]: next })); setError("");
     if (["name", "path", "capacity"].includes(key)) setTested(false);
   };
+  const scrollToStorageEditor = () => storageEditorRef.current?.closest(".gsbs-dialog")?.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
+  const revealStorageEditor = () => {
+    if (storageEditor) scrollToStorageEditor();
+    else setStorageEditor(true);
+  };
   const selectTarget = (target: StorageTarget) => {
-    setStorageEditor(true);
+    revealStorageEditor();
     setAdding(false);
     setKind(target.kind); setDraft(previous => ({ ...previous, activeId: target.id, name: target.name, path: target.path, capacity: String(target.capacity) }));
     setTested(false); setError(""); setMessage(`正在编辑：${target.name}`);
@@ -107,7 +115,7 @@ function BackupStorageForm({ value, onSave, onCancel, backupPoolId }: { value: B
     return { ...draft, compression: true, targets, activeId: target.id, name: target.name, path: target.path };
   };
   const addTarget = () => {
-    setStorageEditor(true);
+    revealStorageEditor();
     const definition = kinds.find(item => item.id === kind)!;
     setAdding(true); setDraft(previous => ({ ...previous, activeId: "", name: "", path: definition.path, capacity: definition.capacity }));
     setTested(false); setError(""); setMessage("请在左侧选择类型并填写新存储目标，保存配置后完成添加。");
@@ -122,8 +130,8 @@ function BackupStorageForm({ value, onSave, onCancel, backupPoolId }: { value: B
     <header className="gsbs-banner"><span className="gsbs-icon blue"><Cloud size={34} /></span><div><DialogTitle className="gsbs-title">文件备份 <ChevronRight size={20} /> 自动备份设置</DialogTitle><DialogDescription className="gsbs-description">配置自动备份策略、备份内容与范围，定期保护服务器数据。</DialogDescription></div><button type="button" className="gsbs-button" onClick={() => setEditor(editor === "help" ? null : "help")}><CircleHelp size={17} />使用帮助</button></header>
     {editor === "help" && <section className="gsbs-note" role="status"><Info size={18} /><div>每小时可指定分钟，每天可指定时间，每周可选择星期一至星期日，每月可选择 1 至 31 号；没有所选日期的月份将跳过。设置备份路径后保存。右侧存储目标可编辑或添加。当前为演示设置，仅在本次页面会话中生效。</div><button type="button" onClick={() => setEditor(null)}>收起</button></section>}
     <form className="gsbs-layout" onSubmit={event => { event.preventDefault(); const next = commitTarget(); if (next) { const config = { ...next, executionTime: String(new FormData(event.currentTarget).get("backupTime") ?? next.executionTime) }; onSave({ ...config, weekday: config.weekday ?? 1, monthDay: config.monthDay ?? 1, cron: backupScheduleCron(config) ?? undefined }); } }}>
-      <div className="gsbs-main"><BackupScheduleFields value={draft} onChange={update} />
-        {storageEditor && <><section className="gsbs-card gsbs-configuration"><h2><Settings size={19} />存储目标类型</h2><p className="gsbs-section-description">选择备份文件的存储位置，支持多种存储方式，可同时配置多个目标实现多重备份。</p>
+      <div className="gsbs-main">
+        <AnimatePresence initial={false}>{storageEditor && <motion.div key="storage-editor" className="gsbs-storage-editor" initial={{ height: reducedMotion ? "auto" : 0, opacity: reducedMotion ? 1 : 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ height: { duration: reducedMotion ? 0 : .36, ease: [.22, 1, .36, 1] }, opacity: { duration: reducedMotion ? 0 : .22 } }} onAnimationComplete={() => { if (storageEditor) scrollToStorageEditor(); }}><section ref={storageEditorRef} className="gsbs-card gsbs-configuration"><h2><Settings size={19} />存储目标类型</h2><p className="gsbs-section-description">选择备份文件的存储位置，支持多种存储方式，可同时配置多个目标实现多重备份。</p>
         <div className="gsbs-types" role="group" aria-label="存储目标类型">{kinds.map(definition => <button type="button" key={definition.id} className={`gsbs-type${kind === definition.id ? " active" : ""}`} aria-pressed={kind === definition.id} onClick={() => chooseKind(definition.id)}><span className={`gsbs-icon ${definition.id === "remote" ? "ink" : "blue"}`}><definition.icon size={32} /></span><div><strong>{definition.title}</strong><p>{definition.description}</p></div>{kind === definition.id && <span className="gsbs-type-check"><Check size={12} /></span>}</button>)}</div>
         <h2 className="gsbs-subheading"><ClipboardList size={19} />存储配置</h2>
         <div className="gsbs-fields"><label>存储名称 <b>*</b><input aria-label="存储名称" required maxLength={60} value={draft.name} onChange={event => update("name", event.target.value)} /><small>用于区分不同的存储目标，便于管理。</small></label>
@@ -142,7 +150,8 @@ function BackupStorageForm({ value, onSave, onCancel, backupPoolId }: { value: B
         </div>
         {editor === "directories" && <div className="gsbs-inline-editor"><label>备份目录（每行一个）<textarea aria-label="指定备份目录" value={directories} onChange={event => setDirectories(event.target.value)} /></label><button type="button" className="gsbs-button" onClick={() => { update("directories", directories); setEditor(null); }}>应用目录</button></div>}
       </section>
-      <section className="gsbs-card gsbs-test"><h2><FileText size={19} />连接测试</h2><p className="gsbs-section-description">测试存储目标的连接状态和写入权限，确保备份能够正常进行。</p><div className={`gsbs-test-result${tested ? "" : " pending"}`}><span className="gsbs-icon green">{tested ? <Check size={25} /> : <Info size={25} />}</span><div><strong>{tested ? "连接测试成功" : "配置已修改，等待测试"}</strong><p>{tested ? `存储路径 ${draft.path} 可正常访问，写入权限正常。` : "请重新测试当前存储配置。"}</p></div><time>{tested ? testTime : ""}</time><button type="button" className="gsbs-button" onClick={testConnection}>{tested ? "重新测试" : "测试连接"}</button></div></section></>}
+      <section className="gsbs-card gsbs-test"><h2><FileText size={19} />连接测试</h2><p className="gsbs-section-description">测试存储目标的连接状态和写入权限，确保备份能够正常进行。</p><div className={`gsbs-test-result${tested ? "" : " pending"}`}><span className="gsbs-icon green">{tested ? <Check size={25} /> : <Info size={25} />}</span><div><strong>{tested ? "连接测试成功" : "配置已修改，等待测试"}</strong><p>{tested ? `存储路径 ${draft.path} 可正常访问，写入权限正常。` : "请重新测试当前存储配置。"}</p></div><time>{tested ? testTime : ""}</time><button type="button" className="gsbs-button" onClick={testConnection}>{tested ? "重新测试" : "测试连接"}</button></div></section></motion.div>}</AnimatePresence>
+        <BackupScheduleFields value={draft} onChange={update} />
         <div className="gsbs-savebar">{error && <p className="gsbs-error" role="alert">{error}</p>}{message && <p className="gsbs-message" role="status">{message}</p>}<footer><button className="gsbs-button primary" type="submit"><Save size={18} />保存配置</button><button className="gsbs-button" type="button" onClick={onCancel}>取消</button></footer></div></div>
 
       <aside className="gsbs-sidebar"><section className="gsbs-card gsbs-targets"><header><h2><HardDrive size={19} />已绑定的存储目标</h2><button type="button" className="gsbs-button primary" onClick={addTarget}><Plus size={17} />添加存储目标</button></header><div className="gsbs-target-list">{draft.targets.map(target => { const definition = kinds.find(item => item.id === target.kind)!; const targetPercent = Math.round(target.used / target.capacity * 100); return <article className="gsbs-target" key={target.id}><span className={`gsbs-icon ${target.kind === "object" ? "blue" : "ink"}`}><definition.icon size={29} /></span><div className="gsbs-target-data"><div className="gsbs-target-title"><button type="button" onClick={() => selectTarget(target)}>{target.name}</button><span className="gsbs-normal"><i />正常</span><DropdownMenu><DropdownMenuTrigger asChild><button type="button" className="gsbs-icon-button" aria-label={`${target.name} 存储操作`}><MoreVertical size={19} /></button></DropdownMenuTrigger><DropdownMenuContent className="gsbs-menu" align="end"><DropdownMenuItem onSelect={() => selectTarget(target)}>编辑存储目标</DropdownMenuItem><DropdownMenuItem onSelect={() => { const remaining = draft.targets.filter(item => item.id !== target.id); const next = remaining[0]; if (draft.activeId === target.id && next) { selectTarget(next); } setDraft(previous => ({ ...previous, targets: remaining, ...(previous.activeId === target.id ? next ? { activeId: next.id, name: next.name, path: next.path, capacity: String(next.capacity) } : { activeId: "", name: "", path: "/home/backups" } : {}) })); setMessage("存储目标已从草稿中移除，保存配置后生效。"); }}>移除绑定</DropdownMenuItem></DropdownMenuContent></DropdownMenu></div><p className="gsbs-target-pool" title={backupPoolId}>备份池 ID：{backupPoolId || "未提供"}</p><p>{target.used.toFixed(1)} GB / {target.capacity} GB ({targetPercent}%)</p><div className="gsbs-progress"><span style={{ width: `${Math.min(100, targetPercent)}%` }} /></div></div></article>; })}</div></section>

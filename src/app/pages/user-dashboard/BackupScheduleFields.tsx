@@ -35,7 +35,7 @@ export function BackupScheduleFields({ value, onChange }: Props) {
         </SettingRow>
       </div>
     </section>
-    <section className="gsbs-card gsbs-schedule-card"><h2><Database size={20} />备份内容与范围</h2><p className="gsbs-section-description">选择需要备份的文件路径，设置备份类型与文件命名规则。</p>
+    <section className="gsbs-card gsbs-schedule-card gsbs-content-card"><h2><Database size={20} />备份内容与范围</h2><p className="gsbs-section-description">选择需要备份的文件路径，设置备份类型与文件命名规则。</p>
       <div className="gsbs-setting-rows">
         <SettingRow icon={Folder} title="备份路径" description="选择要备份的目录，或填写自定义地址。" className="gsbs-setting-tall"><BackupPathPicker value={value.sourcePath} mode={value.sourcePathMode} onChange={(path, mode) => { onChange("sourcePath", path); onChange("sourcePathMode", mode); }} /></SettingRow>
         <SettingRow icon={Layers} title="备份模式" description="选择备份的类型。" className="gsbs-setting-mode"><div className="gsbs-backup-modes" role="radiogroup" aria-label="备份模式">{[{ id: "full", title: "完整备份", text: "备份全部文件，数据最完整" }, { id: "incremental", title: "增量备份", text: "仅备份有变动的文件，更节省空间" }].map(mode => <label key={mode.id} className={value.backupMode === mode.id ? "selected" : ""}><input type="radio" name="backupMode" value={mode.id} checked={value.backupMode === mode.id} onChange={() => onChange("backupMode", mode.id as "full" | "incremental")} /><div><strong>{mode.title}</strong><p>{mode.text}</p></div></label>)}</div></SettingRow>

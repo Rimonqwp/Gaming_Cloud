@@ -480,3 +480,12 @@ final result: passed
 - 按用户 Comment 2 移除“存储空间使用情况”汇总卡片，同时清理该卡片的图表依赖、汇总计算及专用 CSS；预计费用与用量直接接在存储目标列表之后。
 - 已查看桌面 `output/design/backup-sidebar/desktop.png`（1742 × 1238）及手机 `mobile.png`（390 × 844）截图。侧栏仅有存储目标与费用两个分组；手机弹窗 clientWidth / scrollWidth 均为 358，无横向溢出，费用说明仍正常切换。检查后恢复默认视口与桌面面板。
 - 浏览器汇总卡片节点数为 0，压缩仍开启且禁用，error 日志为空；npm run build 与 git diff --check 通过。final result: passed。
+
+## 存储配置置顶与展开动画（2026-10-11）
+
+- 按用户最新要求，将原左侧的存储类型、配置、高级选项和连接测试整体置于基础设置之前；点击添加和编辑均显示该区域，并平滑滚动回弹窗顶部。
+- 展开使用 360ms 高度缓动与 220ms 淡入，收缩使用对应退场参数；useReducedMotion 开启时省略动画并立即定位。浏览器观察到展开中间状态以及最终 height=auto、opacity=1。
+- 桌面截图 `output/design/backup-editor-top/desktop.png`（1742 × 1238）与手机 `mobile.png`（390 × 844）已查看。标题、四种类型与原有字段沿用既有样式；手机弹窗 clientWidth / scrollWidth 均为 358，编辑区域均为 340，无横向溢出。测试后恢复默认视口。
+- 内容与布局检查：配置区为左侧第一个元素，原基本设置与备份内容依次下移；未打开时仍以基本设置开头。选择阿里云 OSS 恢复原名称和存储路径。备份内容行改用明确 class 选择，避免增加顶部元素后列宽发生变化。
+- 调试发现 Motion 对直接传入的 ref 读取触发 React 18 警告；已将定位 ref 移到内部原生 section。修正后再次打开、添加并检查日志，无新 error；Esc 关闭测试草稿正常。
+- npm run build 与 git diff --check 通过；final result: passed。

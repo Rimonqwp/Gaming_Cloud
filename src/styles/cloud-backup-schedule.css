@@ -42,7 +42,7 @@
 .gsbs-setting-control .gsbs-backup-modes input { appearance: auto; accent-color: #087bff; flex: none; width: 17px; height: 17px; padding: 0; margin: 3px 0 0; }
 .gsbs-backup-modes strong { color: #182d58; font-size: 14px; line-height: 19px; font-weight: 650; }
 .gsbs-backup-modes p { font-size: 12px; line-height: 17px; }
-.gsbs-schedule-card:nth-child(2) .gsbs-setting-row { grid-template-columns: 27px minmax(0, 1fr) minmax(0, 55.5%); }
+.gsbs-content-card .gsbs-setting-row { grid-template-columns: 27px minmax(0, 1fr) minmax(0, 55.5%); }
 .gsbs-savebar { padding-top: 12px; border-top: 1px solid #dfeafa; }
 .gsbs-savebar footer { display: flex; align-items: center; gap: 12px; }
 .gsbs-savebar .gsbs-button { min-width: 102px; }.gsbs-savebar .primary { min-width: 130px; }
@@ -52,7 +52,7 @@
 @media (max-width: 1200px) { .gsbs-execution-time.gsbs-execution-date { grid-template-columns: repeat(2, minmax(0, 1fr)); }.gsbs-execution-date > select:last-child { grid-column: 1 / -1; } }
 @media (max-width: 760px) {
   .gsbs-schedule-card { padding: 12px; }.gsbs-schedule-card .gsbs-section-description { font-size: 12px; }
-  .gsbs-setting-row, .gsbs-schedule-card:nth-child(2) .gsbs-setting-row { grid-template-columns: 24px minmax(0, 1fr); min-height: 72px; gap: 8px 10px; padding: 10px; }
+  .gsbs-setting-row, .gsbs-content-card .gsbs-setting-row { grid-template-columns: 24px minmax(0, 1fr); min-height: 72px; gap: 8px 10px; padding: 10px; }
   .gsbs-setting-icon { width: 21px; }.gsbs-setting-label > strong { font-size: 13px; }
   .gsbs-setting-control { grid-column: 2; }
   .gsbs-setting-toggle { justify-content: flex-start; }
