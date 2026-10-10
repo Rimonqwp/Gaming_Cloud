@@ -29,6 +29,8 @@
 .gsm-address code { overflow-wrap: anywhere; }
 .gsm-address button { display: flex; background: transparent; padding: 0; border: 0; color: #58719f; flex: none; }
 .gsm-address button:hover { color: #087bff; }
+.gsm-address button:disabled { color: #a4afc3; cursor: default; }
+.gsm-password-note { flex: none; color: #7d8eae; font-size: 11px; white-space: nowrap; }
 .gsm-status { display: inline-flex; align-items: center; gap: 8px; color: #00b783; white-space: nowrap; padding-right: 15px; font-size: 12px; }
 .gsm-tip { display: flex; align-items: flex-start; gap: 12px; background: #eff7ff; border-radius: 7px; margin-top: 23px; padding: 16px; color: #087bff; }
 .gsm-tip > svg { flex: none; stroke: white; }
