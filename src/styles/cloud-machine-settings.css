@@ -46,6 +46,16 @@
 .gsm-maintenance-grid strong { color: #0b1235; line-height: 20px; font-weight: 600; font-size: 13px; }
 .gsm-maintenance-grid .purple strong { color: #8230ed; }
 .gsm-maintenance-grid span { color: #7d8eae; font-size: 12px; line-height: 18px; }
+.gsm-machine-details { grid-column: 1 / -1; margin-top: 16px; padding-top: 12px; border-top: 1px solid #edf2fb; }
+.cloud-shell .gsm-machine-details h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; color: #080f27; font-size: 14px; font-weight: 600; line-height: 22px; }
+.gsm-machine-details dl > div { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 10px; align-items: center; min-height: 34px; padding: 4px 0; border-bottom: 1px solid #edf2fb; }
+.gsm-machine-details dl > div:last-child { border-bottom: 0; }
+.gsm-machine-details dt { font-size: 12px; }
+.gsm-machine-details dd { display: flex; align-items: center; gap: 8px; }
+.gsm-machine-details code { flex: 1; min-width: 0; font: 11px/18px Consolas, "Liberation Mono", monospace; color: #526b99; overflow-wrap: anywhere; }
+.gsm-machine-details button { display: flex; flex: none; padding: 0; border: 0; background: transparent; color: #58719f; }
+.gsm-machine-details button:hover { color: #087bff; }
+.gsm-machine-details button:disabled { color: #a4afc3; cursor: default; }
 .gsm-reinstall { display: none; margin-top: 19px; }
 .gsm-system-picker { display: flex; align-items: center; border: 1px solid #cbdfff; border-radius: 7px; padding: 6px 12px 6px 18px; gap: 16px; height: 51px; }
 .gsm-system-picker > span:last-child { display: flex; flex-direction: column; flex: 1; min-width: 0; }
