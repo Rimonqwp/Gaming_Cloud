@@ -474,3 +474,9 @@ final result: passed
 - 按用户要求，主设置与存储高级选项的压缩开关均固定 checked / disabled；载入旧配置与保存时归一为 compression=true，文件命名示例固定 ZIP。
 - 浏览器检查两个开关均开启且禁用，压缩级别仍可调整；保存重开保持强制开启。桌面截图 `output/design/backup-compression/desktop.png`（1742 × 1238）已查看，沿用原布局与禁用控件样式。
 - npm run build 与 git diff --check 通过；final result: passed。
+
+## 移除备份容量汇总卡片（2026-10-11）
+
+- 按用户 Comment 2 移除“存储空间使用情况”汇总卡片，同时清理该卡片的图表依赖、汇总计算及专用 CSS；预计费用与用量直接接在存储目标列表之后。
+- 已查看桌面 `output/design/backup-sidebar/desktop.png`（1742 × 1238）及手机 `mobile.png`（390 × 844）截图。侧栏仅有存储目标与费用两个分组；手机弹窗 clientWidth / scrollWidth 均为 358，无横向溢出，费用说明仍正常切换。检查后恢复默认视口与桌面面板。
+- 浏览器汇总卡片节点数为 0，压缩仍开启且禁用，error 日志为空；npm run build 与 git diff --check 通过。final result: passed。
