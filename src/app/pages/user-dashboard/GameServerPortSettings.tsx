@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { AlertTriangle, Check, ChevronDown, ChevronLeft, ChevronRight, Circle, Clock3, Database, Info, Plus, Search, ShieldCheck, Upload } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { AlertTriangle, Check, ChevronDown, ChevronLeft, ChevronRight, Circle, Clock3, Database, Info, Plus, Search, Settings, ShieldCheck, Upload, type LucideIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../../components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../components/ui/dropdown-menu";
 import { isExposedManagementPort, parsePortRuleImport, validatePortRule, type PortRule, type PortRuleDraft } from "./gameServerPortRules";
@@ -20,10 +20,14 @@ function Badge({ children, tone, dot = true }: { children: string; tone: string;
   return <span className={`gport-badge ${tone}`}>{dot && <Circle size={7} fill="currentColor" aria-hidden="true" />}{children}</span>;
 }
 
-export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChange, onNotice }: {
+export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChange, onNotice, machineName, settingsPages, activeSetting, onSettingChange }: {
   open: boolean; onOpenChange: (value: boolean) => void; rules: PortRule[];
   onRulesChange: (rules: PortRule[]) => void; onNotice: (message: string) => void;
+  machineName: string; activeSetting: string; onSettingChange: (value: string) => void;
+  settingsPages: { id: string; title: string; description: string; icon: LucideIcon; content: ReactNode }[];
 }) {
+  const activePage = settingsPages.find(item => item.id === activeSetting);
+  const ActiveIcon = activePage?.icon ?? ShieldCheck;
   const [tab, setTab] = useState("端口规则");
   const [query, setQuery] = useState("");
   const [protocol, setProtocol] = useState("全部协议");
@@ -86,8 +90,16 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
   return <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="cloud-modal gport-dialog" onCloseAutoFocus={event => { event.preventDefault(); document.querySelector<HTMLButtonElement>(".gsm-network-ports button")?.focus(); }}>
-        <div className="gport-content">
-          <header className="gport-header"><span className="gport-icon blue"><ShieldCheck size={30} /></span><div><DialogTitle>开放端口设定</DialogTitle><DialogDescription>管理服务器的防火墙规则，控制哪些端口可以被启用，范围被外部访问，保障服务器安全。</DialogDescription></div></header>
+        <div className="gport-settings-layout">
+          <aside className="gport-settings-sidebar">
+            <div className="gport-settings-brand"><Settings size={23} /><div><strong>机器设定</strong><span>{machineName}</span></div></div>
+            <nav aria-label="机器设定分页">
+              {[...settingsPages.slice(0, 2), { id: "ports", title: "开放端口设定", icon: ShieldCheck }, ...settingsPages.slice(2)].map(({ id, title, icon: Icon }) => <button type="button" key={id} aria-current={activeSetting === id ? "page" : undefined} onClick={() => onSettingChange(id)}><Icon size={19} /><span>{title}</span><ChevronRight size={15} /></button>)}
+            </nav>
+          </aside>
+          <div className="gport-settings-main">
+          <header className="gport-content gport-header"><span className="gport-icon blue"><ActiveIcon size={30} /></span><div><DialogTitle>{activePage?.title ?? "开放端口设定"}</DialogTitle><DialogDescription>{activePage?.description ?? "管理服务器的防火墙规则，控制端口的开放范围，保障服务器安全。"}</DialogDescription></div></header>
+        <div className="gport-content" hidden={activeSetting !== "ports"}>
           <section className="gport-metrics" aria-label="端口统计">
             <article><span className="gport-icon green"><ShieldCheck size={31} /></span><div><h3>防火墙状态</h3><Badge tone="green">已开启</Badge><p>已启用防火墙，正在保护服务器</p></div></article>
             <article><span className="gport-icon blue"><Database size={29} /></span><div><h3>已开放端口数量</h3><strong>{rules.length}<small>个</small></strong><p>共 {rules.length} 条规则（含停用）</p></div></article>
@@ -106,6 +118,9 @@ export function GameServerPortSettings({ open, onOpenChange, rules, onRulesChang
             <article><header><h3><ShieldCheck size={24} />推荐规则</h3><button className="gport-apply" onClick={applyRecommendations}>一键应用</button></header><ul className="gport-recommendations">{recommendations.map(text => <li key={text}><span><Check size={16} /></span>{text}</li>)}</ul></article>
             <article><header><h3><Database size={24} />端口说明</h3><button onClick={() => setInfo("端口说明")}>查看全部<ChevronRight size={13} /></button></header><dl className="gport-port-help">{portHelp.map(([port, text]) => <div key={port}><dt>{port}</dt><dd>{text}</dd></div>)}</dl></article>
           </section>
+        </div>
+        {activePage && <div className="gport-content gport-settings-page"><div className="gsm-workspace gport-machine-panel">{activePage.content}</div></div>}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
