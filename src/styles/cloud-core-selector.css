@@ -227,9 +227,11 @@
 .gcore-detail-stats > div { position: relative; border-right: 0; }
 .gcore-detail-stats > div:not(:last-child)::after { content: ''; position: absolute; top: 50%; right: 0; height: 58%; transform: translateY(-50%); border-right: 1px solid #e4edf9; }
 
-/* 官网与文档按钮纵向排列，每行显示一个按钮。 */
-.gcore-detail-links { flex-direction: column; align-items: stretch; gap: 8px; }
+/* 官网与文档按钮纵向排列，并在核心介绍区域居中。 */
+.gcore-detail-links { flex-direction: column; align-items: stretch; align-self: center; gap: 8px; }
 .gcore-detail-link { width: 118px; }
+.gcore-detail-links .gcore-detail-link { width: 130px; min-height: 38px; gap: 7px; font-size: 14px; }
+.gcore-detail-links .gcore-detail-link svg { width: 16px; height: 16px; }
 .gcore-detail-core-list strong { display: flex; align-items: baseline; gap: 6px; color: #152454; font-size: 14px; }
 .gcore-detail-core-list strong em { overflow: visible; color: #7490b7; font-size: 11px; font-style: normal; font-weight: 400; white-space: nowrap; }
 @media (max-width: 900px) {
