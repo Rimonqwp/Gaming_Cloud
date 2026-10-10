@@ -230,7 +230,6 @@ export function GameServerCoreSelector({ open, onOpenChange, onBackup, onLog, on
           <div className="gcore-rebuild-backup"><Lightbulb size={22} aria-hidden="true" /><div><strong>{backupReady ? "世界存档已备份" : "建议先创建备份"}</strong><p>{backupReady ? "已创建备份，可以继续重装。" : "重装前建议先创建存档备份，以防止数据丢失。"}</p></div><button className="gcore-rebuild-secondary" onClick={backup} disabled={backupReady}>{backupReady ? "已备份" : "立即备份"}</button></div>
           <section className="gcore-rebuild-warning"><h3><AlertTriangle size={20} aria-hidden="true" />重要提示</h3><p>重装容器将会：</p><ul><li>替换服务器的核心文件和启动环境</li><li>{keepWorld ? "清空当前容器内的配置文件（保留世界数据）" : "清空当前容器内的配置文件、世界存档及玩家数据"}</li><li>此操作不可撤销，请确认已备份重要数据</li></ul></section>
           {installMessage && <p className={`gcore-rebuild-message${backupReady ? " success" : ""}`} role={backupReady ? "status" : "alert"}>{installMessage}</p>}
-          <p className="gcore-rebuild-demo">当前为演示操作，不会连接真实机器。</p>
         </div>
         <footer className="gcore-rebuild-actions"><button className="gcore-rebuild-primary" onClick={() => rebuild(true)}><Database size={20} aria-hidden="true" /><span>创建备份并重装</span></button><button className="gcore-rebuild-direct" onClick={() => rebuild(false)}><RefreshCw size={20} aria-hidden="true" /><span>直接重装<small>（不创建备份）</small></span></button></footer>
       </DialogContent>
