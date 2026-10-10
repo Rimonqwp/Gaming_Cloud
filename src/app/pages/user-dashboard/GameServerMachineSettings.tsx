@@ -69,8 +69,7 @@ export function GameServerMachineSettings({ server, onNotice, onRestart, onLog }
     { label: "开机时间", value: server.running ? <>2024-10-12 14:28:12 <span className="gsm-secondary">（运行 {server.uptime}）</span></> : "已停止", icon: Timer },
   ];
   const specs = [
-    { title: "CPU 型号", value: cpu, detail: `${server.cores} 核心 ${threadCount} 线程`, icon: Cpu, tone: "blue" },
-    { title: "核心数", value: `${server.cores} 核心`, detail: `${threadCount} 线程`, icon: Settings, tone: "blue" },
+    { title: "CPU 型号", value: cpu, detail: `${server.cores} 核心`, icon: Cpu, tone: "blue" },
     { title: "内存", value: `${server.ram} GB`, detail: "DDR4", icon: ChartColumnBig, tone: "purple" },
     { title: "系统盘", value: "100 GB", detail: "SSD（系统盘）", icon: HardDrive, tone: "green" },
     { title: "公网 IP", value: server.ip, detail: location, icon: Globe2, tone: "orange" },
