@@ -193,3 +193,5 @@
 /* 官网与文档按钮纵向排列，每行显示一个按钮。 */
 .gcore-detail-links { flex-direction: column; align-items: stretch; gap: 8px; }
 .gcore-detail-link { width: 118px; }
+.gcore-detail-core-list strong { display: flex; align-items: baseline; gap: 6px; color: #152454; font-size: 13px; }
+.gcore-detail-core-list strong em { overflow: visible; color: #7490b7; font-size: 10px; font-style: normal; font-weight: 400; white-space: nowrap; }
